@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	android:orientation="vertical">
+	<TextView android:id="@+id/tv_exam_first_sub_title"
+	  	android:layout_width="fill_parent"
+	  	android:layout_height="wrap_content"
+	  	style="@style/small_title"
+	  	android:text="@string/meaning"/>
+	<LinearLayout 
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_weight="1">	
+		<ScrollView android:layout_width="fill_parent" android:layout_height="wrap_content">
+		<TextView android:id="@+id/tv_exam_tip"
+		  	android:layout_width="fill_parent"
+		  	android:layout_height="wrap_content"/>
+		</ScrollView>
+	</LinearLayout> 	
+		  	
+	<TextView android:id="@+id/tv_exam_second_sub_title"
+	  	android:layout_width="fill_parent"
+	  	android:layout_height="wrap_content"
+	  	android:text="@string/recall_spelling"
+	  	style="@style/small_title"/>
+    <TextView
+        android:id="@+id/tv_exam_answer"
+        android:layout_width="fill_parent" 
+        android:layout_height="wrap_content"
+        android:padding="3dip"
+        android:gravity="center"
+        android:background="@color/white"
+        android:textColor="@color/white"
+        style="@style/headword"/>
+
+    <LinearLayout 
+    	android:layout_width="fill_parent"  
+    	style="@style/button_bar"
+    	android:layout_height="wrap_content" 
+    	android:orientation="vertical">
+    	<Button android:id="@+id/btn_exam_show_answer"
+    		android:layout_width="fill_parent" 
+    		android:layout_height="wrap_content" 
+    		android:text="@string/show_answer"/>
+	    <LinearLayout android:id="@+id/ll_exam_button_bar" 
+	    	android:layout_width="fill_parent" 
+	    	android:layout_height="wrap_content" 
+		    android:orientation="horizontal" 
+		    android:visibility="gone">
+	    	<Button android:id="@+id/btn_exam_mastered" 
+	    		android:layout_weight="1"
+	    		android:layout_width="wrap_content" 
+	    		android:layout_height="wrap_content" 
+	    		android:text="@string/mastered"/>
+	    	<Button android:id="@+id/btn_exam_pass" 
+	    		android:layout_weight="1"
+	    		android:layout_width="wrap_content" 
+	    		android:layout_height="wrap_content" 
+	    		android:text="@string/pass"/>
+	    	<Button android:id="@+id/btn_exam_forgot" 
+	    		android:layout_weight="1"
+	    		android:layout_width="wrap_content" 
+	    		android:layout_height="wrap_content" 
+	    		android:text="@string/forgot"/>
+	    </LinearLayout>	
+    </LinearLayout>
+</LinearLayout>

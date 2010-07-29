@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent"
+  android:orientation="vertical">
+	<LinearLayout
+	  xmlns:android="http://schemas.android.com/apk/res/android"
+	  android:layout_width="fill_parent"
+	  android:layout_height="wrap_content"
+	  android:orientation="horizontal">
+
+		    <EditText
+		        android:id="@+id/et_lookup_headword"
+		        android:layout_width="fill_parent" 
+		        android:layout_height="wrap_content"
+		        android:layout_marginRight="5dip"
+		        android:textSize="16dip"
+		        android:maxLines="1"
+		        android:layout_weight="1"/>
+
+		    <Button
+		    	android:id="@+id/btn_lookup"
+		    	android:text="lookup"
+		        android:layout_width="80dip" 
+		        android:layout_height="wrap_content"/>
+	</LinearLayout>	
+    <TextView
+        android:id="@+id/tv_lookup_headword"
+        android:layout_width="fill_parent" 
+        android:layout_height="wrap_content"
+        android:textSize="22dip"/>	  	
+	<TextView  
+		android:id="@+id/tv_lookup_phonetic"
+	    android:layout_width="fill_parent" 
+	    android:layout_height="wrap_content" 
+	    android:layout_marginBottom="5dip"/>
+	<LinearLayout 
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_weight="1">
+		<ScrollView
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content">
+		    <TextView
+		        android:id="@+id/tv_lookup_result"
+		        android:layout_width="fill_parent" 
+		        android:layout_height="wrap_content" />	  
+	        
+	    </ScrollView>
+	</LinearLayout>
+</LinearLayout>

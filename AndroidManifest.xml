@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+      package="cn.zadui.vocabulary"
+      android:versionCode="1"
+      android:versionName="1.0">
+    <application android:icon="@drawable/icon" android:label="@string/app_name">
+        <activity android:name="cn.zadui.vocabulary.view.Summary"
+                  android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name="cn.zadui.vocabulary.view.Lookup" android:label="@string/mini_dictionary">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>        	
+        </activity>
+        <activity android:name="cn.zadui.vocabulary.view.Learn" />
+        <activity android:name="cn.zadui.vocabulary.view.Units" />
+        <activity android:name="cn.zadui.vocabulary.view.Review" />
+        <activity android:name="cn.zadui.vocabulary.view.Exam" />
+        <activity android:name="cn.zadui.vocabulary.view.Examples" />
+		<!--         
+        <activity android:name=".ExamTwo" android:windowSoftInputMode="adjustPan"/>
+        -->
+        <activity android:name="cn.zadui.vocabulary.view.CourseList" />
+        
+		<service android:name="cn.zadui.vocabulary.service.DictionaryService" android:exported="false"></service>        
+        
+    </application>
+    <uses-sdk android:minSdkVersion="3" />
+	<uses-permission android:name="android.permission.INTERNET"></uses-permission>
+</manifest> 

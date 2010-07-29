@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">BeiDanCi</string>
+    <string name="mini_dictionary">mini dict</string>
+    <string name="copyright">Copyright BeiDanCi 2010</string>
+    <!-- Summary -->
+    <string name="current_course_title">Your current course:</string>
+    <string name="current_course_progress_title">Course progress:</string>
+    <string name="no_course">course empty</string>
+    <string name="go_on_study">Study</string>
+    <string name="select_course">Select Courses</string>
+    <string name="go_to_units">History</string>
+    <string name="lookup">lookup</string>
+    <string name="select_course_first">Please select a course first!</string>
+    
+    <!-- Exam -->
+    <string name="review">Review</string>
+    <string name="exam_meaning_2_spelling">Exam(Meaning->Spelling)</string>
+    <string name="exam_spelling_2_meaning">Exam(Spelling->Meaning)</string>
+    <string name="exam_by_example">Exam(by examples)</string>
+    <string name="sync_example">Synchronize examples</string>
+    
+    <string name="input_spelling">input spelling</string>
+    <string name="default_input_btn_value">Input</string>
+    
+    <string name="meaning">Meaning</string>
+    <string name="recall_spelling">Recall spelling...</string>
+    <string name="recall_meaning">Recall meaning...</string>
+    <string name="spelling">Spelling</string>
+    <string name="examples">Examples</string>
+    
+    <string name="exam_finished">Exam finished!</string>
+    <string name="show_answer">Show answer</string>
+    <string name="mastered">Mastered</string>
+    <string name="pass">Pass</string>
+    <string name="forgot">Forgot</string>
+    
+    <!-- Review -->
+    <string name="forgot_words">Forgot</string>
+    <string name="not_mastered_words">Not mastered</string>
+    <string name="all_words">All</string>
+    
+        
+    <!-- Units -->
+    <string name="units_title">Study Histories</string>
+    <string name="unit_id">Section: {0,number,integer}</string>
+    <string name="unit_created_at">{0,date,short} {1,time,short}</string>
+    <string name="unit_words_count">{0,number,integer} words</string>
+    <string name="unit_exam_times">{0,number,integer}</string>
+    <string name="unit_next_exam_at">{0,date,short} {1,time,short}</string>
+    <string name="unit_last_exam_at">examed {0} {1} ago</string>
+    <string name="never_exam">never examed</string>
+    
+    <!-- 
+    <string name="unit_created_at">Unit created at:{0,date,short} {1,time,short}</string>
+    <string name="unit_words_count">word amount:{0,number,integer}</string>
+    <string name="unit_exam_times">examined {0,number,integer} times</string>
+    <string name="unit_next_exam_at">Next exam at:{0,date,short} {1,time,short}</string>
+    -->
+    
+    <!-- Learn -->
+    <string name="next_word">next &gt;</string>
+    <string name="previous_word">&lt; back</string>
+    <string name="ignore_word">ignore</string>
+    <string name="learn_title">Unit process</string>
+    <string name="begin_word">Please begin your study!</string>
+    <string name="close_unit">Click to close current unit</string>
+    
+    <!-- CourseList -->
+    <string name="course_list_title">Courses from Internet</string>
+    <string name="select_it">Select it</string>
+    
+    <!-- Common Strings -->  
+    <string name="month">month</string>
+    <string name="day">day</string>
+    <string name="hour">hour</string>
+    
+    <string name="alert_dialog_ok">OK</string>
+    <string name="alert_dialog_hide">Hide</string>
+    <string name="alert_dialog_something">Something</string>
+    <string name="alert_dialog_cancel">Cancel</string>
+    <string name="refresh">refresh</string>
+    
+    <string name="long_string">pull解析xml文件,和sax和dom一样 都可以脱离android单独使用,pull和sax的原理一样,不一样的地方是pull读取xml文件后调用方法返回的是数字pull解析xml文件,和sax和dom一样 都可以脱离android单独使用,pull和sax的原理一样,不一样的地方是pull读取xml文件后调用方法返回的是数字pull解析xml文件,和sax和dom一样 都可以脱离android单独使用,pull和sax的原理一样,不一样的地方是pull读取xml文件后调用方法返回的是数字pull解析xml文件,和sax和dom一样 都可以脱离android单独使用,pull和sax的原理一样,不一样的地方是pull读取xml文件后调用方法返回的是数字pull解析xml文件,和sax和dom一样 都可以脱离android单独使用,pull和sax的原理一样,不一样的地方是pull读取xml文件后调用方法返回的是数字pull解析xml文件,和sax和dom一样 都可以脱离android单独使用,pull和sax的原理一样,不一样的地方是pull读取xml文件后调用方法返回的是数字</string>
+    
+    
+    
+</resources>

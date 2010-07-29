@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent">  
+    <!-- 
+	<TextView  
+	    android:layout_width="fill_parent" 
+	    android:layout_height="wrap_content" 
+	    android:text="@string/current_course_title"
+	    style="@style/summary_item_key"/>  
+	-->
+	<TextView  android:id="@+id/current_course_name"
+	    android:layout_width="fill_parent" 
+	    android:layout_height="wrap_content" 
+	    android:text="@string/select_course_first" 
+	    android:ellipsize="end"
+	    style="@style/title"/>
+	    <!--   
+	    android:scrollHorizontally="true"
+	    android:focusable="true"
+	    android:focusableInTouchMode="true"
+	    -->
+	<LinearLayout
+	  android:id="@+id/ll_summary_study"
+	  android:orientation="horizontal"
+	  android:layout_width="fill_parent"
+	  android:layout_height="wrap_content"
+	  android:layout_marginLeft="25dip"
+	  android:layout_marginRight="25dip"
+	  android:gravity="center_vertical">  
+	  	<ProgressBar
+	  		android:id="@+id/pb_summary_progress"
+	  		android:layout_weight="1"
+		    android:layout_width="wrap_content" 
+		    android:layout_height="wrap_content" 
+		    style="?attr/android:progressBarStyleHorizontal" 
+		    android:minHeight="10dip"	
+		    android:maxHeight="10dip"/>
+		<TextView
+			android:id="@+id/tv_summary_pg_title"
+		    android:layout_width="wrap_content" 
+		    android:layout_height="wrap_content" 
+		    android:layout_marginLeft="5dip" 
+		    android:text="@string/current_course_progress_title"/>
+		<Button android:id="@+id/btn_learn"  
+		    android:layout_width="wrap_content" 
+		    android:layout_height="wrap_content"
+		    android:layout_marginLeft="5dip" 
+		    android:text="@string/go_on_study"/>
+	</LinearLayout>
+	<!--  
+	<TextView
+		android:id="@+id/tv_summary_pg_title"
+	    android:layout_width="fill_parent" 
+	    android:layout_height="wrap_content" 
+	    android:text="@string/current_course_progress_title"
+	    style="@style/summary_item_key"/>
+	-->  
+	<View style="@style/split"/>
+	<LinearLayout
+	  android:orientation="horizontal"
+	  android:layout_width="fill_parent"
+	  android:layout_height="wrap_content"
+	  android:layout_marginLeft="15dip"
+	  android:layout_marginRight="15dip"
+	  android:layout_weight="1">
+	  	<!--  
+		<Button android:id="@+id/btn_test_review"  
+		    android:layout_width="wrap_content" 
+		    android:layout_height="wrap_content" 
+		    android:visibility="gone"
+		    android:text="review"/>
+		-->
+		<Button android:id="@+id/btn_units"  
+		    android:layout_width="wrap_content" 
+		    android:layout_height="wrap_content" 
+		    android:text="@string/go_to_units"/>
+		<Button android:id="@+id/btn_sel_course"  
+		    android:layout_width="wrap_content" 
+		    android:layout_height="wrap_content" 
+		    android:text="@string/select_course"/>
+		<Button android:id="@+id/btn_lookup"  
+		    android:layout_width="wrap_content" 
+		    android:layout_height="wrap_content" 
+		    android:text="@string/lookup"/>
+	</LinearLayout>
+	
+	<LinearLayout
+	  android:orientation="vertical"
+	  android:layout_width="fill_parent"
+	  android:layout_height="wrap_content"
+	  android:padding="8dip"
+	  android:background="@color/default_bg">
+		<TextView
+			android:gravity="center"
+		    android:layout_width="fill_parent" 
+		    android:layout_height="wrap_content" 
+		    android:text="@string/copyright"/>
+	</LinearLayout>		    
+</LinearLayout>

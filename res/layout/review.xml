@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	    android:orientation="vertical"
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent">
+	    <RadioGroup
+	    	style="@style/button_bar"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:orientation="horizontal"
+	        android:checkedButton="@+id/rb_review_forgot"
+	        android:id="@+id/rg_review_filter">
+	        <RadioButton
+	            android:text="@string/forgot_words"
+	            android:id="@id/rb_review_forgot" />
+	        <RadioButton
+	            android:text="@string/not_mastered_words"
+	            android:id="@+id/rb_not_mastered" />
+	        <RadioButton
+	            android:text="@string/all_words"
+	            android:id="@+id/rb_review_all" />
+        </RadioGroup>	    
+		<ListView  
+			android:id="@android:id/list"
+			android:layout_width="fill_parent" 
+			android:layout_height="wrap_content" 
+			android:layout_weight="1"/>
+ 	</LinearLayout>         
+	<TextView android:id="@android:id/empty"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="Empty set"/>
+ </LinearLayout>
