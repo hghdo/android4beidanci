@@ -65,7 +65,7 @@ public class Learn extends Activity implements View.OnClickListener {
 		adapter.open();
 		section=Section.obtainUnit(adapter,course.getName());
         
-		tvHeadword=(TextView) this.findViewById(R.id.headword);
+		tvHeadword=(TextView) findViewById(R.id.headword);
 		tvMeaning=(TextView) findViewById(R.id.meaning);
 		tvPhonetic=(TextView) findViewById(R.id.phonetic);
 		btnNext=(Button)findViewById(R.id.btn_next_word);
