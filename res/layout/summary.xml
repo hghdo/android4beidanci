@@ -59,44 +59,41 @@
 	    style="@style/summary_item_key"/>
 	-->  
 	<View style="@style/split"/>
-	<LinearLayout
-	  android:orientation="horizontal"
-	  android:layout_width="fill_parent"
-	  android:layout_height="wrap_content"
-	  android:layout_marginLeft="15dip"
-	  android:layout_marginRight="15dip"
-	  android:layout_weight="1">
-	  	<!--  
-		<Button android:id="@+id/btn_test_review"  
-		    android:layout_width="wrap_content" 
-		    android:layout_height="wrap_content" 
-		    android:visibility="gone"
-		    android:text="review"/>
-		-->
-		<Button android:id="@+id/btn_units"  
-		    android:layout_width="wrap_content" 
-		    android:layout_height="wrap_content" 
-		    android:text="@string/go_to_units"/>
-		<Button android:id="@+id/btn_sel_course"  
-		    android:layout_width="wrap_content" 
-		    android:layout_height="wrap_content" 
-		    android:text="@string/select_course"/>
-		<Button android:id="@+id/btn_lookup"  
-		    android:layout_width="wrap_content" 
-		    android:layout_height="wrap_content" 
-		    android:text="@string/lookup"/>
-	</LinearLayout>
+	<TextView 	  
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_weight="1"
+		android:text="Everyday English"/>
 	
 	<LinearLayout
-	  android:orientation="vertical"
+	  xmlns:android="http://schemas.android.com/apk/res/android"
 	  android:layout_width="fill_parent"
 	  android:layout_height="wrap_content"
-	  android:padding="8dip"
-	  android:background="@color/default_bg">
-		<TextView
-			android:gravity="center"
-		    android:layout_width="fill_parent" 
-		    android:layout_height="wrap_content" 
-		    android:text="@string/copyright"/>
-	</LinearLayout>		    
+	  android:orientation="horizontal"
+	  style="@style/button_bar">  
+		<ImageButton android:id="@+id/btn_units"  
+		    android:layout_width="wrap_content" 
+		    android:layout_height="45dip" 
+		    android:scaleType="centerInside"
+		    android:layout_weight="1"
+		    android:src="@android:drawable/ic_menu_recent_history"/>
+		<ImageButton android:id="@+id/btn_sel_course"  
+		    android:layout_width="wrap_content" 
+		    android:layout_height="45dip" 
+		    android:scaleType="centerInside"
+		    android:layout_weight="1"
+		    android:src="@android:drawable/ic_menu_gallery"/>
+		<ImageButton android:id="@+id/btn_lookup"  
+		    android:layout_width="wrap_content" 
+		    android:layout_height="45dip" 
+		    android:scaleType="centerInside"
+		    android:layout_weight="1"
+		    android:src="@android:drawable/ic_menu_search"/>
+		<ImageButton android:id="@+id/btn_settings"  
+		    android:layout_width="wrap_content" 
+		    android:layout_height="45dip" 
+		    android:scaleType="centerInside"
+		    android:layout_weight="1"
+		    android:src="@android:drawable/ic_menu_preferences"/>
+	</LinearLayout>	
 </LinearLayout>

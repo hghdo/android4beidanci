@@ -78,7 +78,7 @@ public class Section {
 	
 	/**
 	 * Add words to this StudyUnit 
-	 * @param adapter
+	 * @param dbAdapter
 	 * @param words
 	 */
 	public void saveUnsavedWords(){

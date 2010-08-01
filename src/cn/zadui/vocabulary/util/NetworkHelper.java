@@ -39,7 +39,7 @@ public class NetworkHelper {
 	
 	public static String dictCnLookupUrl(String word){
 		StringBuilder sb=new StringBuilder();
-		sb.append("y");
+		sb.append("http://api.dict.cn/ws.php?utf8=true&q=");
 		try {
 			sb.append(URLEncoder.encode(word,"UTF-8"));
 		} catch (UnsupportedEncodingException e) {
