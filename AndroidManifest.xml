@@ -11,13 +11,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="cn.zadui.vocabulary.view.Lookup" 
+        <activity android:name="cn.zadui.vocabulary.view.Lookup" />
+        <!--
         	android:label="@string/mini_dictionary" android:icon="@drawable/search">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>        	
         </activity>
+        -->
         <activity android:name="cn.zadui.vocabulary.view.Study" />
         <activity android:name="cn.zadui.vocabulary.view.Learn" />
         <activity android:name="cn.zadui.vocabulary.view.Units" />

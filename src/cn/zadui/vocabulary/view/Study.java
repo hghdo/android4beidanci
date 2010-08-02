@@ -10,9 +10,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.text.Html;
 import android.util.Log;
 import android.view.View;
@@ -44,7 +48,7 @@ import cn.zadui.vocabulary.storage.StudyDbAdapter;
  * Spelling: let user try to spell the headword/content.
  * Examples: show usage examples of the headword. The examples may get from Internet
  * Lookup: let user lookup this headword or change the spelling to lookup similar words.
- * Also has a 
+ * 
  * @author Huang Gehua
  *
  */
@@ -61,6 +65,9 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 	private ImageButton btnIgnore;
 	private ImageButton btnPrevious;
 	
+	private ProgressDialog progressDialog;
+    private static final int MAX_PROGRESS = 100;
+	
 	private SharedPreferences spSettings;
 	private CourseStatus status;
 	private Course course;
@@ -70,7 +77,7 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 	private Section section=null;
 	private StudyDbAdapter dbAdapter=null;
 	private ArrayList<Map<String,CharSequence>> examples;
-	
+	private Handler serviceHandler;
 	
 
 	// Learn controls
@@ -112,46 +119,50 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		btnCloseUnit.setOnClickListener(this);
 		((ImageButton)findViewById(R.id.btn_learn_examples)).setOnClickListener(this);
 		
+		serviceHandler=new Handler(){
+            @Override
+            public void handleMessage(Message msg) {
+            	fillLearnSnipViewContent();
+        		if (progressDialog!=null) progressDialog.dismiss();;
+            	
+            }
+		};
+		
 	}	
 
 	@Override
 	public void onClick(View v) {
 		try{
 			if (v.getId()==R.id.btn_next_word){
+				showView(vLearn);
 				if (cache.hasNext()){
 					cw=cache.forword();
+					fillLearnSnipViewHeadword(cw.getHeadword());
+					fillLearnSnipViewContent();
 				}else{
-					// add current word.
+					// add current word to section
 					if (cw!=null) section.addWord(cw);
 					// Fetch a new word from course.
 					String headword=course.getContent(status.getNextContentOffset());
-					//cw=new Word(headword,dict.lookup(headword,null,null));
-					cw=dict.lookup(headword,null,null,null);
-					// add new word to cache
-					cache.add(cw);
-					// update status
-					status.increaseLearnedWordsCount();
-					status.increaseNextContentOffset(headword.getBytes().length+course.getSeparator().length);
-					status.setLastWord(headword);
+					fillLearnSnipViewHeadword(headword);
+					updateCourseStatus(headword);
+					showDialog(0);
+					runLookupService(headword);
 				}
 			}else if (v.getId()==R.id.btn_mastered_word){
+				showView(vLearn);
 				String headword=course.getContent(status.getNextContentOffset());
-				//cw=new Word(headword,dict.lookup(headword,null,null));
-				cw=dict.lookup(headword,null,null,null);
-				status.increaseLearnedWordsCount();
-				status.increaseNextContentOffset(headword.getBytes().length+course.getSeparator().length);
-				status.setLastWord(headword);
+				runLookupService(headword);
+				updateCourseStatus(headword);
 			}else if(v.getId()==R.id.btn_previous_word){
-				//if (!cache.hasNext() && cw!=null) cache.add(cw);
+				showView(vLearn);
+				// TODO select previous word from db.
 				cw=cache.back();
 				if (cw==null) return;
-			}else if(v.getId()==R.id.btn_learn_close_unit){
-				section.closeUnit();
-				finish();
-				return;
+				fillLearnSnipViewHeadword(cw.getHeadword());
+				fillLearnSnipViewContent();
 			}else if (v.getId()==R.id.btn_learn_examples){
-				vLearn.setVisibility(View.GONE);
-				vExamples.setVisibility(View.VISIBLE);
+				showView(vExamples);
 				ExampleService.setStateChangeListener(this);
 				Intent i=new Intent();
 				i.setClass(this, ExampleService.class);
@@ -159,13 +170,47 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 				i.putExtra(NetworkService.KEY_HEADWORD, cw.getHeadword());
 				startService(i);
 				return;
+			}else if(v.getId()==R.id.btn_learn_close_unit){
+				section.closeUnit();
+				finish();
+				return;
 			}
-			
-			displayLearn();
 		}catch(EOFCourseException ex){
 			section.closeUnit();
 			finish();			
 		}
+	}
+
+	@Override
+	public void stateChanged(Object result) {
+		cw=(Word)result;
+		serviceHandler.sendEmptyMessage(0);
+		/*
+		if (result instanceof Word){
+			cw=(Word)result;
+			fillLearnSnipViewContent();
+		}else{
+			String jstr=(String)result;
+			Log.d(TAG, jstr);
+			try {
+				JSONObject jo=new JSONObject(jstr);
+				JSONArray results=jo.getJSONObject("responseData").getJSONArray("results");
+				if (examples==null) examples=new ArrayList<Map<String,CharSequence>>();
+				else examples.clear();
+				for(int i=0;i<results.length();i++){
+					Map<String,CharSequence> ex=new HashMap<String,CharSequence>();
+					ex.put("title",results.getJSONObject(i).getString("title"));
+					ex.put("content", results.getJSONObject(i).getString("content"));
+					ex.put("url", results.getJSONObject(i).getString("blogUrl"));				
+					examples.add(ex);
+				}
+				fillExamplesSnipView();
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+		if (progressDialog!=null) progressDialog.dismiss();;
+		*/
 	}
 
 	@Override
@@ -183,46 +228,37 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 	}
 
 	@Override
-	protected void onResume() {
-		super.onResume();
-		
+	protected void onStart(){
+		super.onStart();
 		String lastWord=status.getLastWord();
 		if (lastWord.equals(CourseStatus.AT_BEGINNING)){
 			tvHeadword.setText(getResources().getString(R.string.begin_word));
 			setProgress(0);
 			setTitle(this.getResources().getString(R.string.learn_title));
 		}else{
-			//cw=new Word(lastWord,dict.lookup(lastWord,null,null));
-			cw=dict.lookup(lastWord,null,null,null);
-			displayLearn();
-		}
-		
-	}
-
-	@Override
-	public void stateChanged(Object result) {
-		String jstr=(String)result;
-		Log.d(TAG, jstr);
-		try {
-			JSONObject jo=new JSONObject(jstr);
-			JSONArray results=jo.getJSONObject("responseData").getJSONArray("results");
-			if (examples==null) examples=new ArrayList<Map<String,CharSequence>>();
-			else examples.clear();
-			for(int i=0;i<results.length();i++){
-				Map<String,CharSequence> ex=new HashMap<String,CharSequence>();
-				ex.put("title",results.getJSONObject(i).getString("title"));
-				ex.put("content", results.getJSONObject(i).getString("content"));
-				ex.put("url", results.getJSONObject(i).getString("blogUrl"));				
-				examples.add(ex);
-			}
-			fillExamples();
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			fillLearnSnipViewHeadword(lastWord);
+			showDialog(0);
+			runLookupService(lastWord);
 		}
 	}
 	
-	private void displayLearn(){
+	@Override
+	protected void onResume() {
+		super.onResume();
+	}
+
+    @Override
+    protected Dialog onCreateDialog(int id) {
+    	progressDialog = new ProgressDialog(this);
+    	progressDialog.setMessage("Please wait while loading...");
+    	progressDialog.setIndeterminate(true);
+    	progressDialog.setCancelable(true);
+        return progressDialog;
+
+    }
+	
+    /*
+	private void fillLearnSnipView(){
 		int percentage=section.getWordsCount()*100/status.getUnitCreateStyleValue();
 		if (percentage*100>=10000){
 			setProgress(9999);
@@ -230,6 +266,7 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		}else{
 			setProgress(percentage*100);
 		}
+		//TODO fix hard code text.
 		setTitle("Unit Status: " +
 				String.valueOf(section.getWordsCount()) +
 				"/" +
@@ -241,8 +278,30 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		tvMeaning.setText(Html.fromHtml(cw.getMeaning()));
 		tvPhonetic.setText(cw.getPhonetic());
 	}
+	*/
 	
-	private void fillExamples(){
+	private void fillLearnSnipViewHeadword(String headword){
+		int percentage=section.getWordsCount()*100/status.getUnitCreateStyleValue();
+		if (percentage*100>=10000){
+			setProgress(9999);
+			btnCloseUnit.setEnabled(true);
+		}else{
+			setProgress(percentage*100);
+		}
+		//TODO fix hard code text.
+		setTitle("Unit Status: " +
+				String.valueOf(section.getWordsCount()) +
+				"/" +
+				String.valueOf(status.getUnitCreateStyleValue()));
+		tvHeadword.setText(headword);
+	}
+	
+	private void fillLearnSnipViewContent(){
+		tvPhonetic.setText(cw.getPhonetic());
+		tvMeaning.setText(Html.fromHtml(cw.getMeaning()));
+	}
+	
+	private void fillExamplesSnipView(){
 		ListView list=(ListView)findViewById(R.id.lv_study_example_list);
 		int[] to = {R.id.tv_example_title,R.id.tv_example_content};
 		String [] from = {"title","content"};
@@ -257,6 +316,31 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 			}
 		});
 		list.setAdapter(adapter);
+	}
+	
+	private void runLookupService(String headword){
+		
+		DictionaryService.setStateChangeListener(this);
+		Intent i=new Intent();
+		i.setClass(Study.this, DictionaryService.class);
+		i.putExtra(NetworkService.KEY_ACTION, NetworkService.LOOKUP_ACTION);
+		i.putExtra(NetworkService.KEY_HEADWORD, headword);
+		//TODO set src language
+		i.putExtra(DictionaryService.KEY_SRC_LANGUAGE, Locale.ENGLISH.getDisplayLanguage(Locale.ENGLISH));
+		startService(i);
+		//(new lookupThread(headword)).start();
+	}
+
+	private void updateCourseStatus(String headword) {
+		status.increaseLearnedWordsCount();
+		status.increaseNextContentOffset(headword.getBytes().length+course.getSeparator().length);
+		status.setLastWord(headword);
+	}
+	
+	private void showView(View v){
+		vLearn.setVisibility(View.GONE);
+		vExamples.setVisibility(View.GONE);
+		v.setVisibility(View.VISIBLE);
 	}
 	
 }
