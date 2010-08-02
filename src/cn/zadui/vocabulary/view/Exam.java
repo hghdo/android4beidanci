@@ -2,6 +2,8 @@ package cn.zadui.vocabulary.view;
 
 import cn.zadui.vocabulary.model.Word;
 import cn.zadui.vocabulary.service.DictionaryService;
+import cn.zadui.vocabulary.service.NetworkService;
+import cn.zadui.vocabulary.service.StateChangeListener;
 import cn.zadui.vocabulary.storage.CourseStatus;
 import cn.zadui.vocabulary.storage.StudyDbAdapter;
 import android.app.Activity;
@@ -25,7 +27,7 @@ import cn.zadui.vocabulary.R;
  * @author David
  *
  */
-public class Exam extends Activity implements View.OnClickListener,DictionaryService.StateChangeListener{
+public class Exam extends Activity implements View.OnClickListener,StateChangeListener{
 	
 	public static final String DIRECTION="direction";
 //	public static final int POSITIVE=0;
@@ -118,8 +120,8 @@ public class Exam extends Activity implements View.OnClickListener,DictionarySer
 			Intent i=new Intent();
 			DictionaryService.setStateChangeListener(this);
 			i.setClass(this, DictionaryService.class);
-			i.putExtra(DictionaryService.KEY_ACTION, DictionaryService.SELECTIVE_EXAMPLE_ACTION);
-			i.putExtra(DictionaryService.KEY_HEADWORD, word.getHeadword());
+			i.putExtra(NetworkService.KEY_ACTION, NetworkService.SELECTIVE_EXAMPLE_ACTION);
+			i.putExtra(NetworkService.KEY_HEADWORD, word.getHeadword());
 			startService(i);
 		}
 	}

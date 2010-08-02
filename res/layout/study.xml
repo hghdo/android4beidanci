@@ -6,7 +6,9 @@
   android:layout_height="fill_parent">
 	<FrameLayout android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_weight="1">
 		<include android:id="@+id/learn_snip" layout="@layout/learn_snip"></include>
+		<include android:id="@+id/examples_snip" layout="@layout/examples_snip"></include>
 	</FrameLayout>	
+
 	<LinearLayout
 	  xmlns:android="http://schemas.android.com/apk/res/android"
 	  android:layout_width="fill_parent"
@@ -16,55 +18,79 @@
 	    <ImageButton 
 	    	android:id="@+id/btn_previous_word"
 		    android:layout_width="wrap_content" 
-		    android:layout_height="45dip" 
-		    android:scaleType="centerInside"
-		    android:layout_weight="1"
-		    android:src="@android:drawable/ic_media_rew"/>
-	    <ImageButton
-	    	android:id="@+id/btn_learn_spelling"
-		    android:layout_width="wrap_content" 
-			android:layout_height="45dip"
-		    android:scaleType="centerInside"
-			android:layout_weight="1"
-			android:enabled="false"
-		    android:src="@android:drawable/ic_menu_sort_alphabetically"/>
-	    <ImageButton
-	    	android:id="@+id/btn_learn_examples"
-		    android:layout_width="wrap_content" 
-			android:layout_height="45dip"
-		    android:scaleType="centerInside"
-			android:layout_weight="1"
-			android:enabled="false"
-		    android:src="@drawable/quote"/>
-	    <ImageButton
-	    	android:id="@+id/btn_learn_lookup"
-		    android:layout_width="wrap_content" 
-			android:layout_height="45dip"
-		    android:scaleType="centerInside"
-			android:layout_weight="1"
-			android:enabled="false"
-		    android:src="@android:drawable/ic_menu_search"/>
-	    <ImageButton
-	    	android:id="@+id/btn_mastered_word"
-		    android:layout_width="wrap_content" 
-		    android:layout_height="45dip" 
-		    android:scaleType="centerInside"
-		    android:layout_weight="1"
-		    android:src="@android:drawable/ic_menu_close_clear_cancel"/>
-	    <ImageButton
-	    	android:id="@+id/btn_learn_close_unit"
-		    android:layout_width="wrap_content" 
-			android:layout_height="45dip"
-		    android:scaleType="centerInside"
-			android:layout_weight="1"
-			android:enabled="false"
-		    android:src="@android:drawable/ic_menu_save"/>
+		    android:layout_height="fill_parent" 
+		    android:src="@drawable/backward"/>
+		<LinearLayout
+		  xmlns:android="http://schemas.android.com/apk/res/android"
+		  android:layout_width="fill_parent"
+		  android:layout_height="wrap_content"
+		  android:layout_weight="1"
+		  android:orientation="vertical">  
+			<LinearLayout
+			  xmlns:android="http://schemas.android.com/apk/res/android"
+			  android:layout_width="fill_parent"
+			  android:layout_height="wrap_content"
+			  android:orientation="horizontal">  
+			    <ImageButton
+			    	android:id="@+id/btn_learn_study"
+				    android:layout_width="wrap_content" 
+					android:layout_height="45dip"
+				    android:scaleType="centerInside"
+					android:layout_weight="1"
+					android:enabled="false"
+				    android:src="@drawable/package_edutainment"/>
+			    <ImageButton
+			    	android:id="@+id/btn_learn_spelling"
+				    android:layout_width="wrap_content" 
+					android:layout_height="45dip"
+				    android:scaleType="centerInside"
+					android:layout_weight="1"
+					android:enabled="false"
+				    android:src="@drawable/tools_check_spelling"/>
+			    <ImageButton
+			    	android:id="@+id/btn_learn_examples"
+				    android:layout_width="wrap_content" 
+					android:layout_height="45dip"
+				    android:scaleType="centerInside"
+					android:layout_weight="1"
+					android:enabled="false"
+				    android:src="@drawable/quote_2"/>
+		  	</LinearLayout>
+		  	
+			<LinearLayout
+			  xmlns:android="http://schemas.android.com/apk/res/android"
+			  android:layout_width="fill_parent"
+			  android:layout_height="wrap_content"
+			  android:orientation="horizontal">  
+			    <ImageButton
+			    	android:id="@+id/btn_learn_lookup"
+				    android:layout_width="wrap_content" 
+					android:layout_height="45dip"
+				    android:scaleType="centerInside"
+					android:layout_weight="1"
+					android:enabled="false"
+				    android:src="@drawable/search"/>
+			    <ImageButton
+			    	android:id="@+id/btn_mastered_word"
+				    android:layout_width="wrap_content" 
+				    android:layout_height="45dip" 
+				    android:scaleType="centerInside"
+				    android:layout_weight="1"
+				    android:src="@drawable/delete"/>
+			    <ImageButton
+			    	android:id="@+id/btn_learn_close_unit"
+				    android:layout_width="wrap_content" 
+					android:layout_height="45dip"
+				    android:scaleType="centerInside"
+					android:layout_weight="1"
+					android:enabled="false"
+				    android:src="@drawable/save_to_floppy_or_save_as"/>
+		  	</LinearLayout>
+	  	</LinearLayout>
 	    <ImageButton
 	    	android:id="@+id/btn_next_word"
 		    android:layout_width="wrap_content" 
-		    android:layout_height="45dip" 
-		    android:scaleType="centerInside"
-		    android:layout_weight="1"
-		    android:src="@android:drawable/ic_media_ff"/>
+		    android:layout_height="fill_parent" 
+		    android:src="@drawable/forward"/>
 	</LinearLayout>
 </LinearLayout>

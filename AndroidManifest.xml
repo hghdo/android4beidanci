@@ -3,7 +3,7 @@
       package="cn.zadui.vocabulary"
       android:versionCode="1"
       android:versionName="1.0">
-    <application android:icon="@drawable/icon" android:label="@string/app_name">
+    <application android:icon="@drawable/library" android:label="@string/app_name">
         <activity android:name="cn.zadui.vocabulary.view.Main"
                   android:label="@string/app_name">
             <intent-filter>
@@ -11,7 +11,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="cn.zadui.vocabulary.view.Lookup" android:label="@string/mini_dictionary">
+        <activity android:name="cn.zadui.vocabulary.view.Lookup" 
+        	android:label="@string/mini_dictionary" android:icon="@drawable/search">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -29,6 +30,7 @@
         <activity android:name="cn.zadui.vocabulary.view.CourseList" />
         
 		<service android:name="cn.zadui.vocabulary.service.DictionaryService" android:exported="false"></service>        
+		<service android:name="cn.zadui.vocabulary.service.ExampleService" android:exported="false"></service>        
         
     </application>
     <uses-sdk android:minSdkVersion="3" />

@@ -10,6 +10,8 @@ import org.json.JSONObject;
 
 import cn.zadui.vocabulary.model.Word;
 import cn.zadui.vocabulary.service.DictionaryService;
+import cn.zadui.vocabulary.service.NetworkService;
+import cn.zadui.vocabulary.service.StateChangeListener;
 import cn.zadui.vocabulary.storage.StudyDbAdapter;
 
 import android.app.AlertDialog;
@@ -28,7 +30,7 @@ import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import cn.zadui.vocabulary.R;
 
-public class Examples extends ListActivity implements DictionaryService.StateChangeListener,View.OnClickListener {
+public class Examples extends ListActivity implements StateChangeListener,View.OnClickListener {
 
 	long unitId;
 	private Cursor cur;
@@ -88,8 +90,8 @@ public class Examples extends ListActivity implements DictionaryService.StateCha
 		DictionaryService.setStateChangeListener(this);
 		Intent i=new Intent();
 		i.setClass(this, DictionaryService.class);
-		i.putExtra(DictionaryService.KEY_ACTION, DictionaryService.GOOGLE_EXAMPLE_ACTION);
-		i.putExtra(DictionaryService.KEY_HEADWORD, word.getHeadword());
+		i.putExtra(NetworkService.KEY_ACTION, NetworkService.GOOGLE_EXAMPLE_ACTION);
+		i.putExtra(NetworkService.KEY_HEADWORD, word.getHeadword());
 		startService(i);
 	}
 

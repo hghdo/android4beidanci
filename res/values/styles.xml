@@ -62,4 +62,12 @@
 	<item name="android:background">@color/grey</item>
 	<item name="android:paddingTop">5dip</item>
 </style>
+
+<style name="image_button">
+	<item name="android:layout_width">wrap_content</item>
+	<item name="android:layout_height">wrap_content</item>
+	<item name="android:padding">2dip</item>
+	<item name="android:scaleType">center</item>
+	<item name="android:layout_weight">1</item>
+</style>
 </resources>

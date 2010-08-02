@@ -1,14 +1,25 @@
 package cn.zadui.vocabulary.view;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.Html;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
-import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import cn.zadui.vocabulary.R;
 import cn.zadui.vocabulary.model.LearnCache;
@@ -19,6 +30,10 @@ import cn.zadui.vocabulary.model.course.SimpleCourse;
 import cn.zadui.vocabulary.model.course.Course.EOFCourseException;
 import cn.zadui.vocabulary.model.dictionary.Dict;
 import cn.zadui.vocabulary.model.dictionary.DictFactory;
+import cn.zadui.vocabulary.service.DictionaryService;
+import cn.zadui.vocabulary.service.ExampleService;
+import cn.zadui.vocabulary.service.NetworkService;
+import cn.zadui.vocabulary.service.StateChangeListener;
 import cn.zadui.vocabulary.storage.CourseStatus;
 import cn.zadui.vocabulary.storage.StudyDbAdapter;
 
@@ -33,25 +48,30 @@ import cn.zadui.vocabulary.storage.StudyDbAdapter;
  * @author Huang Gehua
  *
  */
-public class Study extends Activity implements View.OnClickListener {
+public class Study extends Activity implements View.OnClickListener,StateChangeListener {
 
 	private static final int MAX_UNSAVED_WORDS=5;
+	private static final String TAG="Study";
+	
+	private View vLearn;
+	private View vExamples;
 	
 	private ImageButton btnCloseUnit;
 	private ImageButton btnNext;
 	private ImageButton btnIgnore;
 	private ImageButton btnPrevious;
+	
+	private SharedPreferences spSettings;
+	private CourseStatus status;
 	private Course course;
+	private Dict dict;
+	private LearnCache cache=new LearnCache(50,MAX_UNSAVED_WORDS);
+	private Word cw=null;
+	private Section section=null;
+	private StudyDbAdapter dbAdapter=null;
+	private ArrayList<Map<String,CharSequence>> examples;
 	
-	Dict dict;
-	SharedPreferences spSettings;
-	CourseStatus status;
 	
-	
-	LearnCache cache=new LearnCache(50,MAX_UNSAVED_WORDS);
-	Word cw=null;
-	StudyDbAdapter dbAdapter=null;
-	Section section=null;
 
 	// Learn controls
 	private TextView tvHeadword;
@@ -67,6 +87,10 @@ public class Study extends Activity implements View.OnClickListener {
 		requestWindowFeature(Window.FEATURE_PROGRESS);
 		setContentView(R.layout.study);
 		setProgressBarVisibility(true);
+		
+		vLearn=findViewById(R.id.learn_snip);
+		vExamples=findViewById(R.id.examples_snip);
+		vExamples.setVisibility(View.GONE);
 		
 		course=SimpleCourse.getInstance(status.getCourseFileName());
 		dict=DictFactory.loadDict(this,course.getLang(), Locale.getDefault().getDisplayLanguage(Locale.ENGLISH));
@@ -86,6 +110,7 @@ public class Study extends Activity implements View.OnClickListener {
 		btnPrevious.setOnClickListener(this);
 		btnCloseUnit=((ImageButton)findViewById(R.id.btn_learn_close_unit));
 		btnCloseUnit.setOnClickListener(this);
+		((ImageButton)findViewById(R.id.btn_learn_examples)).setOnClickListener(this);
 		
 	}	
 
@@ -124,12 +149,31 @@ public class Study extends Activity implements View.OnClickListener {
 				section.closeUnit();
 				finish();
 				return;
+			}else if (v.getId()==R.id.btn_learn_examples){
+				vLearn.setVisibility(View.GONE);
+				vExamples.setVisibility(View.VISIBLE);
+				ExampleService.setStateChangeListener(this);
+				Intent i=new Intent();
+				i.setClass(this, ExampleService.class);
+				i.putExtra(NetworkService.KEY_ACTION, NetworkService.GOOGLE_EXAMPLE_ACTION);
+				i.putExtra(NetworkService.KEY_HEADWORD, cw.getHeadword());
+				startService(i);
+				return;
 			}
-			display();
+			
+			displayLearn();
 		}catch(EOFCourseException ex){
 			section.closeUnit();
 			finish();			
 		}
+	}
+
+	@Override
+	protected void onPause() {
+		status.saveCourseStatusToPreferences(spSettings);
+		dbAdapter.saveOrUpdateCourseStatus(status);
+		section.saveUnsavedWords();
+		super.onPause();
 	}
 
 	@Override
@@ -150,12 +194,35 @@ public class Study extends Activity implements View.OnClickListener {
 		}else{
 			//cw=new Word(lastWord,dict.lookup(lastWord,null,null));
 			cw=dict.lookup(lastWord,null,null,null);
-			display();
+			displayLearn();
 		}
 		
 	}
+
+	@Override
+	public void stateChanged(Object result) {
+		String jstr=(String)result;
+		Log.d(TAG, jstr);
+		try {
+			JSONObject jo=new JSONObject(jstr);
+			JSONArray results=jo.getJSONObject("responseData").getJSONArray("results");
+			if (examples==null) examples=new ArrayList<Map<String,CharSequence>>();
+			else examples.clear();
+			for(int i=0;i<results.length();i++){
+				Map<String,CharSequence> ex=new HashMap<String,CharSequence>();
+				ex.put("title",results.getJSONObject(i).getString("title"));
+				ex.put("content", results.getJSONObject(i).getString("content"));
+				ex.put("url", results.getJSONObject(i).getString("blogUrl"));				
+				examples.add(ex);
+			}
+			fillExamples();
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	
-	private void display(){
+	private void displayLearn(){
 		int percentage=section.getWordsCount()*100/status.getUnitCreateStyleValue();
 		if (percentage*100>=10000){
 			setProgress(9999);
@@ -171,8 +238,25 @@ public class Study extends Activity implements View.OnClickListener {
 		//alpha.setDuration(5000);
 		//tvMeaning.setAnimation(alpha);
 		tvHeadword.setText(cw.getHeadword());
-		tvMeaning.setText(cw.getMeaning());
+		tvMeaning.setText(Html.fromHtml(cw.getMeaning()));
 		tvPhonetic.setText(cw.getPhonetic());
+	}
+	
+	private void fillExamples(){
+		ListView list=(ListView)findViewById(R.id.lv_study_example_list);
+		int[] to = {R.id.tv_example_title,R.id.tv_example_content};
+		String [] from = {"title","content"};
+		SimpleAdapter adapter=new SimpleAdapter(this,examples,R.layout.examples_row,from,to);
+		adapter.setViewBinder(new SimpleAdapter.ViewBinder() {
+			
+			@Override
+			public boolean setViewValue(View view, Object data,
+					String textRepresentation) {
+				((TextView)view).setText(Html.fromHtml(textRepresentation));
+				return true;
+			}
+		});
+		list.setAdapter(adapter);
 	}
 	
 }

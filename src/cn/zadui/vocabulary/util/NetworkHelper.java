@@ -1,6 +1,8 @@
 package cn.zadui.vocabulary.util;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -83,5 +85,32 @@ public class NetworkHelper {
 		con.setReadTimeout(NetworkHelper.READ_TIMEOUT);
 		return con;
 	}
+	
+	public static String getStringFromNetIO(URLConnection con){
+		InputStream in=null;
+		ByteArrayOutputStream out=null;
+		String result="";
+		try {
+			in=con.getInputStream();
+			out=new ByteArrayOutputStream();
+			byte[] buf=new byte[1024*8];
+			int readCount=0;
+			while((readCount=in.read(buf))!=-1){
+				out.write(buf, 0, readCount);
+			}
+			result = out.toString("UTF-8");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}finally{
+			try {
+				if(in!=null)in.close();
+				if(out!=null)out.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return result;
+	}
+	
 
 }

@@ -3,15 +3,15 @@ package cn.zadui.vocabulary.model.dictionary;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLConnection;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import android.util.Log;
 import cn.zadui.vocabulary.model.Word;
 import cn.zadui.vocabulary.util.NetworkHelper;
-
-import android.util.Log;
 
 public class DictCnDict implements Dict {
 
@@ -76,8 +76,8 @@ public class DictCnDict implements Dict {
 	public Word lookup(String headword, String srcLang, String toLang,String nothing) {
 		Word w=new Word(headword);
 		try {
-			URL url=new URL(NetworkHelper.dictCnLookupUrl(headword));			
-			InputStream in=url.openStream();			
+			URLConnection conn=NetworkHelper.buildUrlConnection(NetworkHelper.dictCnLookupUrl(headword));					
+			InputStream in=conn.getInputStream();			
 			if (xpp==null){
 				XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
 				xpp=factory.newPullParser();

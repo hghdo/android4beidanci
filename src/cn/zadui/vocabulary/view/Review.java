@@ -5,8 +5,12 @@ import android.app.ListActivity;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.text.Html;
+import android.text.Spanned;
+import android.view.View;
 import android.widget.RadioGroup;
 import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
 import cn.zadui.vocabulary.R;
 import cn.zadui.vocabulary.storage.CourseStatus;
 import cn.zadui.vocabulary.storage.StudyDbAdapter;
@@ -60,6 +64,19 @@ public class Review extends ListActivity implements RadioGroup.OnCheckedChangeLi
 				);
 		startManagingCursor(cur);
 		SimpleCursorAdapter listAdapter=new SimpleCursorAdapter(this,R.layout.review_row,cur,columns,viewIds);
+		listAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
+			
+			@Override
+			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+				if (columnIndex==cursor.getColumnIndex(StudyDbAdapter.KEY_MEANING)){
+					TextView tv=(TextView)view;
+					Spanned m=Html.fromHtml(cursor.getString(columnIndex));
+					tv.setText(m.toString());
+					return true;
+				}
+				return false;
+			}
+		});
 		setListAdapter(listAdapter);
 	}
 

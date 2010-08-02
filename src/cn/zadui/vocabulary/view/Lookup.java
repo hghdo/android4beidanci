@@ -19,8 +19,10 @@ import cn.zadui.vocabulary.model.Word;
 import cn.zadui.vocabulary.model.dictionary.Dict;
 import cn.zadui.vocabulary.model.dictionary.DictFactory;
 import cn.zadui.vocabulary.service.DictionaryService;
+import cn.zadui.vocabulary.service.NetworkService;
+import cn.zadui.vocabulary.service.StateChangeListener;
 
-public class Lookup extends Activity implements DictionaryService.StateChangeListener {
+public class Lookup extends Activity implements StateChangeListener {
 
 	// private Dict dict;
 	SharedPreferences spSettings;
@@ -68,8 +70,8 @@ public class Lookup extends Activity implements DictionaryService.StateChangeLis
 		DictionaryService.setStateChangeListener(this);
 		Intent i=new Intent();
 		i.setClass(this, DictionaryService.class);
-		i.putExtra(DictionaryService.KEY_ACTION, DictionaryService.LOOKUP_ACTION);
-		i.putExtra(DictionaryService.KEY_HEADWORD, headword);
+		i.putExtra(NetworkService.KEY_ACTION, NetworkService.LOOKUP_ACTION);
+		i.putExtra(NetworkService.KEY_HEADWORD, headword);
 		//TODO set src language
 		i.putExtra(DictionaryService.KEY_SRC_LANGUAGE, Locale.ENGLISH.getDisplayLanguage(Locale.ENGLISH));
 		startService(i);
