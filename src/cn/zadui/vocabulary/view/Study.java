@@ -122,9 +122,13 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		serviceHandler=new Handler(){
             @Override
             public void handleMessage(Message msg) {
-            	fillLearnSnipViewContent();
+            	//TODO add example handler.
+            	switch (msg.what){
+            	case 1:
+            		fillLearnSnipViewContent();
+            		break;
+            	}
         		if (progressDialog!=null) progressDialog.dismiss();;
-            	
             }
 		};
 		
