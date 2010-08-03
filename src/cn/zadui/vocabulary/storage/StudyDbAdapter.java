@@ -219,7 +219,18 @@ public class StudyDbAdapter {
 		args.put(KEY_SUCCESS_TIMES, 0);
 		args.put(KEY_FAILED_TIMES, 0);
 		args.put(KEY_MASTERED, 0);
-		return mDb.insert(UNIT_WORDS_TABLE, null, args);
+		word.setId(mDb.insert(UNIT_WORDS_TABLE, null, args));
+		return word.getId();
+	}
+	
+	public Word previousWordInSection(long unitId,Word word){
+		Cursor c=mDb.query(UNIT_WORDS_TABLE, null, KEY_Unit_ID+"=? and "+KEY_ROWID+"<?", new String[]{String.valueOf(unitId),String.valueOf(word.getId())}, null, null, null);
+		return c.moveToFirst() ? new Word(c) : null;
+	}
+	
+	public Word nextWordInSection(long unitId,Word word){
+		Cursor c=mDb.query(UNIT_WORDS_TABLE, null, KEY_Unit_ID+"=? and "+KEY_ROWID+">?", new String[]{String.valueOf(unitId),String.valueOf(word.getId())}, null, null, null);
+		return c.moveToFirst() ? new Word(c) : null;
 	}
 	
 	public boolean updateWordStatus(int status,Word word){

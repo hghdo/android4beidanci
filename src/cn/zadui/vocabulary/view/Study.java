@@ -50,6 +50,8 @@ import cn.zadui.vocabulary.storage.StudyDbAdapter;
  * Examples: show usage examples of the headword. The examples may get from Internet
  * Lookup: let user lookup this headword or change the spelling to lookup similar words.
  * 
+ * TODO Should be opened to review a word in {@link Review} activity
+ * 
  * @author Huang Gehua
  *
  */
@@ -60,8 +62,7 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 	private static final int HANDLE_LOOKUP=0;
 	private static final int HANDLE_EXAMPLE=1;
 	
-	private GestureDetector detector;
-	private View.OnTouchListener touchListener;
+	private GestureDetector gestureDetector;
 	private View vLearn;
 	private View vExamples;
 	
@@ -93,15 +94,7 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		setContentView(R.layout.study);
 		setProgressBarVisibility(true);
 		
-		detector = new GestureDetector(this,new MySimpleGestureListener());
-		touchListener=new View.OnTouchListener() {
-			//@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				Log.d(TAG,"DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD");
-				return detector.onTouchEvent(event);
-			}
-		};
-		
+		gestureDetector = new GestureDetector(this,new MySimpleGestureListener());		
 		vLearn=findViewById(R.id.learn_snip);
 		vExamples=findViewById(R.id.examples_snip);
 		bringViewToFront(vLearn);
@@ -109,12 +102,11 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		course=SimpleCourse.getInstance(status.getCourseFileName());
 		dbAdapter=new StudyDbAdapter(this);
 		dbAdapter.open();
-		section=Section.obtainSection(dbAdapter,course.getName());
+		section=Section.obtain(dbAdapter,course.getName());
         
 		tvHeadword=(TextView) findViewById(R.id.headword);
 		tvMeaning=(TextView) findViewById(R.id.meaning);
 		tvPhonetic=(TextView) findViewById(R.id.phonetic);
-		vLearn.setOnTouchListener(touchListener);
 		
 		((ImageButton)findViewById(R.id.btn_next_word)).setOnClickListener(this);
 		((ImageButton)findViewById(R.id.btn_mastered_word)).setOnClickListener(this);
@@ -139,57 +131,13 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 	}	
 
 	@Override
-	public void onClick(View v) {
-		try{
-			if (v.getId()==R.id.btn_next_word){
-				bringViewToFront(vLearn);
-				if (cache.hasNext()){
-					cw=cache.forword();
-					fillLearnSnipViewHeadword(cw.getHeadword());
-					fillLearnSnipViewContent(cw);
-				}else{
-					if (cw!=null) section.addWord(cw);// add current word to section
-					String headword=course.getContent(status.getNextContentOffset());// Fetch a new word from course.
-					fillLearnSnipViewHeadword(headword);
-					updateCourseStatus(headword);
-					runLookupService(headword);
-				}
-			}else if (v.getId()==R.id.btn_mastered_word){
-				bringViewToFront(vLearn);
-				String headword=course.getContent(status.getNextContentOffset());
-				runLookupService(headword);
-				updateCourseStatus(headword);
-			}else if(v.getId()==R.id.btn_previous_word){
-				bringViewToFront(vLearn);
-				// TODO select previous word from db.
-				cw=cache.back();
-				if (cw==null) return;
-				fillLearnSnipViewHeadword(cw.getHeadword());
-				fillLearnSnipViewContent(cw);
-			}else if (v.getId()==R.id.btn_learn_study){
-				bringViewToFront(vLearn);
-				return;
-			}else if (v.getId()==R.id.btn_learn_examples){
-				bringViewToFront(vExamples);
-				if (exampleFor!=null && exampleFor.equals(cw.getHeadword())) return;
-				exampleFor=cw.getHeadword();
-				runExampleService(cw.getHeadword());
-				return;
-			}else if(v.getId()==R.id.btn_learn_close_section){
-				//TODO should give advice if the word amount of the section is too small.
-				section.closeUnit();
-				finish();
-				return;
-			}
-		}catch(EOFCourseException ex){
-			section.closeUnit();
-			finish();			
-		}
+	public boolean onTouchEvent(MotionEvent event) {
+		return gestureDetector.onTouchEvent(event);
 	}
 
 	/**
 	 * Callback for service. 
-	 * TODO I could be smaller if move network task from Service to Runnable. 
+	 * TODO It could be smaller if move network task from Service to Runnable. 
 	 */
 	@Override
 	public void stateChanged(Object result) {
@@ -260,7 +208,6 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 	protected void onPause() {
 		status.saveCourseStatusToPreferences(spSettings);
 		dbAdapter.saveOrUpdateCourseStatus(status);
-		section.saveUnsavedWords();
 		super.onPause();
 	}
 
@@ -268,6 +215,35 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 	protected void onDestroy() {
 		dbAdapter.close();
 		super.onDestroy();
+	}
+
+	@Override
+	public void onClick(View v) {
+		if (v.getId()==R.id.btn_next_word){
+			bringViewToFront(vLearn);
+			nextContent(true);
+		}else if (v.getId()==R.id.btn_mastered_word){
+			bringViewToFront(vLearn);
+			nextContent(false);
+		}else if(v.getId()==R.id.btn_previous_word){
+			bringViewToFront(vLearn);
+			// TODO select previous word from db.
+			previousContent();
+		}else if (v.getId()==R.id.btn_learn_study){
+			bringViewToFront(vLearn);
+			return;
+		}else if (v.getId()==R.id.btn_learn_examples){
+			bringViewToFront(vExamples);
+			if (exampleFor!=null && exampleFor.equals(cw.getHeadword())) return;
+			exampleFor=cw.getHeadword();
+			runExampleService(cw.getHeadword());
+			return;
+		}else if(v.getId()==R.id.btn_learn_close_section){
+			//TODO should give advice if the word amount of the section is too small.
+			section.freeze();
+			finish();
+			return;
+		}
 	}
 
 	/**
@@ -349,36 +325,92 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		vExamples.setVisibility(View.GONE);
 		v.setVisibility(View.VISIBLE);
 	}
+
+	/**
+	 * Get next content from the course and display it.
+	 * If reach the end of the course then close the activity.
+	 */
+	private void nextContent(boolean saveCurrentWord) {
+		Word newxtWord=section.next(cw);
+		if (newxtWord!=null){
+			cw=newxtWord;
+			fillLearnSnipViewHeadword(cw.getHeadword());
+			fillLearnSnipViewContent(cw);
+		}else{
+			if (cw!=null && saveCurrentWord){
+				cache.add(cw);
+				section.addWord(cw);// add current word to section
+			}
+			try{
+				String headword=course.getContent(status.getNextContentOffset());// Fetch a new word from course.
+				fillLearnSnipViewHeadword(headword);
+				updateCourseStatus(headword);
+				runLookupService(headword);
+			}catch(EOFCourseException e){
+				section.freeze();
+				finish();			
+			}
+		}
+		/*
+		if (cache.hasNext()){
+			cw=cache.forword();
+			fillLearnSnipViewHeadword(cw.getHeadword());
+			fillLearnSnipViewContent(cw);
+		}else{
+			if (cw!=null && saveCurrentWord){
+				cache.add(cw);
+				section.addWord(cw);// add current word to section
+			}
+			try{
+				String headword=course.getContent(status.getNextContentOffset());// Fetch a new word from course.
+				fillLearnSnipViewHeadword(headword);
+				updateCourseStatus(headword);
+				runLookupService(headword);
+			}catch(EOFCourseException e){
+				section.freeze();
+				finish();			
+			}
+		}	
+		*/	
+	}	
+
+	/**
+	 * TODO If there was no previous word in this section then pop a 
+	 * dialog to inform user they can use {@link Review} activity to view more.
+	 */
+	private void previousContent() {
+		Word pw=section.previous(cw);
+		if (pw==null) return;
+		cw=pw;
+		fillLearnSnipViewHeadword(cw.getHeadword());
+		fillLearnSnipViewContent(cw);
+		/*
+		cw=cache.back();
+		if (cw==null) return;
+		fillLearnSnipViewHeadword(cw.getHeadword());
+		fillLearnSnipViewContent(cw);
+		*/
+	}
 	
 	class MySimpleGestureListener extends SimpleOnGestureListener {
+		
+	    private static final int SWIPE_MIN_DISTANCE = 120;
+	    private static final int SWIPE_MAX_OFF_PATH = 250;
+	    private static final int SWIPE_THRESHOLD_VELOCITY = 200;		
+		
 		@Override
 		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-			Log.d(TAG,"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-			if (e1.getX() - e2.getX() > 120) {
+			if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH) return false;
+			if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+				// Next word
 				bringViewToFront(vLearn);
-				if (cache.hasNext()){
-					cw=cache.forword();
-					fillLearnSnipViewHeadword(cw.getHeadword());
-					fillLearnSnipViewContent(cw);
-				}else{
-					if (cw!=null) section.addWord(cw);// add current word to section
-					String headword="";
-					try {
-						headword = course.getContent(status.getNextContentOffset());
-					} catch (EOFCourseException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}// Fetch a new word from course.
-					fillLearnSnipViewHeadword(headword);
-					updateCourseStatus(headword);
-					runLookupService(headword);
-				}				
+				nextContent(true);
 				return true;
-			}else if (e1.getX() - e2.getX() < -120) {
+			}else if (e2.getX() - e1.getX() < SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+				// Previous word
 				return true;
 			}
 			return false;
 		}
-	}
-	
+	}	
 }

@@ -1,18 +1,17 @@
 package cn.zadui.vocabulary.model;
 
-import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
+import android.database.Cursor;
 import cn.zadui.vocabulary.model.course.SimpleCourse;
 import cn.zadui.vocabulary.storage.StudyDbAdapter;
-
-import android.database.Cursor;
 
 /**
  * TODO Add schedule of a Unit to alarm manager.
  * 
- * @author david
+ * @author Huang Gehua
  *
  */
 public class Section {
@@ -33,7 +32,7 @@ public class Section {
 	private int createdAt;
 	private int nextExamAt;
 	private StudyDbAdapter adapter;
-	private ArrayList<Word> unsavedWords=new ArrayList<Word>();
+	private List<Word> unsavedWords=new LinkedList<Word>();
 
 	
     /**
@@ -41,7 +40,7 @@ public class Section {
      * 
      * @return a virgin {@link Section} that can accept new words.
      */
-	public static Section obtainSection(StudyDbAdapter adapter,String courseName){
+	public static Section obtain(StudyDbAdapter adapter,String courseName){
 		Section su=null;
 		Cursor c=adapter.getLatestSection(courseName);
 		if (c!=null && c.moveToFirst()){
@@ -61,7 +60,7 @@ public class Section {
      * Fetch a unit with the unit DB id
      * @return a virgin {@link Section} that can accept new words.
      */
-	public static Section findUnitById(StudyDbAdapter adapter,long id){
+	public static Section findById(StudyDbAdapter adapter,long id){
 		Cursor c=adapter.fetchSection(id);
 		if (c!=null && c.moveToFirst()){
 			Section su=new Section(adapter,c);
@@ -72,29 +71,37 @@ public class Section {
 	}
 	
 	public void addWord(Word word){
-		unsavedWords.add(word);
-		if (unsavedWords.size()>=MAX_UNSAVED_WORDS) saveUnsavedWords();
+		adapter.insertWord(rowId, word);
+		adapter.updateSectionWordsCount(rowId,++wordsCount);
+	}
+	
+	public Word previous(Word word){
+		if (word==null || word.getId()==0) return null ;
+		return adapter.previousWordInSection(rowId, word);
+	}
+	
+	public Word next(Word word){
+		if (word==null || word.getId()==0) return null;
+		return adapter.nextWordInSection(rowId, word);
 	}
 	
 	/**
 	 * Add words to this StudyUnit 
-	 * @param dbAdapter
-	 * @param words
 	 */
-	public void saveUnsavedWords(){
-		if (unsavedWords.size()==0) return;
-		for(Iterator<Word> it=unsavedWords.iterator();it.hasNext();){
-			adapter.insertWord(rowId, it.next());
-		}
-		if (adapter.updateSectionWordsCount(rowId,unsavedWords.size()+wordsCount)) wordsCount=wordsCount+unsavedWords.size();
-		unsavedWords.clear();
-	}
+//	public void saveUnsavedWords(){
+//		if (unsavedWords.size()==0) return;
+//		for(Iterator<Word> it=unsavedWords.iterator();it.hasNext();){
+//			adapter.insertWord(rowId, it.next());
+//		}
+//		if (adapter.updateSectionWordsCount(rowId,unsavedWords.size()+wordsCount)) wordsCount=wordsCount+unsavedWords.size();
+//		unsavedWords.clear();
+//	}
 	
 	/**
-	 * TODO schedule this unit in Alarm manager
+	 * TODO schedule this section in Alarm manager
 	 */
-	public void closeUnit(){
-		saveUnsavedWords();
+	public void freeze(){
+		//saveUnsavedWords();
 		int currentSec=(int)System.currentTimeMillis()/1000;
 		nextExamAt=currentSec + SimpleCourse.firstInterval;
 		adapter.updateSectionToOld(rowId,nextExamAt);

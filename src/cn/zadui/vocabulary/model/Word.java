@@ -99,6 +99,10 @@ public class Word {
 	public long getId() {
 		return _id;
 	}
+	
+	public void setId(long id){
+		_id=id;
+	}
 
 	public String getPhonetic() {
 		return phonetic;

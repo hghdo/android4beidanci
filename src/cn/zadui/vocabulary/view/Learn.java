@@ -63,7 +63,7 @@ public class Learn extends Activity implements View.OnClickListener {
 		
 		adapter=new StudyDbAdapter(this);
 		adapter.open();
-		section=Section.obtainSection(adapter,course.getName());
+		section=Section.obtain(adapter,course.getName());
         
 		tvHeadword=(TextView) findViewById(R.id.headword);
 		tvMeaning=(TextView) findViewById(R.id.meaning);
@@ -86,7 +86,7 @@ public class Learn extends Activity implements View.OnClickListener {
 	protected void onPause() {
 		status.saveCourseStatusToPreferences(spSettings);
 		adapter.saveOrUpdateCourseStatus(status);
-		section.saveUnsavedWords();
+		//section.saveUnsavedWords();
 		super.onPause();
 	}
 	
@@ -142,13 +142,13 @@ public class Learn extends Activity implements View.OnClickListener {
 				cw=cache.back();
 				if (cw==null) return;
 			}else if(v.getId()==R.id.btn_learn_close_unit){
-				section.closeUnit();
+				section.freeze();
 				finish();
 				return;
 			}
 			display();
 		}catch(EOFCourseException ex){
-			section.closeUnit();
+			section.freeze();
 			finish();			
 		}
 	}
