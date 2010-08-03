@@ -7,7 +7,6 @@ import android.os.IBinder;
 import cn.zadui.vocabulary.model.Word;
 import cn.zadui.vocabulary.model.dictionary.Dict;
 import cn.zadui.vocabulary.model.dictionary.DictFactory;
-import cn.zadui.vocabulary.view.Study;
 
 public class DictionaryService extends NetworkService {
 

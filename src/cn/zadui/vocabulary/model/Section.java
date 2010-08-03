@@ -41,7 +41,7 @@ public class Section {
      * 
      * @return a virgin {@link Section} that can accept new words.
      */
-	public static Section obtainUnit(StudyDbAdapter adapter,String courseName){
+	public static Section obtainSection(StudyDbAdapter adapter,String courseName){
 		Section su=null;
 		Cursor c=adapter.getLatestSection(courseName);
 		if (c!=null && c.moveToFirst()){

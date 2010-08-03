@@ -63,7 +63,7 @@ public class Learn extends Activity implements View.OnClickListener {
 		
 		adapter=new StudyDbAdapter(this);
 		adapter.open();
-		section=Section.obtainUnit(adapter,course.getName());
+		section=Section.obtainSection(adapter,course.getName());
         
 		tvHeadword=(TextView) findViewById(R.id.headword);
 		tvMeaning=(TextView) findViewById(R.id.meaning);

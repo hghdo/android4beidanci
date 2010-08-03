@@ -64,10 +64,7 @@
 </style>
 
 <style name="image_button">
-	<item name="android:layout_width">wrap_content</item>
-	<item name="android:layout_height">wrap_content</item>
-	<item name="android:padding">2dip</item>
-	<item name="android:scaleType">center</item>
-	<item name="android:layout_weight">1</item>
+	<item name="android:maxHeight">30dip</item>
+	<item name="android:scaleType">centerInside</item>
 </style>
 </resources>

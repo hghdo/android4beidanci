@@ -19,8 +19,11 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.Html;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -32,8 +35,6 @@ import cn.zadui.vocabulary.model.Word;
 import cn.zadui.vocabulary.model.course.Course;
 import cn.zadui.vocabulary.model.course.SimpleCourse;
 import cn.zadui.vocabulary.model.course.Course.EOFCourseException;
-import cn.zadui.vocabulary.model.dictionary.Dict;
-import cn.zadui.vocabulary.model.dictionary.DictFactory;
 import cn.zadui.vocabulary.service.DictionaryService;
 import cn.zadui.vocabulary.service.ExampleService;
 import cn.zadui.vocabulary.service.NetworkService;
@@ -56,30 +57,27 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 
 	private static final int MAX_UNSAVED_WORDS=5;
 	private static final String TAG="Study";
+	private static final int HANDLE_LOOKUP=0;
+	private static final int HANDLE_EXAMPLE=1;
 	
+	private GestureDetector detector;
+	private View.OnTouchListener touchListener;
 	private View vLearn;
 	private View vExamples;
 	
-	private ImageButton btnCloseUnit;
-	private ImageButton btnNext;
-	private ImageButton btnIgnore;
-	private ImageButton btnPrevious;
-	
 	private ProgressDialog progressDialog;
-    private static final int MAX_PROGRESS = 100;
 	
 	private SharedPreferences spSettings;
 	private CourseStatus status;
 	private Course course;
-	private Dict dict;
 	private LearnCache cache=new LearnCache(50,MAX_UNSAVED_WORDS);
 	private Word cw=null;
+	private String exampleFor;
 	private Section section=null;
 	private StudyDbAdapter dbAdapter=null;
 	private ArrayList<Map<String,CharSequence>> examples;
 	private Handler serviceHandler;
 	
-
 	// Learn controls
 	private TextView tvHeadword;
 	private TextView tvMeaning;
@@ -95,86 +93,90 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		setContentView(R.layout.study);
 		setProgressBarVisibility(true);
 		
+		detector = new GestureDetector(this,new MySimpleGestureListener());
+		touchListener=new View.OnTouchListener() {
+			//@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				Log.d(TAG,"DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD");
+				return detector.onTouchEvent(event);
+			}
+		};
+		
 		vLearn=findViewById(R.id.learn_snip);
 		vExamples=findViewById(R.id.examples_snip);
-		vExamples.setVisibility(View.GONE);
+		bringViewToFront(vLearn);
 		
 		course=SimpleCourse.getInstance(status.getCourseFileName());
-		dict=DictFactory.loadDict(this,course.getLang(), Locale.getDefault().getDisplayLanguage(Locale.ENGLISH));
-		
 		dbAdapter=new StudyDbAdapter(this);
 		dbAdapter.open();
-		section=Section.obtainUnit(dbAdapter,course.getName());
+		section=Section.obtainSection(dbAdapter,course.getName());
         
 		tvHeadword=(TextView) findViewById(R.id.headword);
 		tvMeaning=(TextView) findViewById(R.id.meaning);
 		tvPhonetic=(TextView) findViewById(R.id.phonetic);
-		btnNext=(ImageButton)findViewById(R.id.btn_next_word);
-		btnNext.setOnClickListener(this);
-		btnIgnore=(ImageButton)findViewById(R.id.btn_mastered_word);
-		btnIgnore.setOnClickListener(this);
-		btnPrevious=(ImageButton)findViewById(R.id.btn_previous_word);
-		btnPrevious.setOnClickListener(this);
-		btnCloseUnit=((ImageButton)findViewById(R.id.btn_learn_close_unit));
-		btnCloseUnit.setOnClickListener(this);
+		vLearn.setOnTouchListener(touchListener);
+		
+		((ImageButton)findViewById(R.id.btn_next_word)).setOnClickListener(this);
+		((ImageButton)findViewById(R.id.btn_mastered_word)).setOnClickListener(this);
+		((ImageButton)findViewById(R.id.btn_previous_word)).setOnClickListener(this);
+		((ImageButton)findViewById(R.id.btn_learn_close_section)).setOnClickListener(this);
 		((ImageButton)findViewById(R.id.btn_learn_examples)).setOnClickListener(this);
+		((ImageButton)findViewById(R.id.btn_learn_study)).setOnClickListener(this);
 		
 		serviceHandler=new Handler(){
             @Override
             public void handleMessage(Message msg) {
-            	//TODO add example handler.
             	switch (msg.what){
-            	case 1:
-            		fillLearnSnipViewContent();
+            	case HANDLE_LOOKUP:
+            		fillLearnSnipViewContent(cw);
             		break;
+            	case HANDLE_EXAMPLE:
+    				fillExamplesSnipView();
+    				break;
             	}
-        		if (progressDialog!=null) progressDialog.dismiss();;
             }
 		};
-		
 	}	
 
 	@Override
 	public void onClick(View v) {
 		try{
 			if (v.getId()==R.id.btn_next_word){
-				showView(vLearn);
+				bringViewToFront(vLearn);
 				if (cache.hasNext()){
 					cw=cache.forword();
 					fillLearnSnipViewHeadword(cw.getHeadword());
-					fillLearnSnipViewContent();
+					fillLearnSnipViewContent(cw);
 				}else{
-					// add current word to section
-					if (cw!=null) section.addWord(cw);
-					// Fetch a new word from course.
-					String headword=course.getContent(status.getNextContentOffset());
+					if (cw!=null) section.addWord(cw);// add current word to section
+					String headword=course.getContent(status.getNextContentOffset());// Fetch a new word from course.
 					fillLearnSnipViewHeadword(headword);
 					updateCourseStatus(headword);
-					showDialog(0);
 					runLookupService(headword);
 				}
 			}else if (v.getId()==R.id.btn_mastered_word){
-				showView(vLearn);
+				bringViewToFront(vLearn);
 				String headword=course.getContent(status.getNextContentOffset());
 				runLookupService(headword);
 				updateCourseStatus(headword);
 			}else if(v.getId()==R.id.btn_previous_word){
-				showView(vLearn);
+				bringViewToFront(vLearn);
 				// TODO select previous word from db.
 				cw=cache.back();
 				if (cw==null) return;
 				fillLearnSnipViewHeadword(cw.getHeadword());
-				fillLearnSnipViewContent();
-			}else if (v.getId()==R.id.btn_learn_examples){
-				showView(vExamples);
-				ExampleService.setStateChangeListener(this);
-				Intent i=new Intent();
-				i.setClass(this, ExampleService.class);
-				i.putExtra(NetworkService.KEY_ACTION, NetworkService.GOOGLE_EXAMPLE_ACTION);
-				i.putExtra(NetworkService.KEY_HEADWORD, cw.getHeadword());
-				startService(i);
+				fillLearnSnipViewContent(cw);
+			}else if (v.getId()==R.id.btn_learn_study){
+				bringViewToFront(vLearn);
 				return;
-			}else if(v.getId()==R.id.btn_learn_close_unit){
+			}else if (v.getId()==R.id.btn_learn_examples){
+				bringViewToFront(vExamples);
+				if (exampleFor!=null && exampleFor.equals(cw.getHeadword())) return;
+				exampleFor=cw.getHeadword();
+				runExampleService(cw.getHeadword());
+				return;
+			}else if(v.getId()==R.id.btn_learn_close_section){
+				//TODO should give advice if the word amount of the section is too small.
 				section.closeUnit();
 				finish();
 				return;
@@ -185,14 +187,15 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		}
 	}
 
+	/**
+	 * Callback for service. 
+	 * TODO I could be smaller if move network task from Service to Runnable. 
+	 */
 	@Override
 	public void stateChanged(Object result) {
-		cw=(Word)result;
-		serviceHandler.sendEmptyMessage(0);
-		/*
 		if (result instanceof Word){
-			cw=(Word)result;
-			fillLearnSnipViewContent();
+			cw=(Word)result;		
+			serviceHandler.sendEmptyMessage(HANDLE_LOOKUP);
 		}else{
 			String jstr=(String)result;
 			Log.d(TAG, jstr);
@@ -208,14 +211,50 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 					ex.put("url", results.getJSONObject(i).getString("blogUrl"));				
 					examples.add(ex);
 				}
-				fillExamplesSnipView();
+				serviceHandler.sendEmptyMessage(HANDLE_EXAMPLE);
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
 		}
-		if (progressDialog!=null) progressDialog.dismiss();;
-		*/
 	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+	}
+
+	@Override
+	protected void onStart(){
+		super.onStart();
+		String lastWord=status.getLastWord();
+		if (lastWord.equals(CourseStatus.AT_BEGINNING)){
+			tvHeadword.setText(getResources().getString(R.string.begin_word));
+			setProgress(0);
+			setTitle(this.getResources().getString(R.string.learn_title));
+		}else{
+			fillLearnSnipViewHeadword(lastWord);
+			runLookupService(lastWord);
+		}
+	}
+
+	/**
+	 * TODO Fix hard code text here
+	 */
+    @Override
+    protected Dialog onCreateDialog(int id) {
+    	progressDialog = new ProgressDialog(this);
+    	switch (id){
+    	case HANDLE_LOOKUP:
+    		progressDialog.setMessage("Please wait while looking up...");
+    		break;
+    	case HANDLE_EXAMPLE:
+    		progressDialog.setMessage("Please wait while download examples...");
+    		break;
+    	}
+    	progressDialog.setIndeterminate(true);
+    	progressDialog.setCancelable(true);
+        return progressDialog;
+    }
 
 	@Override
 	protected void onPause() {
@@ -231,64 +270,15 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		super.onDestroy();
 	}
 
-	@Override
-	protected void onStart(){
-		super.onStart();
-		String lastWord=status.getLastWord();
-		if (lastWord.equals(CourseStatus.AT_BEGINNING)){
-			tvHeadword.setText(getResources().getString(R.string.begin_word));
-			setProgress(0);
-			setTitle(this.getResources().getString(R.string.learn_title));
-		}else{
-			fillLearnSnipViewHeadword(lastWord);
-			showDialog(0);
-			runLookupService(lastWord);
-		}
-	}
-	
-	@Override
-	protected void onResume() {
-		super.onResume();
-	}
-
-    @Override
-    protected Dialog onCreateDialog(int id) {
-    	progressDialog = new ProgressDialog(this);
-    	progressDialog.setMessage("Please wait while loading...");
-    	progressDialog.setIndeterminate(true);
-    	progressDialog.setCancelable(true);
-        return progressDialog;
-
-    }
-	
-    /*
-	private void fillLearnSnipView(){
-		int percentage=section.getWordsCount()*100/status.getUnitCreateStyleValue();
-		if (percentage*100>=10000){
-			setProgress(9999);
-			btnCloseUnit.setEnabled(true);
-		}else{
-			setProgress(percentage*100);
-		}
-		//TODO fix hard code text.
-		setTitle("Unit Status: " +
-				String.valueOf(section.getWordsCount()) +
-				"/" +
-				String.valueOf(status.getUnitCreateStyleValue()));
-		//alpha=new AlphaAnimation(0.1f,1.0f);
-		//alpha.setDuration(5000);
-		//tvMeaning.setAnimation(alpha);
-		tvHeadword.setText(cw.getHeadword());
-		tvMeaning.setText(Html.fromHtml(cw.getMeaning()));
-		tvPhonetic.setText(cw.getPhonetic());
-	}
-	*/
-	
+	/**
+	 * This will update the progress bar. 
+	 * TODO What does the the progress bar indicate? The whole progress of the course? Or other else?
+	 * @param headword
+	 */
 	private void fillLearnSnipViewHeadword(String headword){
 		int percentage=section.getWordsCount()*100/status.getUnitCreateStyleValue();
 		if (percentage*100>=10000){
-			setProgress(9999);
-			btnCloseUnit.setEnabled(true);
+			setProgress(9999); 
 		}else{
 			setProgress(percentage*100);
 		}
@@ -298,11 +288,14 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 				"/" +
 				String.valueOf(status.getUnitCreateStyleValue()));
 		tvHeadword.setText(headword);
+		tvPhonetic.setText("");
+		tvMeaning.setText("");
 	}
 	
-	private void fillLearnSnipViewContent(){
-		tvPhonetic.setText(cw.getPhonetic());
-		tvMeaning.setText(Html.fromHtml(cw.getMeaning()));
+	private void fillLearnSnipViewContent(Word word){
+		tvPhonetic.setText(word.getPhonetic());
+		tvMeaning.setText(Html.fromHtml(word.getMeaning()));
+		dismissDialog(HANDLE_LOOKUP);
 	}
 	
 	private void fillExamplesSnipView(){
@@ -320,10 +313,11 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 			}
 		});
 		list.setAdapter(adapter);
+		dismissDialog(HANDLE_EXAMPLE);
 	}
 	
 	private void runLookupService(String headword){
-		
+		showDialog(HANDLE_LOOKUP);
 		DictionaryService.setStateChangeListener(this);
 		Intent i=new Intent();
 		i.setClass(Study.this, DictionaryService.class);
@@ -332,7 +326,16 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		//TODO set src language
 		i.putExtra(DictionaryService.KEY_SRC_LANGUAGE, Locale.ENGLISH.getDisplayLanguage(Locale.ENGLISH));
 		startService(i);
-		//(new lookupThread(headword)).start();
+	}
+	
+	private void runExampleService(String headword){
+		showDialog(HANDLE_EXAMPLE);
+		ExampleService.setStateChangeListener(this);
+		Intent i=new Intent();
+		i.setClass(this, ExampleService.class);
+		i.putExtra(NetworkService.KEY_ACTION, NetworkService.GOOGLE_EXAMPLE_ACTION);
+		i.putExtra(NetworkService.KEY_HEADWORD, headword);
+		startService(i);
 	}
 
 	private void updateCourseStatus(String headword) {
@@ -341,10 +344,41 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		status.setLastWord(headword);
 	}
 	
-	private void showView(View v){
+	private void bringViewToFront(View v){
 		vLearn.setVisibility(View.GONE);
 		vExamples.setVisibility(View.GONE);
 		v.setVisibility(View.VISIBLE);
+	}
+	
+	class MySimpleGestureListener extends SimpleOnGestureListener {
+		@Override
+		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+			Log.d(TAG,"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+			if (e1.getX() - e2.getX() > 120) {
+				bringViewToFront(vLearn);
+				if (cache.hasNext()){
+					cw=cache.forword();
+					fillLearnSnipViewHeadword(cw.getHeadword());
+					fillLearnSnipViewContent(cw);
+				}else{
+					if (cw!=null) section.addWord(cw);// add current word to section
+					String headword="";
+					try {
+						headword = course.getContent(status.getNextContentOffset());
+					} catch (EOFCourseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}// Fetch a new word from course.
+					fillLearnSnipViewHeadword(headword);
+					updateCourseStatus(headword);
+					runLookupService(headword);
+				}				
+				return true;
+			}else if (e1.getX() - e2.getX() < -120) {
+				return true;
+			}
+			return false;
+		}
 	}
 	
 }

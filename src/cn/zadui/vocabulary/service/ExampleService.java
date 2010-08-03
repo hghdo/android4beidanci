@@ -29,12 +29,24 @@ public class ExampleService extends NetworkService {
 								)
 						);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			break;
 		case NetworkService.GOOGLE_EXAMPLE_ACTION:
 			headword=intent.getExtras().getString(NetworkService.KEY_HEADWORD);
+			(new ExampleThread(headword)).start();
+			break;
+		}
+	}
+	
+	class ExampleThread extends Thread{
+		
+		String headword;
+		public ExampleThread(String hw){
+			headword=hw;
+		}
+		
+		public void run(){
 			try {
 				stateListener.stateChanged(
 						NetworkHelper.getStringFromNetIO(
@@ -42,10 +54,8 @@ public class ExampleService extends NetworkService {
 								)
 						);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			break;
 		}
 	}
 
