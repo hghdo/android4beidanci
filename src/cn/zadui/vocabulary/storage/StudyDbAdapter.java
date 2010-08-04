@@ -224,13 +224,14 @@ public class StudyDbAdapter {
 	}
 	
 	public Word previousWordInSection(long unitId,Word word){
-		Cursor c=mDb.query(UNIT_WORDS_TABLE, null, KEY_Unit_ID+"=? and "+KEY_ROWID+"<?", new String[]{String.valueOf(unitId),String.valueOf(word.getId())}, null, null, null);
+		Cursor c=mDb.query(UNIT_WORDS_TABLE, null, KEY_Unit_ID+"=? and "+KEY_ROWID+"<?", new String[]{String.valueOf(unitId),String.valueOf(word.getId())}, null, null, "_id desc");
 		return c.moveToFirst() ? new Word(c) : null;
 	}
 	
 	public Word nextWordInSection(long unitId,Word word){
-		Cursor c=mDb.query(UNIT_WORDS_TABLE, null, KEY_Unit_ID+"=? and "+KEY_ROWID+">?", new String[]{String.valueOf(unitId),String.valueOf(word.getId())}, null, null, null);
+		Cursor c=mDb.query(UNIT_WORDS_TABLE, null, KEY_Unit_ID+"=? and "+KEY_ROWID+">?", new String[]{String.valueOf(unitId),String.valueOf(word.getId())}, null, null, "_id");
 		return c.moveToFirst() ? new Word(c) : null;
+		
 	}
 	
 	public boolean updateWordStatus(int status,Word word){

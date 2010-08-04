@@ -70,8 +70,13 @@ public class Review extends ListActivity implements RadioGroup.OnCheckedChangeLi
 			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
 				if (columnIndex==cursor.getColumnIndex(StudyDbAdapter.KEY_MEANING)){
 					TextView tv=(TextView)view;
-					Spanned m=Html.fromHtml(cursor.getString(columnIndex));
-					tv.setText(m.toString());
+					String meaning=cursor.getString(columnIndex);
+					if (meaning!=null){
+						Spanned sm=Html.fromHtml(meaning);
+						tv.setText(sm);
+					}else{
+						tv.setText("");
+					}
 					return true;
 				}
 				return false;

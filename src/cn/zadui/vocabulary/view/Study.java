@@ -78,6 +78,7 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 	private StudyDbAdapter dbAdapter=null;
 	private ArrayList<Map<String,CharSequence>> examples;
 	private Handler serviceHandler;
+	private boolean addToSection=false;
 	
 	// Learn controls
 	private TextView tvHeadword;
@@ -142,7 +143,8 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 	@Override
 	public void stateChanged(Object result) {
 		if (result instanceof Word){
-			cw=(Word)result;		
+			cw=(Word)result;
+			if (addToSection) section.addWord(cw);
 			serviceHandler.sendEmptyMessage(HANDLE_LOOKUP);
 		}else{
 			String jstr=(String)result;
@@ -258,17 +260,17 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		}else{
 			setProgress(percentage*100);
 		}
-		//TODO fix hard code text.
-		setTitle("Unit Status: " +
-				String.valueOf(section.getWordsCount()) +
-				"/" +
-				String.valueOf(status.getUnitCreateStyleValue()));
 		tvHeadword.setText(headword);
 		tvPhonetic.setText("");
 		tvMeaning.setText("");
 	}
 	
 	private void fillLearnSnipViewContent(Word word){
+		//TODO fix hard code text.
+		setTitle("Unit Status: " +
+				String.valueOf(section.getWordsCount()) +
+				"/" +
+				String.valueOf(status.getUnitCreateStyleValue()));
 		tvPhonetic.setText(word.getPhonetic());
 		tvMeaning.setText(Html.fromHtml(word.getMeaning()));
 		dismissDialog(HANDLE_LOOKUP);
@@ -337,19 +339,20 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 			fillLearnSnipViewHeadword(cw.getHeadword());
 			fillLearnSnipViewContent(cw);
 		}else{
-			if (cw!=null && saveCurrentWord){
-				cache.add(cw);
-				section.addWord(cw);// add current word to section
-			}
 			try{
 				String headword=course.getContent(status.getNextContentOffset());// Fetch a new word from course.
 				fillLearnSnipViewHeadword(headword);
 				updateCourseStatus(headword);
 				runLookupService(headword);
+				if(saveCurrentWord) addToSection=true;
 			}catch(EOFCourseException e){
 				section.freeze();
 				finish();			
-			}
+			}			
+//			if (cw!=null && saveCurrentWord){
+//				cache.add(cw);
+//				section.addWord(cw);// add current word to section
+//			}
 		}
 		/*
 		if (cache.hasNext()){
@@ -374,13 +377,14 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		*/	
 	}	
 
-	/**
-	 * TODO If there was no previous word in this section then pop a 
-	 * dialog to inform user they can use {@link Review} activity to view more.
-	 */
 	private void previousContent() {
 		Word pw=section.previous(cw);
-		if (pw==null) return;
+		if (pw==null) {
+			//TODO If there was no previous word in this section then pop a
+			//dialog to inform user they can use {@link Review} activity to view more.
+			Log.d(TAG,"At the begining of this section!");
+			return;
+		}
 		cw=pw;
 		fillLearnSnipViewHeadword(cw.getHeadword());
 		fillLearnSnipViewContent(cw);
