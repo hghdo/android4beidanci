@@ -78,7 +78,6 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 	private StudyDbAdapter dbAdapter=null;
 	private ArrayList<Map<String,CharSequence>> examples;
 	private Handler serviceHandler;
-	private boolean addToSection=false;
 	
 	// Learn controls
 	private TextView tvHeadword;
@@ -144,7 +143,7 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 	public void stateChanged(Object result) {
 		if (result instanceof Word){
 			cw=(Word)result;
-			if (addToSection) section.addWord(cw);
+			section.addWord(cw);
 			serviceHandler.sendEmptyMessage(HANDLE_LOOKUP);
 		}else{
 			String jstr=(String)result;
@@ -223,10 +222,11 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 	public void onClick(View v) {
 		if (v.getId()==R.id.btn_next_word){
 			bringViewToFront(vLearn);
-			nextContent(true);
+			nextContent();
 		}else if (v.getId()==R.id.btn_mastered_word){
 			bringViewToFront(vLearn);
-			nextContent(false);
+			cw.review(dbAdapter, Word.MASTERED);
+			nextContent();
 		}else if(v.getId()==R.id.btn_previous_word){
 			bringViewToFront(vLearn);
 			// TODO select previous word from db.
@@ -332,7 +332,7 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 	 * Get next content from the course and display it.
 	 * If reach the end of the course then close the activity.
 	 */
-	private void nextContent(boolean saveCurrentWord) {
+	private void nextContent() {
 		Word newxtWord=section.next(cw);
 		if (newxtWord!=null){
 			cw=newxtWord;
@@ -344,7 +344,6 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 				fillLearnSnipViewHeadword(headword);
 				updateCourseStatus(headword);
 				runLookupService(headword);
-				if(saveCurrentWord) addToSection=true;
 			}catch(EOFCourseException e){
 				section.freeze();
 				finish();			
@@ -406,12 +405,12 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
 			if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH) return false;
 			if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-				// Next word
 				bringViewToFront(vLearn);
-				nextContent(true);
+				nextContent();
 				return true;
 			}else if (e2.getX() - e1.getX() < SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-				// Previous word
+				bringViewToFront(vLearn);
+				previousContent();
 				return true;
 			}
 			return false;

@@ -45,7 +45,7 @@ public class DictionaryService extends NetworkService {
 	
 	class LookupThread extends Thread{
 		public void run(){	
-			Dict dict=DictFactory.loadDict(DictionaryService.this, srcLang, Locale.getDefault().getDisplayLanguage(Locale.ENGLISH));
+			Dict dict=DictFactory.buildDict(DictionaryService.this, srcLang, Locale.getDefault().getDisplayLanguage(Locale.ENGLISH));
 			word=dict.lookup(headword,null,null,null);
 			stateListener.stateChanged(word);
 		}

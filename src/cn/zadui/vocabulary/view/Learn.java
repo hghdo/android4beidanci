@@ -59,7 +59,7 @@ public class Learn extends Activity implements View.OnClickListener {
 		
 		course=SimpleCourse.getInstance(status.getCourseFileName());
 		//dict=SimpleDict.getInstance(status.getDictFileName());
-		dict=DictFactory.loadDict(this,course.getLang(), Locale.getDefault().getDisplayLanguage(Locale.ENGLISH));
+		dict=DictFactory.buildDict(this,course.getLang(), Locale.getDefault().getDisplayLanguage(Locale.ENGLISH));
 		
 		adapter=new StudyDbAdapter(this);
 		adapter.open();

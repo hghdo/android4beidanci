@@ -13,7 +13,7 @@ import android.content.Context;
  */
 public class DictFactory {
 
-	public static Dict loadDict(Context context,String srcLang,String toLang){
+	public static Dict buildDict(Context context,String srcLang,String toLang){
 		return networdDict(context);
 //		if(srcLang.equals(Locale.CHINESE.getDisplayLanguage(Locale.ENGLISH)) && toLang.equals(Locale.ENGLISH.getDisplayLanguage(Locale.ENGLISH))){
 //			return networdDict(context);

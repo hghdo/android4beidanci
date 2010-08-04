@@ -36,7 +36,7 @@ public class Lookup extends Activity implements StateChangeListener {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		dict = DictFactory.loadDict(this,
+		dict = DictFactory.buildDict(this,
 				Locale.ENGLISH.getDisplayLanguage(Locale.ENGLISH),
 				Locale.CHINESE.getDisplayLanguage(Locale.ENGLISH));
 

@@ -1,9 +1,8 @@
-1. Currently the progress of a course is stored in Preference. The disadvantage is it can only save single 
-   progress. Should use DB to replace Preference. Then it can track multiple progresses. (100%)
-2. Implement an Internet dictionary. (80%)
-3. Down load examples from the web site.(50%)
-4. Select dictionary
-5. Fine tune Learn UI. Separate phonetic symbol.(100%)
-6. Fine tune Section list. 
-7. Build a Chinese-English dictionary
-8. User can delete old section.
+1.  Currently the progress of a course is stored in Preference. The disadvantage is it can only save single progress. Should use DB to replace Preference. Then it can track multiple progresses. (100%)
+2.  Implement an Internet dictionary. (90%)
+2.1 Add language settings. And this setting will indicate the translation target language. (0%)
+3.  Down load examples from the web site.(80%)
+5.  Fine tune Learn UI. Separate phonetic symbol.(100%)
+6.  Fine tune Section list. 
+7.  Build a Chinese-English dictionary
+8.  User can delete old section.
