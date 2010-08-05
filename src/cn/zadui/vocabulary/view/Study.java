@@ -348,32 +348,7 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 				section.freeze();
 				finish();			
 			}			
-//			if (cw!=null && saveCurrentWord){
-//				cache.add(cw);
-//				section.addWord(cw);// add current word to section
-//			}
 		}
-		/*
-		if (cache.hasNext()){
-			cw=cache.forword();
-			fillLearnSnipViewHeadword(cw.getHeadword());
-			fillLearnSnipViewContent(cw);
-		}else{
-			if (cw!=null && saveCurrentWord){
-				cache.add(cw);
-				section.addWord(cw);// add current word to section
-			}
-			try{
-				String headword=course.getContent(status.getNextContentOffset());// Fetch a new word from course.
-				fillLearnSnipViewHeadword(headword);
-				updateCourseStatus(headword);
-				runLookupService(headword);
-			}catch(EOFCourseException e){
-				section.freeze();
-				finish();			
-			}
-		}	
-		*/	
 	}	
 
 	private void previousContent() {
@@ -387,12 +362,6 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		cw=pw;
 		fillLearnSnipViewHeadword(cw.getHeadword());
 		fillLearnSnipViewContent(cw);
-		/*
-		cw=cache.back();
-		if (cw==null) return;
-		fillLearnSnipViewHeadword(cw.getHeadword());
-		fillLearnSnipViewContent(cw);
-		*/
 	}
 	
 	class MySimpleGestureListener extends SimpleOnGestureListener {
@@ -408,7 +377,7 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 				bringViewToFront(vLearn);
 				nextContent();
 				return true;
-			}else if (e2.getX() - e1.getX() < SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+			}else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
 				bringViewToFront(vLearn);
 				previousContent();
 				return true;

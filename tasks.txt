@@ -6,3 +6,6 @@
 6.  Fine tune Section list. 
 7.  Build a Chinese-English dictionary
 8.  User can delete old section.
+9.  Select already studied course from course list will reset current studied course.(defect)
+
+10. Carry out solution for spelling examination.
