@@ -18,12 +18,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.Html;
+import android.text.InputFilter;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.GestureDetector.SimpleOnGestureListener;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -65,6 +67,7 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 	private GestureDetector gestureDetector;
 	private View vLearn;
 	private View vExamples;
+	private View vSpelling;
 	
 	private ProgressDialog progressDialog;
 	
@@ -83,6 +86,8 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 	private TextView tvHeadword;
 	private TextView tvMeaning;
 	private TextView tvPhonetic;
+	// Spelling controls
+	private EditText etSpelling;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +102,7 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		gestureDetector = new GestureDetector(this,new MySimpleGestureListener());		
 		vLearn=findViewById(R.id.learn_snip);
 		vExamples=findViewById(R.id.examples_snip);
+		vSpelling=findViewById(R.id.spelling_snip);
 		bringViewToFront(vLearn);
 		
 		course=SimpleCourse.getInstance(status.getCourseFileName());
@@ -107,13 +113,33 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		tvHeadword=(TextView) findViewById(R.id.headword);
 		tvMeaning=(TextView) findViewById(R.id.meaning);
 		tvPhonetic=(TextView) findViewById(R.id.phonetic);
+		etSpelling=(EditText)findViewById(R.id.et_study_spell);
 		
+		etSpelling.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				((EditText)v).selectAll();
+				//etSpelling.selectAll();
+			}
+		});
+		/*
+		etSpelling.setOnTouchListener(new View.OnTouchListener() {
+			
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				etSpelling.selectAll();
+				return false;
+			}
+		});
+		*/
 		((ImageButton)findViewById(R.id.btn_next_word)).setOnClickListener(this);
 		((ImageButton)findViewById(R.id.btn_mastered_word)).setOnClickListener(this);
 		((ImageButton)findViewById(R.id.btn_previous_word)).setOnClickListener(this);
 		((ImageButton)findViewById(R.id.btn_learn_close_section)).setOnClickListener(this);
 		((ImageButton)findViewById(R.id.btn_learn_examples)).setOnClickListener(this);
 		((ImageButton)findViewById(R.id.btn_learn_study)).setOnClickListener(this);
+		((ImageButton)findViewById(R.id.btn_learn_spelling)).setOnClickListener(this);
 		
 		serviceHandler=new Handler(){
             @Override
@@ -234,6 +260,12 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		}else if (v.getId()==R.id.btn_learn_study){
 			bringViewToFront(vLearn);
 			return;
+		}else if (v.getId()==R.id.btn_learn_spelling){
+			bringViewToFront(vSpelling);
+			etSpelling.setFilters(new InputFilter[]{
+					new InputFilter.LengthFilter(cw.getHeadword().length())
+			});
+			return;
 		}else if (v.getId()==R.id.btn_learn_examples){
 			bringViewToFront(vExamples);
 			if (exampleFor!=null && exampleFor.equals(cw.getHeadword())) return;
@@ -325,6 +357,7 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 	private void bringViewToFront(View v){
 		vLearn.setVisibility(View.GONE);
 		vExamples.setVisibility(View.GONE);
+		vSpelling.setVisibility(View.GONE);
 		v.setVisibility(View.VISIBLE);
 	}
 

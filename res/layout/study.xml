@@ -7,6 +7,7 @@
 	<FrameLayout android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_weight="1">
 		<include android:id="@+id/learn_snip" layout="@layout/learn_snip"></include>
 		<include android:id="@+id/examples_snip" layout="@layout/examples_snip"></include>
+		<include android:id="@+id/spelling_snip" layout="@layout/spelling_snip"></include>
 	</FrameLayout>	
 
 	<LinearLayout

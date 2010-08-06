@@ -23,8 +23,12 @@ import android.widget.TextView;
 import cn.zadui.vocabulary.R;
 
 /**
+ * This activity used in 3 situations.
+ * 1. Show the meaning of a headword and let user spelling it.
+ * 2. Show the headword/content let the user recall it's meaning.
+ * 3. Show the meaning/translate of a headword/content and let user recall it's headword/content
  * TODO Should store the cur position in onPause callback and restore it in onResume
- * @author David
+ * @author Huang Gehua
  *
  */
 public class Exam extends Activity implements View.OnClickListener,StateChangeListener{
