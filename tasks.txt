@@ -9,3 +9,11 @@
 9.  Select already studied course from course list will reset current studied course.(defect)
 
 10. Carry out solution for spelling examination.
+
+English - en
+Spanish - es
+Chinese(Simpled) - zh-CN
+Chinese(Traditional) - zh-TW
+French - fr
+German - de
+Russian - ru

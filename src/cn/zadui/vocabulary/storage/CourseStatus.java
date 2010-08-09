@@ -7,8 +7,6 @@ import android.database.Cursor;
 
 public class CourseStatus {
 
-	public static final String PREFS_NAME="beidanci.prefs";
-	
 	/**
 	 * The home directory where is used to save this application's data  
 	 */
@@ -17,22 +15,10 @@ public class CourseStatus {
 	 * Used for initialize the {@link lastWord} property.
 	 */
 	public static final String AT_BEGINNING="initialStatus";
-	
-	public static final String SP_KEY_CURRENT_COURSE_FILE_NAME="currentCourseFileName";
-	public static final String SP_KEY_CURRENT_COURSE_NAME="currentCourseName";
-	public static final String SP_KEY_LEARNED_COUNT="learnedWordsCount";
-	public static final String SP_KEY_NEXT_CONTENT_OFFSET="nextContentOffset";
-	public static final String SP_KEY_LAST_WORD="lastWord";
-	public static final String SP_KEY_CONTENT_COUNT="content_count";
-	public static final String SP_KEY_DICT_FILE_NAME="defDictFileName";
-	public static final String SP_KEY_UNIT_CREATE_STYLE="unitCreateStyle";
-	public static final String SP_KEY_UNIT_CREATE_STYLE_VALUE="unitCreateStyleValue";
 
-	//private static Status status;
-	//public static SharedPreferences spSettings;
-	
 	//If no course is selected to study empty is true
 	private boolean empty=false;
+	
 	// Course status
 	private String courseFileName;
 	private String courseName;
@@ -42,20 +28,16 @@ public class CourseStatus {
 	private int contentCount;
 	private int unitCreateStyle;
 	private int unitCreateStyleValue;
+	
 	//Dict status
 	private String dictFileName;
 	
 	private long rowId=0;
 	
-//	public static Status getInstance(SharedPreferences sp){
-//		if (status==null) status=new Status(sp);
-//		return status;
-//	}
-	
-	public CourseStatus(){
-		
-	}
-	
+	/**
+	 * Create from a {@Link Course}
+	 * @param c
+	 */
 	public CourseStatus(Course c){
 		courseName=c.getName();
 		courseFileName=c.getCourseFileName();
@@ -65,21 +47,29 @@ public class CourseStatus {
 		contentCount=c.getContentCount();	
 		unitCreateStyle=Section.WORDS_COUNT_STYLE;
 		unitCreateStyleValue=Section.WORDS_COUNT_STYLE_DEFAULT;
-		empty=(courseFileName==null || courseFileName.length()<1);
 	}
 	
-	public CourseStatus(SharedPreferences sp){
-		courseName=sp.getString(SP_KEY_CURRENT_COURSE_NAME, courseName);
-		courseFileName=sp.getString(SP_KEY_CURRENT_COURSE_FILE_NAME, "");
-		learnedWordsCount=sp.getInt(SP_KEY_LEARNED_COUNT, 0);	
-		lastWord=sp.getString(SP_KEY_LAST_WORD, AT_BEGINNING);
-		nextContentOffset=sp.getLong(SP_KEY_NEXT_CONTENT_OFFSET, 0);	
-		contentCount=sp.getInt(SP_KEY_CONTENT_COUNT, 0);	
-		//TODO Should add a mechanism to select a default course.
-		dictFileName=sp.getString(SP_KEY_DICT_FILE_NAME, "");
-		unitCreateStyle=sp.getInt(SP_KEY_UNIT_CREATE_STYLE, Section.WORDS_COUNT_STYLE);
-		unitCreateStyleValue=sp.getInt("SP_KEY_UNIT_CREATE_STYLE_VALUE", Section.WORDS_COUNT_STYLE_DEFAULT);
-		empty=(courseFileName==null || courseFileName.length()<1);
+	/**
+	 * Try to load last CourseStatus
+	 * @param sp
+	 * @param dbAdapter
+	 */
+	public CourseStatus(long _id,StudyDbAdapter dbAdapter){
+		empty=true;
+		if (_id==0) return;
+		Cursor c=dbAdapter.findCourseStatus(_id);
+		if (!c.moveToFirst()){
+			c.close();
+			return;
+		}
+		rowId=c.getLong(c.getColumnIndex(StudyDbAdapter.KEY_ROWID));
+		courseName=c.getString(c.getColumnIndex(StudyDbAdapter.KEY_COURSE_NAME));
+		courseFileName=c.getString(c.getColumnIndex(StudyDbAdapter.KEY_COURSE_FILE_NAME));
+		learnedWordsCount=c.getInt(c.getColumnIndex(StudyDbAdapter.KEY_LEARNED_CONTENT_COUNT));
+		lastWord=c.getString(c.getColumnIndex(StudyDbAdapter.KEY_LAST_WORD));
+		nextContentOffset=c.getLong(c.getColumnIndex(StudyDbAdapter.KEY_NEXT_CONTENT_OFFSET));
+		contentCount=c.getInt(c.getColumnIndex(StudyDbAdapter.KEY_CONTENT_COUNT));
+		c.close();
 	}
 	
 	public CourseStatus(Cursor c){
@@ -92,6 +82,11 @@ public class CourseStatus {
 		contentCount=c.getInt(c.getColumnIndex(StudyDbAdapter.KEY_CONTENT_COUNT));
 	}
 	
+	public long save(StudyDbAdapter dbAdapter){
+		return dbAdapter.saveOrUpdateCourseStatus(this);
+	}
+
+	/*
 	public void refresh(SharedPreferences sp){
 		courseName=sp.getString(SP_KEY_CURRENT_COURSE_NAME, courseName);
 		courseFileName=sp.getString(SP_KEY_CURRENT_COURSE_FILE_NAME, "");
@@ -119,6 +114,7 @@ public class CourseStatus {
 		editor.putInt(SP_KEY_UNIT_CREATE_STYLE_VALUE, unitCreateStyleValue);
 		editor.commit();
 	}
+	*/
 	
 	/*
 	public void updateStatus(CourseStatus cs){
@@ -166,6 +162,7 @@ public class CourseStatus {
 	 * @return whether there is a course selected for study
 	 */
 	public boolean isEmpty() {
+		empty=(courseFileName==null || courseFileName.length()<1);
 		return empty;
 	}
 
@@ -231,6 +228,10 @@ public class CourseStatus {
 
 	public int getContentCount() {
 		return contentCount;
+	}
+	
+	public void setRowId(long _id){
+		rowId=_id;
 	}
 
 	public long getRowId() {

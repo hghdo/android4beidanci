@@ -15,4 +15,6 @@ public interface Dict {
 	
 	public String getDictName();
 	
+	public boolean canSupport(String srcLang,String toLang);
+	
 }

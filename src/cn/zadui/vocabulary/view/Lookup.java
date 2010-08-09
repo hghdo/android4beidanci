@@ -78,7 +78,7 @@ public class Lookup extends Activity implements StateChangeListener {
 	}
 
 	@Override
-	public void stateChanged(Object word) {
+	public void onServiceStateChanged(Object word) {
 		Word w = (Word)word;
 		tvHeadword.setText(w.getHeadword());
 		Typeface mFace=Typeface.createFromAsset(getAssets(), "font/SEGOEUI.TTF");

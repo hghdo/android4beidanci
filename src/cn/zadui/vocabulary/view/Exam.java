@@ -83,10 +83,10 @@ public class Exam extends Activity implements View.OnClickListener,StateChangeLi
 		findViewById(R.id.btn_exam_forgot).setTag(Word.FORGOT);
 		
 		
-		if (getIntent().getExtras().getInt(DIRECTION)==Units.EXAM_MEANING_TO_SPELLING){
+		if (getIntent().getExtras().getInt(DIRECTION)==Sections.EXAM_MEANING_TO_SPELLING){
 			tvFirstTitle.setText(getResources().getString(R.string.meaning));
 			tvSecondTitle.setText(getResources().getString(R.string.spelling));
-		}else if (getIntent().getExtras().getInt(DIRECTION)==Units.EXAM_SPELLING_TO_MEANING){
+		}else if (getIntent().getExtras().getInt(DIRECTION)==Sections.EXAM_SPELLING_TO_MEANING){
 			tvFirstTitle.setText(getResources().getString(R.string.spelling));
 			tvSecondTitle.setText(getResources().getString(R.string.meaning));
 		}else{
@@ -113,10 +113,10 @@ public class Exam extends Activity implements View.OnClickListener,StateChangeLi
 		bottomBar.setVisibility(View.GONE);
 		btnAnswer.setVisibility(View.VISIBLE);
 		tvExamAnswer.setTextColor(getResources().getColor(R.color.white));
-		if (getIntent().getExtras().getInt(DIRECTION)==Units.EXAM_MEANING_TO_SPELLING){
+		if (getIntent().getExtras().getInt(DIRECTION)==Sections.EXAM_MEANING_TO_SPELLING){
 			tvExamTip.setText(word.getMeaning());
 			tvExamAnswer.setText(word.getHeadword());		
-		}else if (getIntent().getExtras().getInt(DIRECTION)==Units.EXAM_SPELLING_TO_MEANING){
+		}else if (getIntent().getExtras().getInt(DIRECTION)==Sections.EXAM_SPELLING_TO_MEANING){
 			tvExamTip.setText(word.getHeadword());
 			tvExamAnswer.setText(word.getMeaning());		
 		}else{
@@ -188,7 +188,7 @@ public class Exam extends Activity implements View.OnClickListener,StateChangeLi
 	}
 
 	@Override
-	public void stateChanged(Object result) {
+	public void onServiceStateChanged(Object result) {
 		tvExamTip.setText(
 				Html.fromHtml((String)result)
 				);

@@ -4,7 +4,7 @@
       android:versionCode="1"
       android:versionName="1.0">
     <application android:icon="@drawable/library" android:label="@string/app_name">
-        <activity android:name="cn.zadui.vocabulary.view.Main"
+        <activity android:name="cn.zadui.vocabulary.view.LearnedCourses"
                   android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -21,12 +21,13 @@
         </activity>
         -->
         <activity android:name="cn.zadui.vocabulary.view.Study" />
-        <activity android:name="cn.zadui.vocabulary.view.Learn" />
-        <activity android:name="cn.zadui.vocabulary.view.Units" />
+        <activity android:name="cn.zadui.vocabulary.view.Sections" />
         <activity android:name="cn.zadui.vocabulary.view.Review" />
         <activity android:name="cn.zadui.vocabulary.view.Exam" />
         <activity android:name="cn.zadui.vocabulary.view.Examples" />
+        <activity android:name="cn.zadui.vocabulary.view.Settings" />
 		<!--         
+        <activity android:name="cn.zadui.vocabulary.view.Learn" />
         <activity android:name=".ExamTwo" android:windowSoftInputMode="adjustPan"/>
         -->
         <activity android:name="cn.zadui.vocabulary.view.CourseList" />

@@ -42,6 +42,7 @@ import cn.zadui.vocabulary.service.ExampleService;
 import cn.zadui.vocabulary.service.NetworkService;
 import cn.zadui.vocabulary.service.StateChangeListener;
 import cn.zadui.vocabulary.storage.CourseStatus;
+import cn.zadui.vocabulary.storage.PrefStore;
 import cn.zadui.vocabulary.storage.StudyDbAdapter;
 
 /**
@@ -59,8 +60,8 @@ import cn.zadui.vocabulary.storage.StudyDbAdapter;
  */
 public class Study extends Activity implements View.OnClickListener,StateChangeListener {
 
-	private static final int MAX_UNSAVED_WORDS=5;
 	private static final String TAG="Study";
+	//private static final int MAX_UNSAVED_WORDS=5;
 	private static final int HANDLE_LOOKUP=0;
 	private static final int HANDLE_EXAMPLE=1;
 	
@@ -71,10 +72,10 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 	
 	private ProgressDialog progressDialog;
 	
-	private SharedPreferences spSettings;
+	//private SharedPreferences spSettings;
 	private CourseStatus status;
 	private Course course;
-	private LearnCache cache=new LearnCache(50,MAX_UNSAVED_WORDS);
+	//private LearnCache cache=new LearnCache(50,MAX_UNSAVED_WORDS);
 	private Word cw=null;
 	private String exampleFor;
 	private Section section=null;
@@ -89,11 +90,19 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 	// Spelling controls
 	private EditText etSpelling;
 	
+	/**
+	 * If is the "last word" then should not add this word into the study section, other wise 
+	 * should add it in.
+	 */
+	private boolean isLastWord=false;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		spSettings = getSharedPreferences(CourseStatus.PREFS_NAME, 0);		
-		status=new CourseStatus(spSettings);
+		//spSettings = getSharedPreferences(PrefStore.PREFS_NAME, 0);		
+		dbAdapter=new StudyDbAdapter(this);
+		dbAdapter.open();
+		status=new CourseStatus(PrefStore.getCurrentCourseStatusId(this),dbAdapter);
 		
 		requestWindowFeature(Window.FEATURE_PROGRESS);
 		setContentView(R.layout.study);
@@ -106,8 +115,6 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		bringViewToFront(vLearn);
 		
 		course=SimpleCourse.getInstance(status.getCourseFileName());
-		dbAdapter=new StudyDbAdapter(this);
-		dbAdapter.open();
 		section=Section.obtain(dbAdapter,course.getName());
         
 		tvHeadword=(TextView) findViewById(R.id.headword);
@@ -116,23 +123,13 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		etSpelling=(EditText)findViewById(R.id.et_study_spell);
 		
 		etSpelling.setOnClickListener(new View.OnClickListener() {
-			
 			@Override
 			public void onClick(View v) {
 				((EditText)v).selectAll();
 				//etSpelling.selectAll();
 			}
 		});
-		/*
-		etSpelling.setOnTouchListener(new View.OnTouchListener() {
-			
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				etSpelling.selectAll();
-				return false;
-			}
-		});
-		*/
+
 		((ImageButton)findViewById(R.id.btn_next_word)).setOnClickListener(this);
 		((ImageButton)findViewById(R.id.btn_mastered_word)).setOnClickListener(this);
 		((ImageButton)findViewById(R.id.btn_previous_word)).setOnClickListener(this);
@@ -166,10 +163,13 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 	 * TODO It could be smaller if move network task from Service to Runnable. 
 	 */
 	@Override
-	public void stateChanged(Object result) {
+	public void onServiceStateChanged(Object result) {
 		if (result instanceof Word){
 			cw=(Word)result;
-			section.addWord(cw);
+			if (!isLastWord){
+				section.addWord(cw);
+				isLastWord=false;
+			}
 			serviceHandler.sendEmptyMessage(HANDLE_LOOKUP);
 		}else{
 			String jstr=(String)result;
@@ -192,11 +192,6 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 			}
 		}
 	}
-	
-	@Override
-	protected void onResume() {
-		super.onResume();
-	}
 
 	@Override
 	protected void onStart(){
@@ -207,6 +202,7 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 			setProgress(0);
 			setTitle(this.getResources().getString(R.string.learn_title));
 		}else{
+			isLastWord=true;
 			fillLearnSnipViewHeadword(lastWord);
 			runLookupService(lastWord);
 		}
@@ -233,8 +229,7 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 
 	@Override
 	protected void onPause() {
-		status.saveCourseStatusToPreferences(spSettings);
-		dbAdapter.saveOrUpdateCourseStatus(status);
+		status.save(dbAdapter);
 		super.onPause();
 	}
 
@@ -255,7 +250,6 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 			nextContent();
 		}else if(v.getId()==R.id.btn_previous_word){
 			bringViewToFront(vLearn);
-			// TODO select previous word from db.
 			previousContent();
 		}else if (v.getId()==R.id.btn_learn_study){
 			bringViewToFront(vLearn);

@@ -1,16 +1,17 @@
 package cn.zadui.vocabulary.storage;
 
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
-
-import cn.zadui.vocabulary.model.Section;
-import cn.zadui.vocabulary.model.Word;
+import java.util.Map;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import cn.zadui.vocabulary.model.Section;
+import cn.zadui.vocabulary.model.Word;
 
 /**
  * Used to save user study history. The first review time is specified when the unit was first created.
@@ -254,21 +255,40 @@ public class StudyDbAdapter {
 		}
 		return mDb.update(UNIT_WORDS_TABLE, args, KEY_ROWID + "=" + word.getId(), null) > 0;
 	}
+	
+	public Cursor findCourseStatus(long rowId){
+		Cursor c=mDb.query(COURSE_STATUS_TABLE,null,"_id="+String.valueOf(rowId),null,null,null,null);
+		return c;
+	}
     
-    public List<CourseStatus> fetchCourseStatus(){
+    public LinkedList<Map<String,String>> fetchCourseStatusList(){
     	Cursor c=mDb.query(COURSE_STATUS_TABLE,null,null,null,null,null,null);
-    	ArrayList<CourseStatus> list=new ArrayList<CourseStatus>();
+    	LinkedList<Map<String,String>> list=new LinkedList<Map<String,String>>();
     	while(c.moveToNext()){
-			list.add(new CourseStatus(c));
+    		Map<String,String> m=new HashMap<String,String>();
+    		m.put(KEY_COURSE_NAME, c.getString(c.getColumnIndex(KEY_COURSE_NAME)));
+    		m.put(KEY_LEARNED_CONTENT_COUNT, String.valueOf(c.getInt(c.getColumnIndex(KEY_LEARNED_CONTENT_COUNT))));
+    		m.put(KEY_LEARNED_CONTENT_COUNT, String.valueOf(c.getInt(c.getColumnIndex(KEY_CONTENT_COUNT))));
+			list.add(m);
     	}
     	return list;
     }
     
-    public boolean saveOrUpdateCourseStatus(CourseStatus cs){
+	/**
+	 * List all {@link CourseStatus}
+	 * @return
+	 */
+    public Cursor fetchCourseStatus(){
+    	return mDb.query(COURSE_STATUS_TABLE,null,null,null,null,null,null);
+    }
+    
+    public long saveOrUpdateCourseStatus(CourseStatus cs){
     	if (cs.isNew()){
-    		return insertCourseStatus(cs)>0;
+    		cs.setRowId(insertCourseStatus(cs));
+    		return cs.getRowId();
     	}else{
-    		return updateCourseStatus(cs);
+    		updateCourseStatus(cs);
+    		return cs.getRowId();
     	}
     }
     

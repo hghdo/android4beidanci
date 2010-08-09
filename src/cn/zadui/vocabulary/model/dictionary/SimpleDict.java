@@ -289,5 +289,11 @@ public class SimpleDict implements Dict {
 		return w;
 	}
 
+	@Override
+	public boolean canSupport(String srcLang, String toLang) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 	
 }

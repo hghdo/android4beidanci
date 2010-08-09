@@ -47,7 +47,7 @@ public class DictionaryService extends NetworkService {
 		public void run(){	
 			Dict dict=DictFactory.buildDict(DictionaryService.this, srcLang, Locale.getDefault().getDisplayLanguage(Locale.ENGLISH));
 			word=dict.lookup(headword,null,null,null);
-			stateListener.stateChanged(word);
+			stateListener.onServiceStateChanged(word);
 		}
 		
 	}

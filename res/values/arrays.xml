@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string-array name="language_entries">
+        <item>English[en]</item>
+        <item>Chinese(Simplified)[zh-CN]</item>
+        <item>Chinese(Traditional)[zh-TW]</item>
+        <item>French[fr]</item>
+        <item>Spanish[es]</item>
+        <item>Russian[ru]</item>
+        <item>German[du]</item>
+    </string-array>
+</resources>

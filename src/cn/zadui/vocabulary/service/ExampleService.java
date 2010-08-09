@@ -23,7 +23,7 @@ public class ExampleService extends NetworkService {
 		case NetworkService.SELECTIVE_EXAMPLE_ACTION:
 			headword=intent.getExtras().getString(NetworkService.KEY_HEADWORD);
 			try {
-				stateListener.stateChanged(
+				stateListener.onServiceStateChanged(
 						NetworkHelper.getStringFromNetIO(
 								NetworkHelper.buildUrlConnection(NetworkHelper.exampleUrl(headword, null, null))
 								)
@@ -48,7 +48,7 @@ public class ExampleService extends NetworkService {
 		
 		public void run(){
 			try {
-				stateListener.stateChanged(
+				stateListener.onServiceStateChanged(
 						NetworkHelper.getStringFromNetIO(
 								NetworkHelper.buildUrlConnection(NetworkHelper.googleAjaxUrl(headword, null, null))
 								)

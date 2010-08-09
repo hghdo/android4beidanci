@@ -21,6 +21,12 @@ public class ErrorDict implements Dict {
 		w.setMeaning(Dict.ERROR_WORD);
 		return w;
 	}
+
+	@Override
+	public boolean canSupport(String srcLang, String toLang) {
+		// TODO Auto-generated method stub
+		return true;
+	}
 	
 	
 

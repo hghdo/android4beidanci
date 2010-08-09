@@ -20,6 +20,7 @@ import cn.zadui.vocabulary.model.course.Course.EOFCourseException;
 import cn.zadui.vocabulary.model.dictionary.Dict;
 import cn.zadui.vocabulary.model.dictionary.DictFactory;
 import cn.zadui.vocabulary.storage.CourseStatus;
+import cn.zadui.vocabulary.storage.PrefStore;
 import cn.zadui.vocabulary.storage.StudyDbAdapter;
 
 /**
@@ -38,7 +39,7 @@ public class Learn extends Activity implements View.OnClickListener {
 	private Button btnPrevious;
 	private Course course;
 	private Dict dict;
-	SharedPreferences spSettings;
+	//SharedPreferences spSettings;
 	CourseStatus status;
 	private static final int MAX_UNSAVED_WORDS=5;
 	LearnCache cache=new LearnCache(50,MAX_UNSAVED_WORDS);
@@ -50,8 +51,8 @@ public class Learn extends Activity implements View.OnClickListener {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		spSettings = getSharedPreferences(CourseStatus.PREFS_NAME, 0);		
-		status=new CourseStatus(spSettings);
+		//spSettings = getSharedPreferences(PrefStore.PREFS_NAME, 0);		
+		status=new CourseStatus(PrefStore.getCurrentCourseStatusId(this),null);
 		
 		requestWindowFeature(Window.FEATURE_PROGRESS);
 		setContentView(R.layout.learn);
@@ -84,7 +85,7 @@ public class Learn extends Activity implements View.OnClickListener {
 
 	@Override
 	protected void onPause() {
-		status.saveCourseStatusToPreferences(spSettings);
+		//status.saveCourseStatusToPreferences(spSettings);
 		adapter.saveOrUpdateCourseStatus(status);
 		//section.saveUnsavedWords();
 		super.onPause();

@@ -116,7 +116,7 @@ public class Examples extends ListActivity implements StateChangeListener,View.O
 
 
 	@Override
-	public void stateChanged(Object result){
+	public void onServiceStateChanged(Object result){
 		String jstr=(String)result;
 		try {
 			JSONObject jo=new JSONObject(jstr);

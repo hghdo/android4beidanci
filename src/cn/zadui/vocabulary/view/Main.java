@@ -4,8 +4,8 @@ import java.io.File;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -13,6 +13,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import cn.zadui.vocabulary.R;
 import cn.zadui.vocabulary.storage.CourseStatus;
+import cn.zadui.vocabulary.storage.PrefStore;
+import cn.zadui.vocabulary.storage.StudyDbAdapter;
 
 public class Main extends Activity {
 
@@ -20,20 +22,23 @@ public class Main extends Activity {
 	private TextView tvCurrentProgressTitle;
 	private Button btnLearn;
 	private ImageButton btnSelectCourse;
-	SharedPreferences spSettings ;
-	CourseStatus status;
 	ProgressBar pb;
+	CourseStatus status;
+	StudyDbAdapter dbAdapter=null;
+	
+	static final String TAG="MMMMMMMMMMMMMMMMMMain";
 	
 	static final int SELECT_COURSE_REQUEST=0;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		//TODO should move this initial checkDataDir method into {@link Application}
 		checkDataDir();
 		setContentView(R.layout.summary);
-		
-		spSettings = getSharedPreferences(CourseStatus.PREFS_NAME, 0);
-		status=new CourseStatus(spSettings);
+		dbAdapter=new StudyDbAdapter(this);
+		dbAdapter.open();
+		status=new CourseStatus(PrefStore.getCurrentCourseStatusId(this),dbAdapter);
 		
 		tvCurrentCourse=(TextView) findViewById(R.id.current_course_name);
 		tvCurrentProgressTitle=(TextView) findViewById(R.id.tv_summary_pg_title);
@@ -61,7 +66,7 @@ public class Main extends Activity {
 			
 			@Override
 			public void onClick(View v) {
-				Intent units=new Intent(v.getContext(),Units.class);
+				Intent units=new Intent(v.getContext(),Sections.class);
 				startActivity(units);
 			}
 		});
@@ -75,20 +80,34 @@ public class Main extends Activity {
 				
 			}
 		});
+		
+		((ImageButton)findViewById(R.id.btn_settings)).setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Intent settings=new Intent(v.getContext(),Settings.class);
+				startActivity(settings);
+			}
+		});
 	}	
 	
 	@Override
 	protected void onResume() {
 		super.onResume();
-		status.refresh(spSettings);
 		drawCourseSummary();
+	}
+
+	@Override
+	protected void onDestroy() {
+		dbAdapter.close();
+		super.onDestroy();
 	}
 	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode==SELECT_COURSE_REQUEST){
 			if (resultCode==RESULT_OK){
-				status=new CourseStatus(spSettings);
+				status=new CourseStatus(PrefStore.getCurrentCourseStatusId(this),dbAdapter);
 			}
 		}
 	}

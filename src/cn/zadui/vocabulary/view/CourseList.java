@@ -15,11 +15,6 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
-import cn.zadui.vocabulary.model.course.Course;
-import cn.zadui.vocabulary.model.course.SimpleCourse;
-import cn.zadui.vocabulary.storage.CourseStatus;
-import cn.zadui.vocabulary.util.NetworkHelper;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
@@ -35,6 +30,12 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import cn.zadui.vocabulary.R;
+import cn.zadui.vocabulary.model.course.Course;
+import cn.zadui.vocabulary.model.course.SimpleCourse;
+import cn.zadui.vocabulary.storage.CourseStatus;
+import cn.zadui.vocabulary.storage.PrefStore;
+import cn.zadui.vocabulary.storage.StudyDbAdapter;
+import cn.zadui.vocabulary.util.NetworkHelper;
 
 public class CourseList extends ListActivity implements View.OnClickListener {
 	
@@ -102,9 +103,12 @@ public class CourseList extends ListActivity implements View.OnClickListener {
 		    			}
 	            	}
 	            	
-	            	//Update courseStatus
 					Course course=SimpleCourse.getInstance(courseFile.getAbsolutePath());
-					(new CourseStatus(course)).saveCourseStatusToPreferences(getSharedPreferences(CourseStatus.PREFS_NAME, 0));
+					//Update courseStatus
+					StudyDbAdapter dbAdapter=new StudyDbAdapter(CourseList.this);
+					dbAdapter.open();
+					PrefStore.saveCurrentCourseStatusId(CourseList.this, (new CourseStatus(course)).save(dbAdapter));
+					dbAdapter.close();
 					CourseList.this.setResult(RESULT_OK);
 	            	CourseList.this.finish();
 	            }

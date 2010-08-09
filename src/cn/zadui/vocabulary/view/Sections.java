@@ -20,7 +20,7 @@ import cn.zadui.vocabulary.R;
 import cn.zadui.vocabulary.model.Helper;
 import cn.zadui.vocabulary.storage.StudyDbAdapter;
 
-public class Units extends ListActivity {
+public class Sections extends ListActivity {
 
 	public static final int REVIEW=0;
 	public static final int EXAM_MEANING_TO_SPELLING=1;
@@ -42,12 +42,12 @@ public class Units extends ListActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		mf_created_at=new MessageFormat(Units.this.getResources().getString(R.string.unit_created_at),loc);
-		mf_next_exam_at=new MessageFormat(Units.this.getResources().getString(R.string.unit_next_exam_at),loc);	
-		mf_last_exam_at=new MessageFormat(Units.this.getResources().getString(R.string.unit_last_exam_at),loc);	
-		mf_words_count=new MessageFormat(Units.this.getResources().getString(R.string.unit_words_count),loc);	
-		mf_exam_times=new MessageFormat(Units.this.getResources().getString(R.string.unit_exam_times),loc);	
-		mf_unit_id=new MessageFormat(Units.this.getResources().getString(R.string.unit_id),loc);	
+		mf_created_at=new MessageFormat(Sections.this.getResources().getString(R.string.unit_created_at),loc);
+		mf_next_exam_at=new MessageFormat(Sections.this.getResources().getString(R.string.unit_next_exam_at),loc);	
+		mf_last_exam_at=new MessageFormat(Sections.this.getResources().getString(R.string.unit_last_exam_at),loc);	
+		mf_words_count=new MessageFormat(Sections.this.getResources().getString(R.string.unit_words_count),loc);	
+		mf_exam_times=new MessageFormat(Sections.this.getResources().getString(R.string.unit_exam_times),loc);	
+		mf_unit_id=new MessageFormat(Sections.this.getResources().getString(R.string.unit_id),loc);	
 		
 		setContentView(R.layout.units);
 		
@@ -99,9 +99,9 @@ public class Units extends ListActivity {
 						tv.setText(getResources().getString(R.string.never_exam));
 					}else{
 						String[] textValues=Helper.friendlyTime(val);
-						if (textValues[1].equals("hour")) textValues[1]=Units.this.getResources().getString(R.string.hour);
-						else if (textValues[1].equals("month")) textValues[1]=Units.this.getResources().getString(R.string.month);
-						else if (textValues[1].equals("day")) textValues[1]=Units.this.getResources().getString(R.string.day);
+						if (textValues[1].equals("hour")) textValues[1]=Sections.this.getResources().getString(R.string.hour);
+						else if (textValues[1].equals("month")) textValues[1]=Sections.this.getResources().getString(R.string.month);
+						else if (textValues[1].equals("day")) textValues[1]=Sections.this.getResources().getString(R.string.day);
 						tv.setText(mf_last_exam_at.format(textValues));
 								//mf_words_count.format(new Integer[]{cursor.getInt(columnIndex)}));
 					}
