@@ -4,33 +4,15 @@
   android:layout_width="fill_parent"
   android:layout_height="fill_parent"
   android:orientation="vertical">
-	<LinearLayout
-	  xmlns:android="http://schemas.android.com/apk/res/android"
-	  android:layout_width="fill_parent"
-	  android:layout_height="wrap_content"
-	  android:orientation="horizontal"
-	  style="@style/button_bar">  
-		<TextView
-			android:layout_width="fill_parent" 
-			android:layout_height="wrap_content" 
-			android:text="Download Courses"
-			style="@style/units_list_title"/>
-	</LinearLayout>
 	<ListView  
 	    android:id="@android:id/list"
 	    android:layout_width="fill_parent" 
 	    android:layout_height="wrap_content" 
+	    android:dividerHeight="1px" 
 	    android:layout_weight="1"/>
-	<LinearLayout  android:id="@android:id/empty"
-		android:orientation="vertical"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content">   
-		<TextView 
-		    android:layout_width="fill_parent" 
-		    android:layout_height="wrap_content" 
-		    android:text="@string/select_course_first" 
-		    android:ellipsize="end"
-		    style="@style/title"/>
-   </LinearLayout>
-  
+	<Button
+		android:id="@+id/btn_learned_course_new_course"
+	    android:layout_width="fill_parent" 
+	    android:layout_height="wrap_content" 
+	    android:text="Download New Course"/>  
 </LinearLayout>

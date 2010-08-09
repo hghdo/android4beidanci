@@ -99,10 +99,11 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		//spSettings = getSharedPreferences(PrefStore.PREFS_NAME, 0);		
 		dbAdapter=new StudyDbAdapter(this);
 		dbAdapter.open();
-		status=new CourseStatus(PrefStore.getCurrentCourseStatusId(this),dbAdapter);
+		status=new CourseStatus(getIntent().getExtras().getString(StudyDbAdapter.KEY_COURSE_NAME),dbAdapter);
+		PrefStore.saveCurrentCourseStatusId(this, status.getRowId());
+		//status=new CourseStatus(PrefStore.getCurrentCourseStatusId(this),dbAdapter);
 		
 		requestWindowFeature(Window.FEATURE_PROGRESS);
 		setContentView(R.layout.study);

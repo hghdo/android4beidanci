@@ -49,6 +49,17 @@ public class CourseStatus {
 		unitCreateStyleValue=Section.WORDS_COUNT_STYLE_DEFAULT;
 	}
 	
+	public CourseStatus(String courseName,StudyDbAdapter dbAdapter){
+		empty=true;
+		Cursor c=dbAdapter.findCourseStatusByCourseName(courseName);
+		if (!c.moveToFirst()){
+			c.close();
+			return;
+		}
+		loadFromCursor(c);
+		c.close();
+	}
+	
 	/**
 	 * Try to load last CourseStatus
 	 * @param sp
@@ -62,17 +73,11 @@ public class CourseStatus {
 			c.close();
 			return;
 		}
-		rowId=c.getLong(c.getColumnIndex(StudyDbAdapter.KEY_ROWID));
-		courseName=c.getString(c.getColumnIndex(StudyDbAdapter.KEY_COURSE_NAME));
-		courseFileName=c.getString(c.getColumnIndex(StudyDbAdapter.KEY_COURSE_FILE_NAME));
-		learnedWordsCount=c.getInt(c.getColumnIndex(StudyDbAdapter.KEY_LEARNED_CONTENT_COUNT));
-		lastWord=c.getString(c.getColumnIndex(StudyDbAdapter.KEY_LAST_WORD));
-		nextContentOffset=c.getLong(c.getColumnIndex(StudyDbAdapter.KEY_NEXT_CONTENT_OFFSET));
-		contentCount=c.getInt(c.getColumnIndex(StudyDbAdapter.KEY_CONTENT_COUNT));
+		loadFromCursor(c);
 		c.close();
 	}
 	
-	public CourseStatus(Cursor c){
+	public void loadFromCursor(Cursor c){
 		rowId=c.getLong(c.getColumnIndex(StudyDbAdapter.KEY_ROWID));
 		courseName=c.getString(c.getColumnIndex(StudyDbAdapter.KEY_COURSE_NAME));
 		courseFileName=c.getString(c.getColumnIndex(StudyDbAdapter.KEY_COURSE_FILE_NAME));

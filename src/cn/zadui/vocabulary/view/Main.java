@@ -5,7 +5,6 @@ import java.io.File;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -27,8 +26,6 @@ public class Main extends Activity {
 	StudyDbAdapter dbAdapter=null;
 	
 	static final String TAG="MMMMMMMMMMMMMMMMMMain";
-	
-	static final int SELECT_COURSE_REQUEST=0;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +54,7 @@ public class Main extends Activity {
 			@Override
 			public void onClick(View v) {
 				Intent sc=new Intent(v.getContext(), CourseList.class);
-				startActivityForResult(sc, SELECT_COURSE_REQUEST);
+				startActivityForResult(sc, LearnedCourses.SELECT_COURSE_REQUEST);
 			}
 		});
 
@@ -105,7 +102,7 @@ public class Main extends Activity {
 	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode==SELECT_COURSE_REQUEST){
+		if (requestCode==LearnedCourses.SELECT_COURSE_REQUEST){
 			if (resultCode==RESULT_OK){
 				status=new CourseStatus(PrefStore.getCurrentCourseStatusId(this),dbAdapter);
 			}

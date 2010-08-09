@@ -2,18 +2,26 @@
  <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
      android:orientation="vertical"
      android:layout_width="fill_parent"
-     android:layout_height="fill_parent"
-     >
-     <ListView  
-         android:id="@android:id/list"
-         android:layout_width="fill_parent" 
-         android:layout_height="wrap_content" 
-         android:divider="@color/white"
-         android:dividerHeight="1px"
-         />
-     <TextView android:id="@android:id/empty"
-         android:layout_width="wrap_content"
-         android:layout_height="wrap_content"
-         android:text="Empty set"
-         />
+     android:layout_height="fill_parent">
+	 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	     android:orientation="vertical"
+	     android:layout_width="fill_parent"
+	     android:layout_height="wrap_content"
+	     android:layout_weight="1">     
+	     <ListView  
+	         android:id="@android:id/list"
+	         android:layout_width="fill_parent" 
+	         android:layout_height="wrap_content" 
+	         android:divider="@color/white"
+	         android:dividerHeight="1px" />
+	     <TextView android:id="@android:id/empty"
+	         android:layout_width="wrap_content"
+	         android:layout_height="wrap_content"
+	         android:text="Empty set" />
+     </LinearLayout>
+	<Button
+		android:id="@+id/btn_units_study"
+	    android:layout_width="fill_parent" 
+	    android:layout_height="wrap_content" 
+	    android:text="Study This Course"/>  
  </LinearLayout>

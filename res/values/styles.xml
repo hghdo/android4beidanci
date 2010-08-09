@@ -27,6 +27,13 @@
 
 
 <!-- for common row item -->
+<style name="row_style">
+	<item name="android:paddingTop">8dip</item>
+	<item name="android:paddingLeft">5dip</item>
+	<item name="android:paddingRight">2dip</item>
+	<item name="android:paddingBottom">2dip</item>
+</style>
+
 <style name="common_row_style">
 	<item name="android:paddingTop">8dip</item>
 	<item name="android:paddingLeft">5dip</item>

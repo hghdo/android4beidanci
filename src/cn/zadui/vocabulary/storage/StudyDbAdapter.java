@@ -2,7 +2,6 @@ package cn.zadui.vocabulary.storage;
 
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import android.content.ContentValues;
@@ -147,6 +146,10 @@ public class StudyDbAdapter {
     	return mDb.query(UNIT_TABLE, null, KEY_VIRGIN_FLAG+"=0", null, null, null, KEY_CREATED_AT+" desc");
     }
     
+    public Cursor fetchSectionsByCourse(String courseName){
+    	return mDb.query(UNIT_TABLE, null, "virgin_flag=0 and course_name='"+courseName+"'", null, null, null, KEY_CREATED_AT+" desc");
+    }
+    
     public Cursor fetchSection(long rowId){
     	Cursor c=mDb.query(true, UNIT_TABLE, new String[]{KEY_ROWID,KEY_COURSE_NAME,KEY_CREATE_STYLE,KEY_WORDS_COUNT,KEY_VIRGIN_FLAG,KEY_COMMON_EXAM_TIMES,KEY_CREATED_AT,KEY_WORDS_COUNT}, KEY_ROWID+"="+rowId, null, null, null, null, null);
     	return c;
@@ -254,6 +257,11 @@ public class StudyDbAdapter {
 			args.put(KEY_LAST_EXAM_FAILED, 1);
 		}
 		return mDb.update(UNIT_WORDS_TABLE, args, KEY_ROWID + "=" + word.getId(), null) > 0;
+	}
+	
+	public  Cursor findCourseStatusByCourseName(String courseName){
+		Cursor c=mDb.query(COURSE_STATUS_TABLE,null,"course_name='"+courseName+"'",null,null,null,null);
+		return c;
 	}
 	
 	public Cursor findCourseStatus(long rowId){

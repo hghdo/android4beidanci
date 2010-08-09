@@ -12,6 +12,7 @@ import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
@@ -51,8 +52,71 @@ public class Sections extends ListActivity {
 		
 		setContentView(R.layout.units);
 		
-		this.setTitle(getResources().getString(R.string.units_title));
+		//setTitle(getResources().getString(R.string.units_title));
+		setTitle(getIntent().getExtras().getString(StudyDbAdapter.KEY_COURSE_NAME));
 		
+		((Button)findViewById(R.id.btn_units_study)).setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Intent i = new Intent(v.getContext(), Study.class);
+				i.putExtra(StudyDbAdapter.KEY_COURSE_NAME, getIntent().getExtras().getString(StudyDbAdapter.KEY_COURSE_NAME));
+				startActivity(i);
+			}
+		});
+		
+		fillData();
+		registerForContextMenu(getListView());
+	}
+
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v,
+			ContextMenuInfo menuInfo) {
+		super.onCreateContextMenu(menu, v, menuInfo);
+		menu.add(0,REVIEW,0,getResources().getString(R.string.review));
+		menu.add(0,EXAM_MEANING_TO_SPELLING,0,getResources().getString(R.string.exam_meaning_2_spelling));
+		menu.add(0,EXAM_SPELLING_TO_MEANING,0,getResources().getString(R.string.exam_spelling_2_meaning));
+		menu.add(0,EXAM_BY_EXAMPLES,0,getResources().getString(R.string.exam_by_example));
+	}
+	
+	@Override
+	public boolean onContextItemSelected(MenuItem item){
+		AdapterContextMenuInfo info=(AdapterContextMenuInfo)item.getMenuInfo();
+		Intent newIntent=new Intent();
+		newIntent.putExtra("id", info.id);
+		
+		switch(item.getItemId()){
+		case REVIEW:
+			newIntent.setClass(this, Review.class);
+			break;
+		case EXAM_MEANING_TO_SPELLING:
+			newIntent.setClass(this, Exam.class);
+			newIntent.putExtra(Exam.DIRECTION, EXAM_MEANING_TO_SPELLING);
+			break;
+		case EXAM_SPELLING_TO_MEANING:
+			newIntent.setClass(this, Exam.class);
+			newIntent.putExtra(Exam.DIRECTION, EXAM_SPELLING_TO_MEANING);
+			break;
+		case EXAM_BY_EXAMPLES:
+			newIntent.setClass(this, Examples.class);
+			newIntent.putExtra(Exam.DIRECTION, EXAM_BY_EXAMPLES);
+			break;
+		}
+		startActivity(newIntent);
+		return true;
+		
+	}
+
+	@Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+		super.onListItemClick(l, v, position, id);
+		Intent newIntent=new Intent();
+		newIntent.putExtra("id", id);
+		newIntent.setClass(this, Review.class);
+		startActivity(newIntent);
+	}
+
+	private void fillData() {
 		int[] displayViews=new int[]{
 				R.id.tv_unit_id,
 				R.id.tv_unit_course_name,
@@ -75,7 +139,7 @@ public class Sections extends ListActivity {
 		StudyDbAdapter dbAdapter=new StudyDbAdapter(this);
 		dbAdapter.open();
 		
-		SimpleCursorAdapter adapter=new SimpleCursorAdapter(this,R.layout.units_row,dbAdapter.fetchSections(),columns,displayViews);
+		SimpleCursorAdapter adapter=new SimpleCursorAdapter(this,R.layout.units_row,dbAdapter.fetchSectionsByCourse(getIntent().getExtras().getString(StudyDbAdapter.KEY_COURSE_NAME)),columns,displayViews);
 		adapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
 			
 			@Override
@@ -148,54 +212,6 @@ public class Sections extends ListActivity {
 		});
 		setListAdapter(adapter);
 		dbAdapter.close();
-		registerForContextMenu(getListView());
-	}
-
-	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v,
-			ContextMenuInfo menuInfo) {
-		super.onCreateContextMenu(menu, v, menuInfo);
-		menu.add(0,REVIEW,0,getResources().getString(R.string.review));
-		menu.add(0,EXAM_MEANING_TO_SPELLING,0,getResources().getString(R.string.exam_meaning_2_spelling));
-		menu.add(0,EXAM_SPELLING_TO_MEANING,0,getResources().getString(R.string.exam_spelling_2_meaning));
-		menu.add(0,EXAM_BY_EXAMPLES,0,getResources().getString(R.string.exam_by_example));
-	}
-	
-	@Override
-	public boolean onContextItemSelected(MenuItem item){
-		AdapterContextMenuInfo info=(AdapterContextMenuInfo)item.getMenuInfo();
-		Intent newIntent=new Intent();
-		newIntent.putExtra("id", info.id);
-		
-		switch(item.getItemId()){
-		case REVIEW:
-			newIntent.setClass(this, Review.class);
-			break;
-		case EXAM_MEANING_TO_SPELLING:
-			newIntent.setClass(this, Exam.class);
-			newIntent.putExtra(Exam.DIRECTION, EXAM_MEANING_TO_SPELLING);
-			break;
-		case EXAM_SPELLING_TO_MEANING:
-			newIntent.setClass(this, Exam.class);
-			newIntent.putExtra(Exam.DIRECTION, EXAM_SPELLING_TO_MEANING);
-			break;
-		case EXAM_BY_EXAMPLES:
-			newIntent.setClass(this, Examples.class);
-			newIntent.putExtra(Exam.DIRECTION, EXAM_BY_EXAMPLES);
-			break;
-		}
-		startActivity(newIntent);
-		return true;
-		
-	}
-
-	@Override
-	protected void onListItemClick(ListView l, View v, int position, long id) {
-		super.onListItemClick(l, v, position, id);
-		Intent newIntent=new Intent();
-		newIntent.putExtra("id", id);
-		newIntent.setClass(this, Review.class);
-		startActivity(newIntent);
 	}
 	
 }
