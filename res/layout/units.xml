@@ -23,5 +23,5 @@
 		android:id="@+id/btn_units_study"
 	    android:layout_width="fill_parent" 
 	    android:layout_height="wrap_content" 
-	    android:text="Study This Course"/>  
+	    android:text="Go on study"/>  
  </LinearLayout>

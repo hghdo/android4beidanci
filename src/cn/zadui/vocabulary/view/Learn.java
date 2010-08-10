@@ -52,7 +52,7 @@ public class Learn extends Activity implements View.OnClickListener {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		//spSettings = getSharedPreferences(PrefStore.PREFS_NAME, 0);		
-		status=new CourseStatus(PrefStore.getCurrentCourseStatusId(this),null);
+		status=new CourseStatus(PrefStore.getSelectedCourseStatusId(this),null);
 		
 		requestWindowFeature(Window.FEATURE_PROGRESS);
 		setContentView(R.layout.learn);
@@ -127,17 +127,17 @@ public class Learn extends Activity implements View.OnClickListener {
 					// add new word to cache
 					cache.add(cw);
 					// update status
-					status.increaseLearnedWordsCount();
-					status.increaseNextContentOffset(headword.getBytes().length+course.getSeparator().length);
-					status.setLastWord(headword);
+//					status.increaseLearnedWordsCount();
+//					status.increaseNextContentOffset(headword.getBytes().length+course.getSeparator().length);
+//					status.setLastWord(headword);
 				}
 			}else if (v.getId()==R.id.btn_mastered_word){
 				String headword=course.getContent(status.getNextContentOffset());
 				//cw=new Word(headword,dict.lookup(headword,null,null));
 				cw=dict.lookup(headword,null,null,null);
-				status.increaseLearnedWordsCount();
-				status.increaseNextContentOffset(headword.getBytes().length+course.getSeparator().length);
-				status.setLastWord(headword);
+//				status.increaseLearnedWordsCount();
+//				status.increaseNextContentOffset(headword.getBytes().length+course.getSeparator().length);
+//				status.setLastWord(headword);
 			}else if(v.getId()==R.id.btn_previous_word){
 				//if (!cache.hasNext() && cw!=null) cache.add(cw);
 				cw=cache.back();

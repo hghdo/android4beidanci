@@ -107,7 +107,9 @@ public class CourseList extends ListActivity implements View.OnClickListener {
 					//Update courseStatus
 					StudyDbAdapter dbAdapter=new StudyDbAdapter(CourseList.this);
 					dbAdapter.open();
-					PrefStore.saveCurrentCourseStatusId(CourseList.this, (new CourseStatus(course)).save(dbAdapter));
+					//TODO for learned course can't create new CourseStatus.
+					PrefStore.saveSelectedCourseStatusId(CourseList.this, (new CourseStatus(course)).save(dbAdapter));
+					PrefStore.saveSelectedCourseName(CourseList.this, course.getName());
 					dbAdapter.close();
 					CourseList.this.setResult(RESULT_OK);
 	            	CourseList.this.finish();

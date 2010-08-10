@@ -1,9 +1,9 @@
 package cn.zadui.vocabulary.storage;
 
+import android.database.Cursor;
+import cn.zadui.vocabulary.model.Helper;
 import cn.zadui.vocabulary.model.Section;
 import cn.zadui.vocabulary.model.course.Course;
-import android.content.SharedPreferences;
-import android.database.Cursor;
 
 public class CourseStatus {
 
@@ -20,22 +20,25 @@ public class CourseStatus {
 	private boolean empty=false;
 	
 	// Course status
-	private String courseFileName;
 	private String courseName;
+	private String courseFileName;
+	private String courseLang;
 	private int learnedWordsCount=0;
 	private long nextContentOffset=0;
 	private String lastWord;
 	private int contentCount;
-	private int unitCreateStyle;
-	private int unitCreateStyleValue;
+	private int createdAt;
+	private int updatedAt;
+	private int unitCreateStyle=Section.WORDS_COUNT_STYLE;
+	private int unitCreateStyleValue=Section.WORDS_COUNT_STYLE_DEFAULT;
 	
 	//Dict status
 	private String dictFileName;
 	
-	private long rowId=0;
+	private long rowId=StudyDbAdapter.INVALID_ROW_ID;
 	
 	/**
-	 * Create from a {@Link Course}
+	 * Create a CourseStatus using a {@Link Course}
 	 * @param c
 	 */
 	public CourseStatus(Course c){
@@ -49,6 +52,11 @@ public class CourseStatus {
 		unitCreateStyleValue=Section.WORDS_COUNT_STYLE_DEFAULT;
 	}
 	
+	/**
+	 * Try to load by course name
+	 * @param courseName
+	 * @param dbAdapter
+	 */
 	public CourseStatus(String courseName,StudyDbAdapter dbAdapter){
 		empty=true;
 		Cursor c=dbAdapter.findCourseStatusByCourseName(courseName);
@@ -61,7 +69,7 @@ public class CourseStatus {
 	}
 	
 	/**
-	 * Try to load last CourseStatus
+	 * Try to load CourseStatus by rowId
 	 * @param sp
 	 * @param dbAdapter
 	 */
@@ -77,7 +85,7 @@ public class CourseStatus {
 		c.close();
 	}
 	
-	public void loadFromCursor(Cursor c){
+	private void loadFromCursor(Cursor c){
 		rowId=c.getLong(c.getColumnIndex(StudyDbAdapter.KEY_ROWID));
 		courseName=c.getString(c.getColumnIndex(StudyDbAdapter.KEY_COURSE_NAME));
 		courseFileName=c.getString(c.getColumnIndex(StudyDbAdapter.KEY_COURSE_FILE_NAME));
@@ -85,110 +93,50 @@ public class CourseStatus {
 		lastWord=c.getString(c.getColumnIndex(StudyDbAdapter.KEY_LAST_WORD));
 		nextContentOffset=c.getLong(c.getColumnIndex(StudyDbAdapter.KEY_NEXT_CONTENT_OFFSET));
 		contentCount=c.getInt(c.getColumnIndex(StudyDbAdapter.KEY_CONTENT_COUNT));
+		createdAt=c.getInt(c.getColumnIndex(StudyDbAdapter.KEY_CREATED_AT));
+		updatedAt=c.getInt(c.getColumnIndex(StudyDbAdapter.KEY_UPDATED_AT));
 	}
 	
+	/**
+	 * Save a new record if is new other wise update it.
+	 * @param dbAdapter
+	 * @return Sqlite rowId of this CourseStatus
+	 */
 	public long save(StudyDbAdapter dbAdapter){
-		return dbAdapter.saveOrUpdateCourseStatus(this);
-	}
-
-	/*
-	public void refresh(SharedPreferences sp){
-		courseName=sp.getString(SP_KEY_CURRENT_COURSE_NAME, courseName);
-		courseFileName=sp.getString(SP_KEY_CURRENT_COURSE_FILE_NAME, "");
-		learnedWordsCount=sp.getInt(SP_KEY_LEARNED_COUNT, 0);	
-		lastWord=sp.getString(SP_KEY_LAST_WORD, AT_BEGINNING);
-		nextContentOffset=sp.getLong(SP_KEY_NEXT_CONTENT_OFFSET, 0);	
-		contentCount=sp.getInt(SP_KEY_CONTENT_COUNT, 0);	
-		//TODO Should add a mechanism to select a default course.
-		dictFileName=sp.getString(SP_KEY_DICT_FILE_NAME, "");
-		unitCreateStyle=sp.getInt(SP_KEY_UNIT_CREATE_STYLE, Section.WORDS_COUNT_STYLE);
-		unitCreateStyleValue=sp.getInt("SP_KEY_UNIT_CREATE_STYLE_VALUE", Section.WORDS_COUNT_STYLE_DEFAULT);
-		empty=(courseFileName==null || courseFileName.length()<1);
+		if (isNew()){
+    		createdAt=Helper.currentSecTime();
+    		updatedAt=createdAt;
+		}else{
+			updatedAt=Helper.currentSecTime();
+		}
+		rowId=dbAdapter.saveOrUpdateCourseStatus(this);
+		return rowId;
 	}
 	
-	public void saveCourseStatusToPreferences(SharedPreferences spSettings){
-		SharedPreferences.Editor editor = spSettings.edit();
-		editor.putString(SP_KEY_CURRENT_COURSE_NAME, courseName);
-		editor.putString(SP_KEY_CURRENT_COURSE_FILE_NAME, courseFileName);
-		editor.putInt(SP_KEY_LEARNED_COUNT, learnedWordsCount);
-		editor.putString(SP_KEY_LAST_WORD, lastWord);
-		editor.putLong(SP_KEY_NEXT_CONTENT_OFFSET, nextContentOffset);
-		editor.putInt(SP_KEY_CONTENT_COUNT, contentCount);
-		editor.putString(SP_KEY_DICT_FILE_NAME, dictFileName);
-		editor.putInt(SP_KEY_UNIT_CREATE_STYLE, unitCreateStyle);
-		editor.putInt(SP_KEY_UNIT_CREATE_STYLE_VALUE, unitCreateStyleValue);
-		editor.commit();
-	}
-	*/
-	
-	/*
-	public void updateStatus(CourseStatus cs){
-		courseName=cs.courseName;
-		courseFileName=cs.courseFileName;
-		learnedWordsCount=cs.learnedContentCount;
-		nextContentOffset=cs.nextContentOffset;
-		lastWord=cs.lastContent;
-		saveStatus();
-	}
-	*/
-	
-	public String getCourseFileName() {
-		return courseFileName;
-	}
-
-//	public void setCourseFileName(String courseFileName) {
-//		this.courseFileName = courseFileName;
-//		SharedPreferences.Editor editor = spSettings.edit();
-//		editor.putString(SP_KEY_CURRENT_COURSE_FILE_NAME, courseFileName);
-//	}
-
 	public String getCourseName() {
 		return courseName;
 	}
-
-	public void setCourseName(String courseName) {
-		this.courseName = courseName;
+	
+	public String getCourseFileName() {
+		return courseFileName;
 	}
 
 	public int getLearnedWordsCount() {
 		return learnedWordsCount;
 	}
 
-	public void setLearnedWordsCount(int learnedWordsCount) {
-		this.learnedWordsCount = learnedWordsCount;
-	}
-	
-	public void increaseLearnedWordsCount(){
-		this.learnedWordsCount++;
-	}
-
-	/**
-	 * If no course is selected to study returns true
-	 * @return whether there is a course selected for study
-	 */
-	public boolean isEmpty() {
-		empty=(courseFileName==null || courseFileName.length()<1);
-		return empty;
-	}
-
-	public void setStudyStatus(boolean em) {
-		this.empty = em;
+	public void change(String headword,int courseSeparatorByteLength){
+		nextContentOffset+=(headword.getBytes().length + courseSeparatorByteLength);
+		learnedWordsCount++;
+		lastWord = headword;
 	}
 
 	public String getDictFileName() {
 		return dictFileName;
 	}
 
-	public void setDictFileName(String dictFileName) {
-		this.dictFileName = dictFileName;
-	}
-
 	public String getLastWord() {
 		return lastWord;
-	}
-
-	public void setLastWord(String lastWord) {
-		this.lastWord = lastWord;
 	}
 
 	/**
@@ -218,14 +166,6 @@ public class CourseStatus {
 	public long getNextContentOffset() {
 		return nextContentOffset;
 	}
-
-	public void setNextContentOffset(long nextContentOffset) {
-		this.nextContentOffset = nextContentOffset;
-	}
-	
-	public void increaseNextContentOffset(int length){
-		this.nextContentOffset+=length;
-	}
 	
 	public int getProgress(){
 		return (this.learnedWordsCount*100)/this.contentCount;
@@ -234,16 +174,35 @@ public class CourseStatus {
 	public int getContentCount() {
 		return contentCount;
 	}
-	
-	public void setRowId(long _id){
-		rowId=_id;
-	}
 
 	public long getRowId() {
 		return rowId;
 	}
 	
 	public boolean isNew(){
-		return rowId==0;
+		return rowId==StudyDbAdapter.INVALID_ROW_ID;
 	}
+
+	public String getCourseLang() {
+		return courseLang;
+	}
+
+	public int getCreatedAt() {
+		return createdAt;
+	}
+
+	public int getUpdatedAt() {
+		return updatedAt;
+	}
+	
+	/**
+	 * If no course is selected to study returns true
+	 * @return whether there is a course selected for study
+	 */
+	public boolean isEmpty() {
+		empty=(courseFileName==null || courseFileName.length()<1);
+		return empty;
+	}
+
+	
 }

@@ -10,9 +10,15 @@
 	    android:layout_height="wrap_content" 
 	    android:dividerHeight="1px" 
 	    android:layout_weight="1"/>
-	<Button
-		android:id="@+id/btn_learned_course_new_course"
-	    android:layout_width="fill_parent" 
-	    android:layout_height="wrap_content" 
-	    android:text="Download New Course"/>  
+	<LinearLayout
+		  android:layout_width="fill_parent"
+		  android:layout_height="wrap_content"
+		  android:orientation="vertical"
+		  style="@style/button_bar">	    
+		<Button
+			android:id="@+id/btn_learned_course_new_course"
+		    android:layout_width="fill_parent" 
+		    android:layout_height="wrap_content" 
+		    android:text="Download New Course"/> 
+	</LinearLayout> 
 </LinearLayout>

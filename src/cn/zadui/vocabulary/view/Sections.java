@@ -29,6 +29,8 @@ public class Sections extends ListActivity {
 	public static final int EXAM_BY_EXAMPLES=3;
 	public static final int SYNC_EXAMPLES=4;
 	
+	SimpleCursorAdapter.ViewBinder viewBinder;
+	
 	Locale loc=Locale.getDefault();
 	//DateFormat sdf=DateFormat.getDateTimeInstance(DateFormat.SHORT,DateFormat.SHORT,loc);
 	Calendar ca=Calendar.getInstance();
@@ -53,7 +55,7 @@ public class Sections extends ListActivity {
 		setContentView(R.layout.units);
 		
 		//setTitle(getResources().getString(R.string.units_title));
-		setTitle(getIntent().getExtras().getString(StudyDbAdapter.KEY_COURSE_NAME));
+		setTitle(getResources().getString(R.string.units_title)+" - "+getIntent().getExtras().getString(StudyDbAdapter.KEY_COURSE_NAME));
 		
 		((Button)findViewById(R.id.btn_units_study)).setOnClickListener(new View.OnClickListener() {
 			
@@ -65,83 +67,7 @@ public class Sections extends ListActivity {
 			}
 		});
 		
-		fillData();
-		registerForContextMenu(getListView());
-	}
-
-	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v,
-			ContextMenuInfo menuInfo) {
-		super.onCreateContextMenu(menu, v, menuInfo);
-		menu.add(0,REVIEW,0,getResources().getString(R.string.review));
-		menu.add(0,EXAM_MEANING_TO_SPELLING,0,getResources().getString(R.string.exam_meaning_2_spelling));
-		menu.add(0,EXAM_SPELLING_TO_MEANING,0,getResources().getString(R.string.exam_spelling_2_meaning));
-		menu.add(0,EXAM_BY_EXAMPLES,0,getResources().getString(R.string.exam_by_example));
-	}
-	
-	@Override
-	public boolean onContextItemSelected(MenuItem item){
-		AdapterContextMenuInfo info=(AdapterContextMenuInfo)item.getMenuInfo();
-		Intent newIntent=new Intent();
-		newIntent.putExtra("id", info.id);
-		
-		switch(item.getItemId()){
-		case REVIEW:
-			newIntent.setClass(this, Review.class);
-			break;
-		case EXAM_MEANING_TO_SPELLING:
-			newIntent.setClass(this, Exam.class);
-			newIntent.putExtra(Exam.DIRECTION, EXAM_MEANING_TO_SPELLING);
-			break;
-		case EXAM_SPELLING_TO_MEANING:
-			newIntent.setClass(this, Exam.class);
-			newIntent.putExtra(Exam.DIRECTION, EXAM_SPELLING_TO_MEANING);
-			break;
-		case EXAM_BY_EXAMPLES:
-			newIntent.setClass(this, Examples.class);
-			newIntent.putExtra(Exam.DIRECTION, EXAM_BY_EXAMPLES);
-			break;
-		}
-		startActivity(newIntent);
-		return true;
-		
-	}
-
-	@Override
-	protected void onListItemClick(ListView l, View v, int position, long id) {
-		super.onListItemClick(l, v, position, id);
-		Intent newIntent=new Intent();
-		newIntent.putExtra("id", id);
-		newIntent.setClass(this, Review.class);
-		startActivity(newIntent);
-	}
-
-	private void fillData() {
-		int[] displayViews=new int[]{
-				R.id.tv_unit_id,
-				R.id.tv_unit_course_name,
-				R.id.tv_unit_words_count,
-				R.id.tv_unit_last_exam_at,
-				//R.id.tv_unit_created_at,
-				//R.id.tv_unit_next_exam_at,
-				//R.id.tv_unit_exam_times
-				};
-		String[] columns=new String[]{	
-				StudyDbAdapter.KEY_ROWID,
-				StudyDbAdapter.KEY_COURSE_NAME,
-				StudyDbAdapter.KEY_WORDS_COUNT,
-				StudyDbAdapter.KEY_LAST_EXAM_AT,
-				//StudyDbAdapter.KEY_CREATED_AT,
-				//StudyDbAdapter.KEY_NEXT_COMMON_EXAM_AT,
-				//StudyDbAdapter.KEY_COMMON_EXAM_TIMES
-				};
-		
-		StudyDbAdapter dbAdapter=new StudyDbAdapter(this);
-		dbAdapter.open();
-		
-		SimpleCursorAdapter adapter=new SimpleCursorAdapter(this,R.layout.units_row,dbAdapter.fetchSectionsByCourse(getIntent().getExtras().getString(StudyDbAdapter.KEY_COURSE_NAME)),columns,displayViews);
-		adapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
-			
+		viewBinder=new SimpleCursorAdapter.ViewBinder() {			
 			@Override
 			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
 				if (columnIndex==cursor.getColumnIndex(StudyDbAdapter.KEY_ROWID)){
@@ -209,7 +135,90 @@ public class Sections extends ListActivity {
 //				}
 				return false;
 			}
-		});
+		};
+		
+		fillData();
+		registerForContextMenu(getListView());
+	}
+
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v,
+			ContextMenuInfo menuInfo) {
+		super.onCreateContextMenu(menu, v, menuInfo);
+		menu.add(0,REVIEW,0,getResources().getString(R.string.review));
+		menu.add(0,EXAM_MEANING_TO_SPELLING,0,getResources().getString(R.string.exam_meaning_2_spelling));
+		menu.add(0,EXAM_SPELLING_TO_MEANING,0,getResources().getString(R.string.exam_spelling_2_meaning));
+		menu.add(0,EXAM_BY_EXAMPLES,0,getResources().getString(R.string.exam_by_example));
+	}
+	
+	@Override
+	public boolean onContextItemSelected(MenuItem item){
+		AdapterContextMenuInfo info=(AdapterContextMenuInfo)item.getMenuInfo();
+		Intent newIntent=new Intent();
+		newIntent.putExtra("id", info.id);
+		
+		switch(item.getItemId()){
+		case REVIEW:
+			newIntent.setClass(this, Review.class);
+			break;
+		case EXAM_MEANING_TO_SPELLING:
+			newIntent.setClass(this, Exam.class);
+			newIntent.putExtra(Exam.DIRECTION, EXAM_MEANING_TO_SPELLING);
+			break;
+		case EXAM_SPELLING_TO_MEANING:
+			newIntent.setClass(this, Exam.class);
+			newIntent.putExtra(Exam.DIRECTION, EXAM_SPELLING_TO_MEANING);
+			break;
+		case EXAM_BY_EXAMPLES:
+			newIntent.setClass(this, Examples.class);
+			newIntent.putExtra(Exam.DIRECTION, EXAM_BY_EXAMPLES);
+			break;
+		}
+		startActivity(newIntent);
+		return true;
+		
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		fillData();
+	}
+
+	@Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+		super.onListItemClick(l, v, position, id);
+		Intent newIntent=new Intent();
+		newIntent.putExtra("id", id);
+		newIntent.setClass(this, Review.class);
+		startActivity(newIntent);
+	}
+
+	private void fillData() {
+		int[] displayViews=new int[]{
+				R.id.tv_unit_id,
+				R.id.tv_unit_course_name,
+				R.id.tv_unit_words_count,
+				R.id.tv_unit_last_exam_at,
+				//R.id.tv_unit_created_at,
+				//R.id.tv_unit_next_exam_at,
+				//R.id.tv_unit_exam_times
+				};
+		String[] columns=new String[]{	
+				StudyDbAdapter.KEY_ROWID,
+				StudyDbAdapter.KEY_COURSE_NAME,
+				StudyDbAdapter.KEY_WORDS_COUNT,
+				StudyDbAdapter.KEY_LAST_EXAM_AT,
+				//StudyDbAdapter.KEY_CREATED_AT,
+				//StudyDbAdapter.KEY_NEXT_COMMON_EXAM_AT,
+				//StudyDbAdapter.KEY_COMMON_EXAM_TIMES
+				};
+		
+		StudyDbAdapter dbAdapter=new StudyDbAdapter(this);
+		dbAdapter.open();
+		
+		SimpleCursorAdapter adapter=new SimpleCursorAdapter(this,R.layout.units_row,dbAdapter.fetchSectionsByCourse(getIntent().getExtras().getString(StudyDbAdapter.KEY_COURSE_NAME)),columns,displayViews);
+		adapter.setViewBinder(viewBinder);
 		setListAdapter(adapter);
 		dbAdapter.close();
 	}

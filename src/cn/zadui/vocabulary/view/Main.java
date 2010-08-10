@@ -35,7 +35,7 @@ public class Main extends Activity {
 		setContentView(R.layout.summary);
 		dbAdapter=new StudyDbAdapter(this);
 		dbAdapter.open();
-		status=new CourseStatus(PrefStore.getCurrentCourseStatusId(this),dbAdapter);
+		status=new CourseStatus(PrefStore.getSelectedCourseStatusId(this),dbAdapter);
 		
 		tvCurrentCourse=(TextView) findViewById(R.id.current_course_name);
 		tvCurrentProgressTitle=(TextView) findViewById(R.id.tv_summary_pg_title);
@@ -104,7 +104,7 @@ public class Main extends Activity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode==LearnedCourses.SELECT_COURSE_REQUEST){
 			if (resultCode==RESULT_OK){
-				status=new CourseStatus(PrefStore.getCurrentCourseStatusId(this),dbAdapter);
+				status=new CourseStatus(PrefStore.getSelectedCourseStatusId(this),dbAdapter);
 			}
 		}
 	}

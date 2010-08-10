@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import cn.zadui.vocabulary.R;
+import cn.zadui.vocabulary.storage.PrefStore;
 import cn.zadui.vocabulary.storage.StudyDbAdapter;
 
 public class LearnedCourses extends ListActivity {
@@ -87,8 +88,8 @@ public class LearnedCourses extends ListActivity {
 		if (requestCode==LearnedCourses.SELECT_COURSE_REQUEST){
 			if (resultCode==RESULT_OK){
 				Intent i = new Intent(this, Study.class);
+				i.putExtra(StudyDbAdapter.KEY_COURSE_NAME, PrefStore.getSelectedCourseName(this));
 				startActivity(i);
-				//status=new CourseStatus(PrefStore.getCurrentCourseStatusId(this),dbAdapter);
 			}
 		}
 	}

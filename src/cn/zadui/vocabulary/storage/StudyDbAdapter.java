@@ -22,8 +22,7 @@ import cn.zadui.vocabulary.model.Word;
  */
 public class StudyDbAdapter {
 	
-	private static final int DATABASE_VERSION = 17;
-    private static final String DATABASE_NAME = "data";
+	public static final int INVALID_ROW_ID=-1;
     
     public static final int UNIT_WORDS_FILTER_ALL=0;
     public static final int UNIT_WORDS_FILTER_FORGOT_ONLY=1;
@@ -73,6 +72,8 @@ public class StudyDbAdapter {
     public static final String KEY_NEXT_CONTENT_OFFSET="next_content_offset";
     public static final String KEY_LAST_WORD="last_word";
     public static final String KEY_CONTENT_COUNT="content_count";   
+    public static final String KEY_UPDATED_AT="updated_at";   
+    //public static final String KEY_CREATED_AT="created_at";
     
     public static final String EXAMPLES_TABLE = "examples";
     public static final String KEY_SENTENCE = "sentence";
@@ -112,7 +113,9 @@ public class StudyDbAdapter {
                 		"learned_content_count integer default 0," +
                 		"next_content_offset integer default 0," +
                 		"last_word text," +
-                		"content_count integer default 0);";
+                		"content_count integer default 0," +
+                		"updated_at integer,"+
+                		"created_at integer);";
         
     private static final String DATABASE_CREATE_EXAMPLES_TABLE =
 						"create table examples (_id integer primary key autoincrement,"+
@@ -292,8 +295,7 @@ public class StudyDbAdapter {
     
     public long saveOrUpdateCourseStatus(CourseStatus cs){
     	if (cs.isNew()){
-    		cs.setRowId(insertCourseStatus(cs));
-    		return cs.getRowId();
+    		return insertCourseStatus(cs);
     	}else{
     		updateCourseStatus(cs);
     		return cs.getRowId();
@@ -308,17 +310,20 @@ public class StudyDbAdapter {
 		args.put(KEY_NEXT_CONTENT_OFFSET, cs.getNextContentOffset());
 		args.put(KEY_LAST_WORD, cs.getLastWord());
 		args.put(KEY_CONTENT_COUNT, cs.getContentCount());
+		args.put(KEY_CREATED_AT, cs.getCreatedAt());
+		args.put(KEY_UPDATED_AT, cs.getUpdatedAt());
 		return mDb.insert(COURSE_STATUS_TABLE, null, args);
     }
     
     public boolean updateCourseStatus(CourseStatus cs){
 		ContentValues args=new ContentValues();
-		args.put(KEY_COURSE_NAME, cs.getCourseName());
-		args.put(KEY_COURSE_FILE_NAME, cs.getCourseFileName());
+		//args.put(KEY_COURSE_NAME, cs.getCourseName());
+		//args.put(KEY_COURSE_FILE_NAME, cs.getCourseFileName());
 		args.put(KEY_LEARNED_CONTENT_COUNT, cs.getLearnedWordsCount());
 		args.put(KEY_NEXT_CONTENT_OFFSET, cs.getNextContentOffset());
 		args.put(KEY_LAST_WORD, cs.getLastWord());
-		args.put(KEY_CONTENT_COUNT, cs.getContentCount());
+		//args.put(KEY_CONTENT_COUNT, cs.getContentCount());
+		args.put(KEY_UPDATED_AT, cs.getUpdatedAt());
 		return mDb.update(COURSE_STATUS_TABLE, args, KEY_ROWID + "=" + cs.getRowId(), null)>0;    	
     }	
 	
@@ -345,5 +350,8 @@ public class StudyDbAdapter {
 			onCreate(db);
 		}
 	}
+	
+	private static final int DATABASE_VERSION = 18;
+    private static final String DATABASE_NAME = "data";
 		
 }

@@ -60,8 +60,10 @@ import cn.zadui.vocabulary.storage.StudyDbAdapter;
  */
 public class Study extends Activity implements View.OnClickListener,StateChangeListener {
 
+	public static final int REVIEW=0;
+	public static final int STUDY=1;
+	
 	private static final String TAG="Study";
-	//private static final int MAX_UNSAVED_WORDS=5;
 	private static final int HANDLE_LOOKUP=0;
 	private static final int HANDLE_EXAMPLE=1;
 	
@@ -72,10 +74,8 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 	
 	private ProgressDialog progressDialog;
 	
-	//private SharedPreferences spSettings;
 	private CourseStatus status;
 	private Course course;
-	//private LearnCache cache=new LearnCache(50,MAX_UNSAVED_WORDS);
 	private Word cw=null;
 	private String exampleFor;
 	private Section section=null;
@@ -102,7 +102,7 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		dbAdapter=new StudyDbAdapter(this);
 		dbAdapter.open();
 		status=new CourseStatus(getIntent().getExtras().getString(StudyDbAdapter.KEY_COURSE_NAME),dbAdapter);
-		PrefStore.saveCurrentCourseStatusId(this, status.getRowId());
+		PrefStore.saveSelectedCourseStatusId(this, status.getRowId());
 		//status=new CourseStatus(PrefStore.getCurrentCourseStatusId(this),dbAdapter);
 		
 		requestWindowFeature(Window.FEATURE_PROGRESS);
@@ -294,7 +294,7 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 	
 	private void fillLearnSnipViewContent(Word word){
 		//TODO fix hard code text.
-		setTitle("Unit Status: " +
+		setTitle("Study Status: " +
 				String.valueOf(section.getWordsCount()) +
 				"/" +
 				String.valueOf(status.getUnitCreateStyleValue()));
@@ -342,12 +342,6 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		i.putExtra(NetworkService.KEY_HEADWORD, headword);
 		startService(i);
 	}
-
-	private void updateCourseStatus(String headword) {
-		status.increaseLearnedWordsCount();
-		status.increaseNextContentOffset(headword.getBytes().length+course.getSeparator().length);
-		status.setLastWord(headword);
-	}
 	
 	private void bringViewToFront(View v){
 		vLearn.setVisibility(View.GONE);
@@ -369,8 +363,9 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		}else{
 			try{
 				String headword=course.getContent(status.getNextContentOffset());// Fetch a new word from course.
+				isLastWord=false;
 				fillLearnSnipViewHeadword(headword);
-				updateCourseStatus(headword);
+				status.change(headword,course.getSeparator().length);
 				runLookupService(headword);
 			}catch(EOFCourseException e){
 				section.freeze();
