@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import cn.zadui.vocabulary.R;
@@ -25,14 +26,35 @@ public class LearnedCourses extends ListActivity {
 		setContentView(R.layout.learned_courses);
 		dbAdapter=new StudyDbAdapter(this);
 		dbAdapter.open();
-		((Button)findViewById(R.id.btn_learned_course_new_course)).setOnClickListener(new View.OnClickListener() {
-			
+		
+		
+//		((Button)findViewById(R.id.btn_learned_course_new_course)).setOnClickListener(new View.OnClickListener() {
+//			
+//			@Override
+//			public void onClick(View v) {
+//				Intent sc=new Intent(v.getContext(), CourseList.class);
+//				startActivityForResult(sc, SELECT_COURSE_REQUEST);				
+//			}
+//		});
+		
+		((ImageButton)this.findViewById(R.id.btn_sel_course)).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				Intent sc=new Intent(v.getContext(), CourseList.class);
-				startActivityForResult(sc, SELECT_COURSE_REQUEST);				
+				startActivityForResult(sc, LearnedCourses.SELECT_COURSE_REQUEST);
 			}
 		});
+		
+		
+		((ImageButton)findViewById(R.id.btn_settings)).setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Intent settings=new Intent(v.getContext(),Settings.class);
+				startActivity(settings);
+			}
+		});
+		
 	}
 
 	@Override

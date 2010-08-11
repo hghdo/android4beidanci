@@ -15,8 +15,9 @@ public class Settings extends PreferenceActivity implements OnPreferenceChangeLi
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		PreferenceManager prefMgr = getPreferenceManager();		
-		
 		 addPreferencesFromResource(R.xml.settings);
+		 
+		 setTitle("Settings");
 		 
 		 Preference pref=prefMgr.findPreference(PrefStore.SP_KEY_MOTHER_TONGUE);
 		 pref.setOnPreferenceChangeListener(this);
