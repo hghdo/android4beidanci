@@ -89,6 +89,7 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 	private TextView tvPhonetic;
 	// Spelling controls
 	private EditText etSpelling;
+	private TextView tvSpellingMeaning;
 	
 	/**
 	 * If is the "last word" then should not add this word into the study section, other wise 
@@ -122,14 +123,7 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		tvMeaning=(TextView) findViewById(R.id.meaning);
 		tvPhonetic=(TextView) findViewById(R.id.phonetic);
 		etSpelling=(EditText)findViewById(R.id.et_study_spell);
-		
-		etSpelling.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				((EditText)v).selectAll();
-				//etSpelling.selectAll();
-			}
-		});
+		tvSpellingMeaning=(TextView) findViewById(R.id.tv_study_spell_meaning);
 
 		((ImageButton)findViewById(R.id.btn_next_word)).setOnClickListener(this);
 		((ImageButton)findViewById(R.id.btn_mastered_word)).setOnClickListener(this);
@@ -138,6 +132,7 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		((ImageButton)findViewById(R.id.btn_learn_examples)).setOnClickListener(this);
 		((ImageButton)findViewById(R.id.btn_learn_study)).setOnClickListener(this);
 		((ImageButton)findViewById(R.id.btn_learn_spelling)).setOnClickListener(this);
+		((ImageButton)findViewById(R.id.btn_study_spell_check)).setOnClickListener(this);
 		
 		serviceHandler=new Handler(){
             @Override
@@ -257,9 +252,12 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 			return;
 		}else if (v.getId()==R.id.btn_learn_spelling){
 			bringViewToFront(vSpelling);
+			tvSpellingMeaning.setText(cw.getMeaning());
 			etSpelling.setFilters(new InputFilter[]{
 					new InputFilter.LengthFilter(cw.getHeadword().length())
 			});
+			etSpelling.selectAll();
+			etSpelling.setBackgroundColor(this.getResources().getColor(R.color.white));
 			return;
 		}else if (v.getId()==R.id.btn_learn_examples){
 			bringViewToFront(vExamples);
@@ -272,6 +270,13 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 			section.freeze();
 			finish();
 			return;
+		}else if(v.getId()==R.id.btn_study_spell_check){
+			etSpelling.selectAll();
+			if (etSpelling.getText().toString().equals(cw.getHeadword())){
+				etSpelling.setBackgroundColor(this.getResources().getColor(R.color.grey));
+			}else{
+				etSpelling.setBackgroundColor(this.getResources().getColor(R.color.red));
+			}
 		}
 	}
 
