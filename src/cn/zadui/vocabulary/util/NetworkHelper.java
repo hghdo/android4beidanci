@@ -77,6 +77,17 @@ public class NetworkHelper {
 		sb.append(key);
 		return sb.toString();		
 	}
+	
+	public static String googleDictUrl(String headword,String srcLang,String toLang){
+		StringBuilder sb=new StringBuilder();
+		sb.append("http://translator4beidanci.appspot.com/translate?hw=");
+		try {
+			sb.append(URLEncoder.encode(headword,"UTF-8"));
+		} catch (UnsupportedEncodingException e) {}
+		sb.append("&sl="+srcLang);
+		sb.append("&tl="+toLang);
+		return sb.toString();
+	}
 		
 	public static URLConnection buildUrlConnection(String url) throws IOException{
 		URL u=new URL(url);
