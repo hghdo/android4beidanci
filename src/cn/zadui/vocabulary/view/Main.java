@@ -1,10 +1,12 @@
 package cn.zadui.vocabulary.view;
 
 import java.io.File;
+import java.util.Locale;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -30,6 +32,8 @@ public class Main extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		
 		//TODO should move this initial checkDataDir method into {@link Application}
 		checkDataDir();
 		setContentView(R.layout.summary);

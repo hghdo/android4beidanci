@@ -1,9 +1,12 @@
 package cn.zadui.vocabulary.view;
 
+import java.util.Locale;
+
 import android.app.ListActivity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -15,6 +18,7 @@ import cn.zadui.vocabulary.storage.StudyDbAdapter;
 
 public class LearnedCourses extends ListActivity {
 	
+	static final String TAG="LLLLLLLLLLLLLLLLLLLLLLLLLLearnedCourses";
 	//LinkedList<Map<String,String>> list;
 	static final int SELECT_COURSE_REQUEST=0;
 	StudyDbAdapter dbAdapter;
@@ -23,6 +27,13 @@ public class LearnedCourses extends ListActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+//		Locale[] ls=Locale.getAvailableLocales();
+//		for(int i=0;i<ls.length;i++){
+//			Log.d(TAG,ls[i].toString()+" | "+ls[i].getLanguage()+" | "+ls[i].getDisplayCountry()+" | "+ls[i].getDisplayLanguage());
+//		}
+		
+		
 		setContentView(R.layout.learned_courses);
 		dbAdapter=new StudyDbAdapter(this);
 		dbAdapter.open();

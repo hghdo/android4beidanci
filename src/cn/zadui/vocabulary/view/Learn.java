@@ -60,7 +60,7 @@ public class Learn extends Activity implements View.OnClickListener {
 		
 		course=SimpleCourse.getInstance(status.getCourseFileName());
 		//dict=SimpleDict.getInstance(status.getDictFileName());
-		dict=DictFactory.buildDict(this,course.getLang(), Locale.getDefault().getDisplayLanguage(Locale.ENGLISH));
+		dict=DictFactory.getDict(this,course.getLang(), Locale.getDefault().getDisplayLanguage(Locale.ENGLISH));
 		
 		adapter=new StudyDbAdapter(this);
 		adapter.open();
@@ -123,7 +123,7 @@ public class Learn extends Activity implements View.OnClickListener {
 					// Fetch a new word from course.
 					String headword=course.getContent(status.getNextContentOffset());
 					//cw=new Word(headword,dict.lookup(headword,null,null));
-					cw=dict.lookup(headword,null,null,null);
+					cw=dict.lookup(headword,null,null);
 					// add new word to cache
 					cache.add(cw);
 					// update status
@@ -134,7 +134,7 @@ public class Learn extends Activity implements View.OnClickListener {
 			}else if (v.getId()==R.id.btn_mastered_word){
 				String headword=course.getContent(status.getNextContentOffset());
 				//cw=new Word(headword,dict.lookup(headword,null,null));
-				cw=dict.lookup(headword,null,null,null);
+				cw=dict.lookup(headword,null,null);
 //				status.increaseLearnedWordsCount();
 //				status.increaseNextContentOffset(headword.getBytes().length+course.getSeparator().length);
 //				status.setLastWord(headword);
@@ -171,7 +171,7 @@ public class Learn extends Activity implements View.OnClickListener {
 			setTitle(this.getResources().getString(R.string.learn_title));
 		}else{
 			//cw=new Word(lastWord,dict.lookup(lastWord,null,null));
-			cw=dict.lookup(lastWord,null,null,null);
+			cw=dict.lookup(lastWord,null,null);
 			display();
 		}
 		

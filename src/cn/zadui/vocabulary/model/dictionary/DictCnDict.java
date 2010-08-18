@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Locale;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -23,57 +24,11 @@ public class DictCnDict implements Dict {
 	
 	@Override
 	public String getDictName() {
-		return "NetDict";
-	}
-
-	//@Override
-	public String lookup(String headword,String srcLang,String toLang) {
-		Log.d("AAAAAAAAAAA",headword);
-		StringBuilder sb=new StringBuilder();
-		try {
-			URL url=new URL(NetworkHelper.dictCnLookupUrl(headword));			
-			InputStream in=url.openStream();			
-			if (xpp==null){
-				XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-				xpp=factory.newPullParser();
-			}
-			xpp.setInput(in,"UTF-8");
-			int eventType = xpp.getEventType();
-			String tag="";
-			while (eventType != XmlPullParser.END_DOCUMENT) {
-				switch (eventType){
-				case XmlPullParser.START_TAG:
-					if (xpp.getName().equals(DEF_TAG)){
-						tag=DEF_TAG;
-					}else if(xpp.getName().equals(PRONETIC_TAG)){
-						tag=PRONETIC_TAG;
-					}
-					break;
-				case XmlPullParser.TEXT:
-					if(tag.equals(DEF_TAG)){
-						sb.append(xpp.getText());
-						tag="";
-					}else if (tag.equals(PRONETIC_TAG)){
-						sb.append(xpp.getText());
-						sb.append(System.getProperty("line.separator"));
-						tag="";
-					}
-					break;
-				}
-				eventType = xpp.next();
-			}
-			in.close();			
-		} catch (XmlPullParserException e) {
-			return Dict.ERROR_WORD;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return Dict.ERROR_WORD;
-		}
-		return sb.toString();
+		return "海词 [dict.cn]";
 	}
 
 	@Override
-	public Word lookup(String headword, String srcLang, String toLang,String nothing) {
+	public Word lookup(String headword, String srcLang, String toLang) {
 		Word w=new Word(headword);
 		try {
 			URLConnection conn=NetworkHelper.buildUrlConnection(NetworkHelper.dictCnLookupUrl(headword));					
@@ -115,11 +70,18 @@ public class DictCnDict implements Dict {
 		}
 		return w;
 	}
-
+	
 	@Override
 	public boolean canSupport(String srcLang, String toLang) {
-		// TODO Auto-generated method stub
-		return false;
+		return support(srcLang, toLang);
+	}
+
+	public static boolean support(String srcLang, String toLang) {
+		return (
+				(srcLang.equals(Locale.ENGLISH.toString()) && toLang.equals(Locale.SIMPLIFIED_CHINESE.toString()))
+				||
+				(srcLang.equals(Locale.SIMPLIFIED_CHINESE.toString()) && toLang.equals(Locale.ENGLISH.toString()))
+				);
 	}
 
 }

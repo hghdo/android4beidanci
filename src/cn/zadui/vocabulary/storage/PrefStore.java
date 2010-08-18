@@ -1,7 +1,10 @@
 package cn.zadui.vocabulary.storage;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
+
+import cn.zadui.vocabulary.model.dictionary.DictFactory;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -48,8 +51,9 @@ public class PrefStore {
 	 * @return
 	 */
 	public static String getMotherTongueCode(Context ctx){
-		String lang=getSharedPreferences(ctx).getString(SP_KEY_MOTHER_TONGUE, "en");
-		if (lang.equals("en"))return lang;
-		return lang.substring(lang.indexOf('[')+1,lang.indexOf(']'));
+		String lang=getSharedPreferences(ctx).getString(SP_KEY_MOTHER_TONGUE,"English");
+		return lang;
+//		if (lang.equals("en"))return lang;
+//		return lang.substring(lang.indexOf('[')+1,lang.indexOf(']'));
 	}
 }

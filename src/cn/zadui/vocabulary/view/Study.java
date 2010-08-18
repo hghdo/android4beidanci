@@ -334,7 +334,7 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		i.putExtra(NetworkService.KEY_ACTION, NetworkService.LOOKUP_ACTION);
 		i.putExtra(NetworkService.KEY_HEADWORD, headword);
 		//TODO set src language
-		i.putExtra(DictionaryService.KEY_SRC_LANGUAGE, Locale.ENGLISH.getDisplayLanguage(Locale.ENGLISH));
+		i.putExtra(DictionaryService.KEY_SRC_LANGUAGE, course.getLang());
 		startService(i);
 	}
 	

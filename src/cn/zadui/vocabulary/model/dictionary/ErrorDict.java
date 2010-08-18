@@ -4,19 +4,13 @@ import cn.zadui.vocabulary.model.Word;
 
 public class ErrorDict implements Dict {
 
-	//@Override
-	public String lookup(String headword,String srcLang,String toLang) {
-		return Dict.ERROR_WORD;
-	}
-
 	@Override
 	public String getDictName() {
 		return "ErrorDict";
 	}
 
 	@Override
-	public Word lookup(String headword, String srcLang, String toLang,
-			String nothing) {
+	public Word lookup(String headword, String srcLang, String toLang) {
 		Word w=new Word(headword);
 		w.setMeaning(Dict.ERROR_WORD);
 		return w;
@@ -24,10 +18,13 @@ public class ErrorDict implements Dict {
 
 	@Override
 	public boolean canSupport(String srcLang, String toLang) {
-		// TODO Auto-generated method stub
-		return true;
+		return false;
 	}
 	
+
+	public static boolean support(String srcLang, String toLang) {
+		return false;
+	}
 	
 
 }

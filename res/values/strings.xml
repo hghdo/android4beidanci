@@ -76,13 +76,23 @@
     <string name="hour">hour</string>
     
     <!-- Settings -->
-    <string name="mother_tongue">Your mother tongue</string>    
+    <string name="mother_tongue">Your language</string>    
     
     <string name="alert_dialog_ok">OK</string>
     <string name="alert_dialog_hide">Hide</string>
     <string name="alert_dialog_something">Something</string>
     <string name="alert_dialog_cancel">Cancel</string>
     <string name="refresh">refresh</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     <string name="long_string">pull解析xml文件,和sax和dom一样 都可以脱离android单独使用,pull和sax的原理一样,不一样的地方是pull读取xml文件后调用方法返回的是数字pull解析xml文件,和sax和dom一样 都可以脱离android单独使用,pull和sax的原理一样,不一样的地方是pull读取xml文件后调用方法返回的是数字pull解析xml文件,和sax和dom一样 都可以脱离android单独使用,pull和sax的原理一样,不一样的地方是pull读取xml文件后调用方法返回的是数字pull解析xml文件,和sax和dom一样 都可以脱离android单独使用,pull和sax的原理一样,不一样的地方是pull读取xml文件后调用方法返回的是数字pull解析xml文件,和sax和dom一样 都可以脱离android单独使用,pull和sax的原理一样,不一样的地方是pull读取xml文件后调用方法返回的是数字pull解析xml文件,和sax和dom一样 都可以脱离android单独使用,pull和sax的原理一样,不一样的地方是pull读取xml文件后调用方法返回的是数字</string>
     

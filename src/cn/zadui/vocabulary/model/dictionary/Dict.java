@@ -11,10 +11,9 @@ public interface Dict {
 	
 	//public String lookup(String headword,String srcLang,String toLang);
 	
-	public Word lookup(String headword,String srcLang,String toLang,String nothing);
+	public Word lookup(String headword,String srcLang,String toLang);
 	
 	public String getDictName();
 	
 	public boolean canSupport(String srcLang,String toLang);
-	
 }

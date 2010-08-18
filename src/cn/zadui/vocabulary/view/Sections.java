@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.Button;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
@@ -221,6 +222,5 @@ public class Sections extends ListActivity {
 		adapter.setViewBinder(viewBinder);
 		setListAdapter(adapter);
 		dbAdapter.close();
-	}
-	
+	}	
 }

@@ -13,7 +13,6 @@ public abstract class NetDict implements Dict {
 	public abstract String getDictName();
 
 	@Override
-	public abstract Word lookup(String headword, String srcLang, String toLang,
-			String nothing);
+	public abstract Word lookup(String headword, String srcLang, String toLang);
 
 }

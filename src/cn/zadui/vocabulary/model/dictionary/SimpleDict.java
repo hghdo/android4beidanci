@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
+import java.util.Locale;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
@@ -51,6 +52,19 @@ public class SimpleDict implements Dict {
 	 */
 	public static final int DICT_HEAD_SIZE=8;
 	
+	public static boolean support(String srcLang, String toLang) {
+		return (
+				srcLang.equals(Locale.ENGLISH.toString()) 
+				&& 
+				toLang.equals(Locale.SIMPLIFIED_CHINESE.toString())
+				);
+	}
+	
+	@Override
+	public boolean canSupport(String srcLang, String toLang) {
+		return support(srcLang, toLang);
+	}
+	
 	/**
 	 * If there are no dictionary was specified in the status then scan {@link CourseStatus.DATA_DIR data} 
 	 * directory for dictionaries. If there are more than one dictionaries existed then use 
@@ -58,7 +72,6 @@ public class SimpleDict implements Dict {
 	 * @param status
 	 * @return
 	 * @throws IOException 
-	 * @throws IOException
 	 */
 	public static Dict getInstance(String filename) throws IOException{
 		if (dict==null){
@@ -81,12 +94,45 @@ public class SimpleDict implements Dict {
 		in.close();
 		cache=new Cache(50);
 	}
-		
+	
+	@Override
+	public Word lookup(String headword, String srcLang, String toLang) {
+		return convert(
+				headword,look(headword, srcLang, toLang)
+				);
+	}	
+	
+	private void readDictInfo(InputStream in) throws IOException{
+		in.read(buf,0,2);
+		headSize=Helper.byteArray2Short(buf,0);
+		int point=0;
+		String key="";
+		String value="";
+		for(int i=0;i<headSize;i++){
+			char c=(char)in.read();
+			if (c==':'){
+				key=new String(buf,0,point,"UTF-8");
+				point=0;
+			}else if (c=='\n'){
+				value=new String(buf,0,point,"UTF-8");
+				point=0;
+				if (key.equals(DICT_NAME_KEY)) dictName=value;
+				else if (key.equals(TOP_SIZE_KEY)) topSize=Integer.valueOf(value);
+				else if (key.equals(TOP_COUNT_KEY)) topCount=Integer.valueOf(value);
+				else if (key.equals(SECOND_SIZE_KEY)) secSize=Integer.valueOf(value);
+				else if (key.equals(SECTION_COUNT_KEY)) sectionCount=Integer.valueOf(value);
+				else if (key.equals(WORDS_COUNT_KEY)) wordsCount=Integer.valueOf(value);
+			}else{
+				buf[point]=(byte)c;
+				point++;
+			}
+		}
+	}
+	
 	/**
 	 * TODO validate the headword parameter before do lookup
 	 */
-	//@Override
-	public String lookup(String headword,String srcLang,String toLang){
+	private String look(String headword,String srcLang,String toLang){
 		Log.d("Go into lookup", headword);
 		headword=headword.toLowerCase();
 		String cacheResult=cache.lookup(headword);
@@ -138,40 +184,6 @@ public class SimpleDict implements Dict {
 			result="ERRORS occurred!";
 		}
 		return result;
-	}
-	
-	@Override
-	public Word lookup(String headword, String srcLang, String toLang,String nothing) {
-		return convert(
-				headword,lookup(headword, srcLang, toLang)
-				);
-	}	
-	
-	private void readDictInfo(InputStream in) throws IOException{
-		in.read(buf,0,2);
-		headSize=Helper.byteArray2Short(buf,0);
-		int point=0;
-		String key="";
-		String value="";
-		for(int i=0;i<headSize;i++){
-			char c=(char)in.read();
-			if (c==':'){
-				key=new String(buf,0,point,"UTF-8");
-				point=0;
-			}else if (c=='\n'){
-				value=new String(buf,0,point,"UTF-8");
-				point=0;
-				if (key.equals(DICT_NAME_KEY)) dictName=value;
-				else if (key.equals(TOP_SIZE_KEY)) topSize=Integer.valueOf(value);
-				else if (key.equals(TOP_COUNT_KEY)) topCount=Integer.valueOf(value);
-				else if (key.equals(SECOND_SIZE_KEY)) secSize=Integer.valueOf(value);
-				else if (key.equals(SECTION_COUNT_KEY)) sectionCount=Integer.valueOf(value);
-				else if (key.equals(WORDS_COUNT_KEY)) wordsCount=Integer.valueOf(value);
-			}else{
-				buf[point]=(byte)c;
-				point++;
-			}
-		}
 	}
 
 	public String getDictName() {
@@ -271,15 +283,11 @@ public class SimpleDict implements Dict {
 	}
 	
 	private Word convert(String headword,String result){
-		//Log.d("AAAAAAAAAAAaa",result);
 		Word w=new Word(headword);
 		if (result.equals(Dict.ERROR_WORD)){
 			w.setMeaning(Dict.ERROR_WORD);
 			return w;
 		}
-		//Pattern p=Pattern.compile("[a-zA-Z]");
-		//Log.d("BBBBBBBBBBB",String.valueOf(Pattern.matches("[a-zA-Z]", headword)));
-		//Log.d("CCCCCCCCCCCCC",String.valueOf(result.startsWith("[")));
 		if (Pattern.matches("[a-zA-Z]+", headword) && result.startsWith("[")){
 			w.setPhonetic(result.substring(0,result.indexOf('\n')));
 			w.setMeaning(result.substring(result.indexOf('\n')+1));
@@ -287,12 +295,6 @@ public class SimpleDict implements Dict {
 			w.setMeaning(result);
 		}
 		return w;
-	}
-
-	@Override
-	public boolean canSupport(String srcLang, String toLang) {
-		// TODO Auto-generated method stub
-		return false;
 	}
 
 	
