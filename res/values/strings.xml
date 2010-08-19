@@ -7,7 +7,7 @@
     <string name="current_course_title">Your current course:</string>
     <string name="current_course_progress_title">Course progress:</string>
     <string name="no_course">course empty</string>
-    <string name="go_on_study">Study</string>
+    <string name="study">Study</string>
     <string name="select_course">Select Courses</string>
     <string name="go_to_units">History</string>
     <string name="lookup">lookup</string>
@@ -50,6 +50,7 @@
     <string name="unit_next_exam_at">{0,date,short} {1,time,short}</string>
     <string name="unit_last_exam_at">examed {0} {1} ago</string>
     <string name="never_exam">never examed</string>
+    <string name="go_on_study">Go on study this course</string>
     
     <!-- 
     <string name="unit_created_at">Unit created at:{0,date,short} {1,time,short}</string>
@@ -82,7 +83,8 @@
     <string name="alert_dialog_hide">Hide</string>
     <string name="alert_dialog_something">Something</string>
     <string name="alert_dialog_cancel">Cancel</string>
-    <string name="refresh">refresh</string>
+    <string name="refresh">Refresh</string>
+    <string name="delete">Delete</string>
     
     
     

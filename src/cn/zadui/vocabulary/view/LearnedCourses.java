@@ -92,8 +92,6 @@ public class LearnedCourses extends ListActivity {
 				//StudyDbAdapter.KEY_NEXT_COMMON_EXAM_AT,
 				//StudyDbAdapter.KEY_COMMON_EXAM_TIMES
 				};
-		StudyDbAdapter dbAdapter=new StudyDbAdapter(this);
-		dbAdapter.open();
 		cur=dbAdapter.fetchCourseStatus();
 		startManagingCursor(cur);
 		SimpleCursorAdapter adapter=new SimpleCursorAdapter(this,R.layout.learned_courses_row,cur,columns,displayViews);

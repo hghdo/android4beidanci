@@ -5,10 +5,12 @@ import java.util.Calendar;
 import java.util.Locale;
 
 import android.app.ListActivity;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.view.ContextMenu;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -24,11 +26,12 @@ import cn.zadui.vocabulary.storage.StudyDbAdapter;
 
 public class Sections extends ListActivity {
 
-	public static final int REVIEW=0;
+	public static final int REVIEW					=0;
 	public static final int EXAM_MEANING_TO_SPELLING=1;
 	public static final int EXAM_SPELLING_TO_MEANING=2;
-	public static final int EXAM_BY_EXAMPLES=3;
-	public static final int SYNC_EXAMPLES=4;
+	public static final int EXAM_BY_EXAMPLES		=3;
+	public static final int SYNC_EXAMPLES			=4;
+	public static final int DELETE_SECTION			=5;
 	
 	SimpleCursorAdapter.ViewBinder viewBinder;
 	
@@ -57,17 +60,7 @@ public class Sections extends ListActivity {
 		
 		//setTitle(getResources().getString(R.string.units_title));
 		setTitle(getResources().getString(R.string.units_title)+" - "+getIntent().getExtras().getString(StudyDbAdapter.KEY_COURSE_NAME));
-		
-		((Button)findViewById(R.id.btn_units_study)).setOnClickListener(new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				Intent i = new Intent(v.getContext(), Study.class);
-				i.putExtra(StudyDbAdapter.KEY_COURSE_NAME, getIntent().getExtras().getString(StudyDbAdapter.KEY_COURSE_NAME));
-				startActivity(i);
-			}
-		});
-		
+
 		viewBinder=new SimpleCursorAdapter.ViewBinder() {			
 			@Override
 			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
@@ -138,18 +131,22 @@ public class Sections extends ListActivity {
 			}
 		};
 		
+		LayoutInflater mInflater=(LayoutInflater)getSystemService( Context.LAYOUT_INFLATER_SERVICE );
+		View v=mInflater.inflate(R.layout.units_header, null);
+		getListView().addHeaderView(v);
 		fillData();
 		registerForContextMenu(getListView());
 	}
 
 	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v,
-			ContextMenuInfo menuInfo) {
-		super.onCreateContextMenu(menu, v, menuInfo);
-		menu.add(0,REVIEW,0,getResources().getString(R.string.review));
-		menu.add(0,EXAM_MEANING_TO_SPELLING,0,getResources().getString(R.string.exam_meaning_2_spelling));
-		menu.add(0,EXAM_SPELLING_TO_MEANING,0,getResources().getString(R.string.exam_spelling_2_meaning));
-		menu.add(0,EXAM_BY_EXAMPLES,0,getResources().getString(R.string.exam_by_example));
+	public void onCreateContextMenu(ContextMenu menu, View v,ContextMenuInfo menuInfo) {
+		//super.onCreateContextMenu(menu, v, menuInfo);
+			menu.add(0,REVIEW,0,getString(R.string.review));
+			menu.add(0,EXAM_MEANING_TO_SPELLING,0,getString(R.string.exam_meaning_2_spelling));
+			menu.add(0,EXAM_SPELLING_TO_MEANING,0,getString(R.string.exam_spelling_2_meaning));
+			menu.add(0,EXAM_BY_EXAMPLES,0,getString(R.string.exam_by_example));
+			menu.add(0,DELETE_SECTION,0,getString(R.string.delete));
+			
 	}
 	
 	@Override
@@ -174,6 +171,8 @@ public class Sections extends ListActivity {
 			newIntent.setClass(this, Examples.class);
 			newIntent.putExtra(Exam.DIRECTION, EXAM_BY_EXAMPLES);
 			break;
+		case DELETE_SECTION:
+			break;
 		}
 		startActivity(newIntent);
 		return true;
@@ -188,17 +187,22 @@ public class Sections extends ListActivity {
 
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
-		super.onListItemClick(l, v, position, id);
-		Intent newIntent=new Intent();
-		newIntent.putExtra("id", id);
-		newIntent.setClass(this, Review.class);
-		startActivity(newIntent);
+		if (position==0){
+			Intent i = new Intent(v.getContext(), Study.class);
+			i.putExtra(StudyDbAdapter.KEY_COURSE_NAME, getIntent().getExtras().getString(StudyDbAdapter.KEY_COURSE_NAME));
+			startActivity(i);
+		}else{
+			Intent newIntent=new Intent();
+			newIntent.putExtra("id", id);
+			newIntent.setClass(this, Review.class);
+			startActivity(newIntent);
+		}
 	}
 
 	private void fillData() {
 		int[] displayViews=new int[]{
 				R.id.tv_unit_id,
-				R.id.tv_unit_course_name,
+				//R.id.tv_unit_course_name,
 				R.id.tv_unit_words_count,
 				R.id.tv_unit_last_exam_at,
 				//R.id.tv_unit_created_at,
@@ -207,7 +211,7 @@ public class Sections extends ListActivity {
 				};
 		String[] columns=new String[]{	
 				StudyDbAdapter.KEY_ROWID,
-				StudyDbAdapter.KEY_COURSE_NAME,
+				//StudyDbAdapter.KEY_COURSE_NAME,
 				StudyDbAdapter.KEY_WORDS_COUNT,
 				StudyDbAdapter.KEY_LAST_EXAM_AT,
 				//StudyDbAdapter.KEY_CREATED_AT,

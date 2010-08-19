@@ -14,12 +14,12 @@
 		android:orientation="horizontal">
 	    <EditText 
 		    android:id="@+id/et_study_spell"
-		    android:layout_width="fill_parent"
+		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
-		    android:gravity="center"
 		    android:inputType="textFilter"
-		    android:hint="spell the word"
-		    android:textSize="22dip"
+		    android:hint="Spell the word"
+		    android:textSize="25dip"
+		    android:imeOptions="actionDone"
 		    android:layout_weight="1"/>
 	    <ImageButton
 	    	android:id="@+id/btn_study_spell_check"

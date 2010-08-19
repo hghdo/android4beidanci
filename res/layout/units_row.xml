@@ -4,7 +4,7 @@
   android:layout_width="fill_parent"
   android:layout_height="wrap_content"
   android:orientation="vertical"
-  style="@style/common_row_style"> 
+  style="@style/row_style"> 
 	<LinearLayout
 	  android:layout_width="fill_parent"
 	  android:layout_height="wrap_content"
@@ -15,12 +15,13 @@
 	        android:layout_height="wrap_content"
 	        style="@style/units_list_title"/>
 	</LinearLayout>
+	<!--  
     <TextView
         android:id="@+id/tv_unit_course_name"
         android:layout_width="wrap_content" 
         android:layout_height="wrap_content"
         style="@style/units_list_title"/>
-        
+	-->        
 	<LinearLayout
 	  android:layout_width="fill_parent"
 	  android:layout_height="wrap_content"

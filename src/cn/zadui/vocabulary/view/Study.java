@@ -2,7 +2,6 @@ package cn.zadui.vocabulary.view;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 import org.json.JSONArray;
@@ -13,25 +12,25 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.Html;
-import android.text.InputFilter;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.GestureDetector.SimpleOnGestureListener;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 import cn.zadui.vocabulary.R;
-import cn.zadui.vocabulary.model.LearnCache;
 import cn.zadui.vocabulary.model.Section;
 import cn.zadui.vocabulary.model.Word;
 import cn.zadui.vocabulary.model.course.Course;
@@ -90,6 +89,7 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 	// Spelling controls
 	private EditText etSpelling;
 	private TextView tvSpellingMeaning;
+	private ImageButton btnCheckSpelling;
 	
 	/**
 	 * If is the "last word" then should not add this word into the study section, other wise 
@@ -123,6 +123,18 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		tvMeaning=(TextView) findViewById(R.id.meaning);
 		tvPhonetic=(TextView) findViewById(R.id.phonetic);
 		etSpelling=(EditText)findViewById(R.id.et_study_spell);
+		etSpelling.setOnEditorActionListener(new OnEditorActionListener(){
+
+			@Override
+			public boolean onEditorAction(TextView v, int actionId,KeyEvent event) {
+				if (actionId==EditorInfo.IME_ACTION_DONE){
+					btnCheckSpelling.performClick();
+				}
+				return true;
+			}
+			
+		});
+		
 		tvSpellingMeaning=(TextView) findViewById(R.id.tv_study_spell_meaning);
 
 		((ImageButton)findViewById(R.id.btn_next_word)).setOnClickListener(this);
@@ -132,7 +144,8 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		((ImageButton)findViewById(R.id.btn_learn_examples)).setOnClickListener(this);
 		((ImageButton)findViewById(R.id.btn_learn_study)).setOnClickListener(this);
 		((ImageButton)findViewById(R.id.btn_learn_spelling)).setOnClickListener(this);
-		((ImageButton)findViewById(R.id.btn_study_spell_check)).setOnClickListener(this);
+		btnCheckSpelling=(ImageButton)findViewById(R.id.btn_study_spell_check);
+		btnCheckSpelling.setOnClickListener(this);
 		
 		serviceHandler=new Handler(){
             @Override
@@ -253,11 +266,11 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		}else if (v.getId()==R.id.btn_learn_spelling){
 			bringViewToFront(vSpelling);
 			tvSpellingMeaning.setText(cw.getMeaning());
-			etSpelling.setFilters(new InputFilter[]{
-					new InputFilter.LengthFilter(cw.getHeadword().length())
-			});
-			etSpelling.selectAll();
-			etSpelling.setBackgroundColor(this.getResources().getColor(R.color.white));
+//			etSpelling.setFilters(new InputFilter[]{
+//					new InputFilter.LengthFilter(cw.getHeadword().length())
+//			});
+//			etSpelling.selectAll();
+			//etSpelling.setBackgroundColor(this.getResources().getColor(R.color.white));
 			return;
 		}else if (v.getId()==R.id.btn_learn_examples){
 			bringViewToFront(vExamples);
@@ -271,11 +284,11 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 			finish();
 			return;
 		}else if(v.getId()==R.id.btn_study_spell_check){
-			etSpelling.selectAll();
 			if (etSpelling.getText().toString().equals(cw.getHeadword())){
-				etSpelling.setBackgroundColor(this.getResources().getColor(R.color.grey));
+				etSpelling.setTextColor(getResources().getColor(R.color.green));
 			}else{
-				etSpelling.setBackgroundColor(this.getResources().getColor(R.color.red));
+				etSpelling.setTextColor(this.getResources().getColor(R.color.red));
+				etSpelling.selectAll();
 			}
 		}
 	}
