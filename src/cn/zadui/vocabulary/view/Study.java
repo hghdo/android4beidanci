@@ -9,8 +9,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -40,6 +42,7 @@ import cn.zadui.vocabulary.service.DictionaryService;
 import cn.zadui.vocabulary.service.ExampleService;
 import cn.zadui.vocabulary.service.NetworkService;
 import cn.zadui.vocabulary.service.StateChangeListener;
+import cn.zadui.vocabulary.service.NetworkService.ServiceState;
 import cn.zadui.vocabulary.storage.CourseStatus;
 import cn.zadui.vocabulary.storage.PrefStore;
 import cn.zadui.vocabulary.storage.StudyDbAdapter;
@@ -65,6 +68,7 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 	private static final String TAG="Study";
 	private static final int HANDLE_LOOKUP=0;
 	private static final int HANDLE_EXAMPLE=1;
+	private static final int SERVICE_ERROR=2;
 	
 	private GestureDetector gestureDetector;
 	private View vLearn;
@@ -157,6 +161,8 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
             	case HANDLE_EXAMPLE:
     				fillExamplesSnipView();
     				break;
+            	case SERVICE_ERROR:
+            		showDialog(SERVICE_ERROR);
             	}
             }
 		};
@@ -172,33 +178,38 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 	 * TODO It could be smaller if move network task from Service to Runnable. 
 	 */
 	@Override
-	public void onServiceStateChanged(Object result) {
-		if (result instanceof Word){
-			cw=(Word)result;
-			if (!isLastWord){
-				section.addWord(cw);
-				isLastWord=false;
-			}
-			serviceHandler.sendEmptyMessage(HANDLE_LOOKUP);
-		}else{
-			String jstr=(String)result;
-			Log.d(TAG, jstr);
-			try {
-				JSONObject jo=new JSONObject(jstr);
-				JSONArray results=jo.getJSONObject("responseData").getJSONArray("results");
-				if (examples==null) examples=new ArrayList<Map<String,CharSequence>>();
-				else examples.clear();
-				for(int i=0;i<results.length();i++){
-					Map<String,CharSequence> ex=new HashMap<String,CharSequence>();
-					ex.put("title",results.getJSONObject(i).getString("title"));
-					ex.put("content", results.getJSONObject(i).getString("content"));
-					ex.put("url", results.getJSONObject(i).getString("blogUrl"));				
-					examples.add(ex);
+	public void onServiceStateChanged(Object result,ServiceState state) {
+		if (state==ServiceState.OK){
+			if (result instanceof Word){
+				cw=(Word)result;
+				if (!isLastWord){
+					status.change(cw.getHeadword(),course.getSeparator().length);
+					section.addWord(cw);
+					isLastWord=false;
 				}
-				serviceHandler.sendEmptyMessage(HANDLE_EXAMPLE);
-			} catch (JSONException e) {
-				e.printStackTrace();
+				serviceHandler.sendEmptyMessage(HANDLE_LOOKUP);
+			}else{
+				String jstr=(String)result;
+				Log.d(TAG, jstr);
+				try {
+					JSONObject jo=new JSONObject(jstr);
+					JSONArray results=jo.getJSONObject("responseData").getJSONArray("results");
+					if (examples==null) examples=new ArrayList<Map<String,CharSequence>>();
+					else examples.clear();
+					for(int i=0;i<results.length();i++){
+						Map<String,CharSequence> ex=new HashMap<String,CharSequence>();
+						ex.put("title",results.getJSONObject(i).getString("title"));
+						ex.put("content", results.getJSONObject(i).getString("content"));
+						ex.put("url", results.getJSONObject(i).getString("blogUrl"));				
+						examples.add(ex);
+					}
+					serviceHandler.sendEmptyMessage(HANDLE_EXAMPLE);
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
 			}
+		}else{
+			serviceHandler.sendEmptyMessage(SERVICE_ERROR);
 		}
 	}
 
@@ -222,18 +233,28 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 	 */
     @Override
     protected Dialog onCreateDialog(int id) {
-    	progressDialog = new ProgressDialog(this);
     	switch (id){
     	case HANDLE_LOOKUP:
+        	progressDialog = new ProgressDialog(this);
     		progressDialog.setMessage("Please wait while looking up...");
-    		break;
+        	progressDialog.setIndeterminate(true);
+        	progressDialog.setCancelable(true);
+        	return progressDialog;
     	case HANDLE_EXAMPLE:
+        	progressDialog = new ProgressDialog(this);
     		progressDialog.setMessage("Please wait while download examples...");
-    		break;
+        	progressDialog.setIndeterminate(true);
+        	progressDialog.setCancelable(true);
+        	return progressDialog;
+    	case SERVICE_ERROR:
+    		return new AlertDialog.Builder(this).setTitle("Error occured").setMessage("Please check your network settings")
+    		.setPositiveButton(R.string.alert_dialog_ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                    	Study.this.finish();
+                    }
+                }).create();
     	}
-    	progressDialog.setIndeterminate(true);
-    	progressDialog.setCancelable(true);
-        return progressDialog;
+    	return null;
     }
 
 	@Override
@@ -383,7 +404,6 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 				String headword=course.getContent(status.getNextContentOffset());// Fetch a new word from course.
 				isLastWord=false;
 				fillLearnSnipViewHeadword(headword);
-				status.change(headword,course.getSeparator().length);
 				runLookupService(headword);
 			}catch(EOFCourseException e){
 				section.freeze();

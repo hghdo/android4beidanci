@@ -3,11 +3,17 @@ package cn.zadui.vocabulary.view;
 import java.util.Locale;
 
 import android.app.ListActivity;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -21,6 +27,8 @@ public class LearnedCourses extends ListActivity {
 	static final String TAG="LLLLLLLLLLLLLLLLLLLLLLLLLLearnedCourses";
 	//LinkedList<Map<String,String>> list;
 	static final int SELECT_COURSE_REQUEST=0;
+	static final int MENU_SETTINGS=0;
+	static final int MENU_ABOUT=1;
 	StudyDbAdapter dbAdapter;
 	private Cursor cur;
 	
@@ -35,6 +43,10 @@ public class LearnedCourses extends ListActivity {
 		
 		
 		setContentView(R.layout.learned_courses);
+		LayoutInflater mInflater=(LayoutInflater)getSystemService( Context.LAYOUT_INFLATER_SERVICE );
+		View v=mInflater.inflate(R.layout.learned_courses_header, null);
+		getListView().addHeaderView(v);
+		
 		dbAdapter=new StudyDbAdapter(this);
 		dbAdapter.open();
 		
@@ -47,7 +59,7 @@ public class LearnedCourses extends ListActivity {
 //				startActivityForResult(sc, SELECT_COURSE_REQUEST);				
 //			}
 //		});
-		
+		/*
 		((ImageButton)this.findViewById(R.id.btn_sel_course)).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -65,6 +77,7 @@ public class LearnedCourses extends ListActivity {
 				startActivity(settings);
 			}
 		});
+		*/
 		
 	}
 
@@ -106,12 +119,17 @@ public class LearnedCourses extends ListActivity {
 
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
-		cur.moveToFirst();
-		cur.move(position);
-		Intent i=new Intent();
-		i.setClass(this, Sections.class);
-		i.putExtra(StudyDbAdapter.KEY_COURSE_NAME, cur.getString(cur.getColumnIndex(StudyDbAdapter.KEY_COURSE_NAME)));
-		startActivity(i);
+		if (position==0){
+			Intent sc=new Intent(this, CourseList.class);
+			startActivityForResult(sc, LearnedCourses.SELECT_COURSE_REQUEST);
+		}else{
+			cur.moveToFirst();
+			cur.move(position-1);
+			Intent i=new Intent();
+			i.setClass(this, Sections.class);
+			i.putExtra(StudyDbAdapter.KEY_COURSE_NAME, cur.getString(cur.getColumnIndex(StudyDbAdapter.KEY_COURSE_NAME)));
+			startActivity(i);
+		}
 	}	
 	
 	@Override
@@ -129,6 +147,26 @@ public class LearnedCourses extends ListActivity {
 	protected void onDestroy() {
 		dbAdapter.close();
 		super.onDestroy();
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		menu.add(0, MENU_SETTINGS, 0, "Settings").setIcon(getResources().getDrawable(android.R.drawable.ic_menu_preferences));
+		menu.add(0, MENU_ABOUT,1,"About").setIcon(getResources().getDrawable(android.R.drawable.ic_menu_info_details));
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onMenuItemSelected(int featureId, MenuItem item) {
+		switch (item.getItemId()){
+		case MENU_SETTINGS:
+			Intent settings=new Intent(this,Settings.class);
+			startActivity(settings);
+			break;
+		case MENU_ABOUT:
+			break;
+		}
+		return true;
 	}
 
 }

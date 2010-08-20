@@ -28,7 +28,7 @@ public class DictCnDict implements Dict {
 	}
 
 	@Override
-	public Word lookup(String headword, String srcLang, String toLang) {
+	public Word lookup(String headword, String srcLang, String toLang) throws LookupException {
 		Word w=new Word(headword);
 		try {
 			URLConnection conn=NetworkHelper.buildUrlConnection(NetworkHelper.dictCnLookupUrl(headword));					
@@ -63,10 +63,11 @@ public class DictCnDict implements Dict {
 			}
 			in.close();	
 		} catch (XmlPullParserException e) {
-			w.setMeaning(Dict.ERROR_WORD);
-		} catch (IOException e) {
 			e.printStackTrace();
-			w.setMeaning(Dict.ERROR_WORD);
+			throw new LookupException(e.getMessage());
+		} catch (IOException ee) {
+			ee.printStackTrace();
+			throw new LookupException(ee.getMessage());
 		}
 		return w;
 	}

@@ -12,6 +12,7 @@ import cn.zadui.vocabulary.model.Word;
 import cn.zadui.vocabulary.service.DictionaryService;
 import cn.zadui.vocabulary.service.NetworkService;
 import cn.zadui.vocabulary.service.StateChangeListener;
+import cn.zadui.vocabulary.service.NetworkService.ServiceState;
 import cn.zadui.vocabulary.storage.StudyDbAdapter;
 
 import android.app.AlertDialog;
@@ -116,7 +117,7 @@ public class Examples extends ListActivity implements StateChangeListener,View.O
 
 
 	@Override
-	public void onServiceStateChanged(Object result){
+	public void onServiceStateChanged(Object result,ServiceState state){
 		String jstr=(String)result;
 		try {
 			JSONObject jo=new JSONObject(jstr);

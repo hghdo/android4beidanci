@@ -44,7 +44,7 @@ public class GoogleDict implements Dict {
 	}
 
 	@Override
-	public Word lookup(String headword, String srcLang, String toLang) {
+	public Word lookup(String headword, String srcLang, String toLang) throws LookupException {
 		Word w=new Word(headword);
 		try {
 			
@@ -62,8 +62,8 @@ public class GoogleDict implements Dict {
 			
 		} catch (IOException e) {
 			e.printStackTrace();
+			throw new LookupException(e.getMessage());
 		}
-		return null;
 	}
 
 }

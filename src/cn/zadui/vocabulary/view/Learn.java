@@ -19,6 +19,7 @@ import cn.zadui.vocabulary.model.course.SimpleCourse;
 import cn.zadui.vocabulary.model.course.Course.EOFCourseException;
 import cn.zadui.vocabulary.model.dictionary.Dict;
 import cn.zadui.vocabulary.model.dictionary.DictFactory;
+import cn.zadui.vocabulary.model.dictionary.LookupException;
 import cn.zadui.vocabulary.storage.CourseStatus;
 import cn.zadui.vocabulary.storage.PrefStore;
 import cn.zadui.vocabulary.storage.StudyDbAdapter;
@@ -123,7 +124,12 @@ public class Learn extends Activity implements View.OnClickListener {
 					// Fetch a new word from course.
 					String headword=course.getContent(status.getNextContentOffset());
 					//cw=new Word(headword,dict.lookup(headword,null,null));
-					cw=dict.lookup(headword,null,null);
+					try {
+						cw=dict.lookup(headword,null,null);
+					} catch (LookupException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 					// add new word to cache
 					cache.add(cw);
 					// update status
@@ -134,7 +140,12 @@ public class Learn extends Activity implements View.OnClickListener {
 			}else if (v.getId()==R.id.btn_mastered_word){
 				String headword=course.getContent(status.getNextContentOffset());
 				//cw=new Word(headword,dict.lookup(headword,null,null));
-				cw=dict.lookup(headword,null,null);
+				try {
+					cw=dict.lookup(headword,null,null);
+				} catch (LookupException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 //				status.increaseLearnedWordsCount();
 //				status.increaseNextContentOffset(headword.getBytes().length+course.getSeparator().length);
 //				status.setLastWord(headword);
@@ -171,7 +182,12 @@ public class Learn extends Activity implements View.OnClickListener {
 			setTitle(this.getResources().getString(R.string.learn_title));
 		}else{
 			//cw=new Word(lastWord,dict.lookup(lastWord,null,null));
-			cw=dict.lookup(lastWord,null,null);
+			try {
+				cw=dict.lookup(lastWord,null,null);
+			} catch (LookupException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			display();
 		}
 		

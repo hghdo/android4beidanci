@@ -10,6 +10,7 @@
 	    android:layout_height="wrap_content" 
 	    android:dividerHeight="1px" 
 	    android:layout_weight="1"/>
+	<!--  
 	<LinearLayout
 		  android:layout_width="fill_parent"
 		  android:layout_height="wrap_content"
@@ -21,21 +22,13 @@
 		    android:layout_height="45dip" 
 		    android:scaleType="centerInside"
 		    android:layout_weight="1"
-		    android:src="@drawable/bookcase"/>
-<!-- 		      
-		<Button
-			android:id="@+id/btn_learned_course_new_course"
-		    android:layout_width="wrap_content" 
-		    android:layout_height="wrap_content" 
-		    android:text="Download New Course"
-		    android:layout_weight="1"/> 
--->		    
+		    android:src="@drawable/bookcase"/>    
 		<ImageButton android:id="@+id/btn_settings"  
 		    android:layout_width="wrap_content" 
 		    android:layout_height="45dip" 
 		    android:scaleType="centerInside"
 		    android:layout_weight="1"
 		    android:src="@drawable/advanced_options"/>
-		    
-	</LinearLayout> 
+	</LinearLayout>
+	--> 
 </LinearLayout>

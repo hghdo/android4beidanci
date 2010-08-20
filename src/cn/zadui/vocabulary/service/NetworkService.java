@@ -11,6 +11,10 @@ public class NetworkService extends Service {
 	public static final String KEY_HEADWORD="headword";
 	public static final int SELECTIVE_EXAMPLE_ACTION=1;
 	public static final int GOOGLE_EXAMPLE_ACTION=2;
+	
+	public enum ServiceState {
+		OK,LOOKUP, CANCELED, GENERAL_ERROR;
+    }	
 
 	@Override
 	public IBinder onBind(Intent intent) {

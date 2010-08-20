@@ -17,7 +17,7 @@ public class ExampleService extends NetworkService {
 	public void onStart(Intent intent, int startId) {
 		super.onStart(intent, startId);
 		super.onStart(intent, startId);
-		String headword;
+		final String headword;
 		int action=intent.getExtras().getInt(NetworkService.KEY_ACTION);
 		switch (action){
 		case NetworkService.SELECTIVE_EXAMPLE_ACTION:
@@ -26,36 +26,30 @@ public class ExampleService extends NetworkService {
 				stateListener.onServiceStateChanged(
 						NetworkHelper.getStringFromNetIO(
 								NetworkHelper.buildUrlConnection(NetworkHelper.exampleUrl(headword, null, null))
-								)
+								),
+						ServiceState.OK
 						);
 			} catch (IOException e) {
-				e.printStackTrace();
+				stateListener.onServiceStateChanged(null,ServiceState.GENERAL_ERROR);
 			}
 			break;
 		case NetworkService.GOOGLE_EXAMPLE_ACTION:
 			headword=intent.getExtras().getString(NetworkService.KEY_HEADWORD);
-			(new ExampleThread(headword)).start();
+			new Thread(){
+				public void run(){
+					try {
+						stateListener.onServiceStateChanged(
+								NetworkHelper.getStringFromNetIO(
+										NetworkHelper.buildUrlConnection(NetworkHelper.googleAjaxUrl(headword, null, null))
+										),
+								ServiceState.OK
+								);
+					} catch (IOException e) {
+						stateListener.onServiceStateChanged(null,ServiceState.GENERAL_ERROR);
+					}					
+				}
+			}.start();
 			break;
-		}
-	}
-	
-	class ExampleThread extends Thread{
-		
-		String headword;
-		public ExampleThread(String hw){
-			headword=hw;
-		}
-		
-		public void run(){
-			try {
-				stateListener.onServiceStateChanged(
-						NetworkHelper.getStringFromNetIO(
-								NetworkHelper.buildUrlConnection(NetworkHelper.googleAjaxUrl(headword, null, null))
-								)
-						);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
 		}
 	}
 

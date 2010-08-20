@@ -1,11 +1,5 @@
 package cn.zadui.vocabulary.view;
 
-import cn.zadui.vocabulary.model.Word;
-import cn.zadui.vocabulary.service.DictionaryService;
-import cn.zadui.vocabulary.service.NetworkService;
-import cn.zadui.vocabulary.service.StateChangeListener;
-import cn.zadui.vocabulary.storage.CourseStatus;
-import cn.zadui.vocabulary.storage.StudyDbAdapter;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -21,6 +15,13 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 import cn.zadui.vocabulary.R;
+import cn.zadui.vocabulary.model.Word;
+import cn.zadui.vocabulary.service.DictionaryService;
+import cn.zadui.vocabulary.service.NetworkService;
+import cn.zadui.vocabulary.service.StateChangeListener;
+import cn.zadui.vocabulary.service.NetworkService.ServiceState;
+import cn.zadui.vocabulary.storage.CourseStatus;
+import cn.zadui.vocabulary.storage.StudyDbAdapter;
 
 /**
  * This activity used in 3 situations.
@@ -188,7 +189,7 @@ public class Exam extends Activity implements View.OnClickListener,StateChangeLi
 	}
 
 	@Override
-	public void onServiceStateChanged(Object result) {
+	public void onServiceStateChanged(Object result,ServiceState state) {
 		tvExamTip.setText(
 				Html.fromHtml((String)result)
 				);

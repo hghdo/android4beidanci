@@ -21,6 +21,7 @@ import cn.zadui.vocabulary.model.dictionary.DictFactory;
 import cn.zadui.vocabulary.service.DictionaryService;
 import cn.zadui.vocabulary.service.NetworkService;
 import cn.zadui.vocabulary.service.StateChangeListener;
+import cn.zadui.vocabulary.service.NetworkService.ServiceState;
 
 public class Lookup extends Activity implements StateChangeListener {
 
@@ -78,7 +79,7 @@ public class Lookup extends Activity implements StateChangeListener {
 	}
 
 	@Override
-	public void onServiceStateChanged(Object word) {
+	public void onServiceStateChanged(Object word,ServiceState state) {
 		Word w = (Word)word;
 		tvHeadword.setText(w.getHeadword());
 		Typeface mFace=Typeface.createFromAsset(getAssets(), "font/SEGOEUI.TTF");
