@@ -2,12 +2,14 @@ package cn.zadui.vocabulary.view;
 
 
 import android.app.ListActivity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.Spanned;
 import android.view.View;
+import android.widget.ListView;
 import android.widget.RadioGroup;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
@@ -83,6 +85,14 @@ public class Review extends ListActivity implements RadioGroup.OnCheckedChangeLi
 			}
 		});
 		setListAdapter(listAdapter);
+	}
+
+	@Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+		Intent i=new Intent(this,Study.class);
+		i.putExtra(Study.KEY_IS_REVIEW, true);
+		i.putExtra(StudyDbAdapter.KEY_ROWID, id);
+		startActivity(i);
 	}
 
 }

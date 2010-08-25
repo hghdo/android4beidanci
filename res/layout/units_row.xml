@@ -10,10 +10,17 @@
 	  android:layout_height="wrap_content"
 	  android:orientation="horizontal">
 	    <TextView
+	        android:id="@+id/tv_units_row_item_title"
+	        android:layout_width="wrap_content" 
+	        android:layout_height="wrap_content"
+	        style="@style/units_list_title"/>
+	    <!--  
+	    <TextView
 	        android:id="@+id/tv_unit_id"
 	        android:layout_width="wrap_content" 
 	        android:layout_height="wrap_content"
 	        style="@style/units_list_title"/>
+	    -->
 	</LinearLayout>
 	<!--  
     <TextView

@@ -150,7 +150,7 @@ public class StudyDbAdapter {
     }
     
     public Cursor fetchSectionsByCourse(String courseName){
-    	return mDb.query(UNIT_TABLE, null, "virgin_flag=0 and course_name='"+courseName+"'", null, null, null, KEY_CREATED_AT+" desc");
+    	return mDb.query(UNIT_TABLE, null, "course_name='"+courseName+"'", null, null, null, KEY_CREATED_AT+" desc");
     }
     
     public Cursor fetchSection(long rowId){
@@ -213,6 +213,10 @@ public class StudyDbAdapter {
 	    		return mDb.query(UNIT_WORDS_TABLE, null, KEY_Unit_ID+"=? and "+KEY_MASTERED+"=?", new String[]{String.valueOf(unitId),"0"}, null, null, null);
 	    	default: return null;
     	}
+    }
+    
+    public Cursor fetchWordById(long id){
+    	return mDb.query(UNIT_WORDS_TABLE, null, "_id=? ", new String[]{String.valueOf(id)}, null, null, null);
     }
 	
 	public long insertWord(long unitId,Word word){

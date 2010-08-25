@@ -4,6 +4,7 @@
     <string name="mini_dictionary">mini dict</string>
     <string name="copyright">Copyright BeiDanCi 2010</string>
     <!-- Summary -->
+    <string name="course_progress">learned %1$s of %2$s words</string>
     <string name="current_course_title">Your current course:</string>
     <string name="current_course_progress_title">Course progress:</string>
     <string name="no_course">course empty</string>
@@ -43,9 +44,10 @@
         
     <!-- Sections -->
     <string name="units_title">Study Histories</string>
+    <string name="sections_row_item_title">%1$s learned %2$s words</string>
     <string name="unit_id">Section: {0,number,integer}</string>
     <string name="unit_created_at">{0,date,short} {1,time,short}</string>
-    <string name="unit_words_count">{0,number,integer} words</string>
+    <string name="unit_words_count">License Detail: %1$s{0,number,integer} words</string>
     <string name="unit_exam_times">{0,number,integer}</string>
     <string name="unit_next_exam_at">{0,date,short} {1,time,short}</string>
     <string name="unit_last_exam_at">examed {0} {1} ago</string>

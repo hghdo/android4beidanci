@@ -14,6 +14,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -62,8 +63,10 @@ import cn.zadui.vocabulary.storage.StudyDbAdapter;
  */
 public class Study extends Activity implements View.OnClickListener,StateChangeListener {
 
-	public static final int REVIEW=0;
-	public static final int STUDY=1;
+	public static final String KEY_IS_REVIEW="is_review";
+	
+	//public static final int REVIEW=0;
+	//public static final int STUDY=1;
 	
 	private static final String TAG="Study";
 	private static final int HANDLE_LOOKUP=0;
@@ -100,15 +103,22 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 	 * should add it in.
 	 */
 	private boolean isLastWord=false;
+	private boolean isReview=false;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		dbAdapter=new StudyDbAdapter(this);
 		dbAdapter.open();
-		status=new CourseStatus(getIntent().getExtras().getString(StudyDbAdapter.KEY_COURSE_NAME),dbAdapter);
-		PrefStore.saveSelectedCourseStatusId(this, status.getRowId());
-		//status=new CourseStatus(PrefStore.getCurrentCourseStatusId(this),dbAdapter);
+		
+		isReview=getIntent().getExtras().getBoolean(KEY_IS_REVIEW);
+		if (!isReview){
+			status=new CourseStatus(getIntent().getExtras().getString(StudyDbAdapter.KEY_COURSE_NAME),dbAdapter);
+			PrefStore.saveSelectedCourseStatusId(this, status.getRowId());		
+			course=SimpleCourse.getInstance(status.getCourseFileName());
+			section=Section.obtain(dbAdapter,course.getName());
+			//status=new CourseStatus(PrefStore.getCurrentCourseStatusId(this),dbAdapter);
+		}
 		
 		requestWindowFeature(Window.FEATURE_PROGRESS);
 		setContentView(R.layout.study);
@@ -119,9 +129,6 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		vExamples=findViewById(R.id.examples_snip);
 		vSpelling=findViewById(R.id.spelling_snip);
 		bringViewToFront(vLearn);
-		
-		course=SimpleCourse.getInstance(status.getCourseFileName());
-		section=Section.obtain(dbAdapter,course.getName());
         
 		tvHeadword=(TextView) findViewById(R.id.headword);
 		tvMeaning=(TextView) findViewById(R.id.meaning);
@@ -156,7 +163,7 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
             public void handleMessage(Message msg) {
             	switch (msg.what){
             	case HANDLE_LOOKUP:
-            		fillLearnSnipViewContent(cw);
+            		fillLearnSnipViewContent();
             		break;
             	case HANDLE_EXAMPLE:
     				fillExamplesSnipView();
@@ -167,6 +174,47 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
             }
 		};
 	}	
+
+	@Override
+	protected void onStart(){
+		super.onStart();
+		if (isReview){
+			Cursor c=dbAdapter.fetchWordById(getIntent().getExtras().getLong(StudyDbAdapter.KEY_ROWID));
+			c.moveToFirst();
+			cw=new Word(c);
+			c.close();
+			fillLearnSnipViewHeadword(cw.getHeadword());
+			fillLearnSnipViewContent();
+			//TODO disable some buttons in the bottom of this screen.
+		}else{
+			String lastWord=status.getLastWord();
+			if (lastWord.equals(CourseStatus.AT_BEGINNING)){
+				tvHeadword.setText(getResources().getString(R.string.begin_word));
+				setProgress(0);
+				setTitle(this.getResources().getString(R.string.learn_title));
+			}else{
+				isLastWord=true;
+				fillLearnSnipViewHeadword(lastWord);
+				runLookupService(lastWord);
+			}			
+		}
+	}
+
+	@Override
+	protected void onPause() {
+		if (isReview){
+			
+		}else{
+			status.save(dbAdapter);
+		}
+		super.onPause();
+	}
+
+	@Override
+	protected void onDestroy() {
+		dbAdapter.close();
+		super.onDestroy();
+	}
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
@@ -213,21 +261,6 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		}
 	}
 
-	@Override
-	protected void onStart(){
-		super.onStart();
-		String lastWord=status.getLastWord();
-		if (lastWord.equals(CourseStatus.AT_BEGINNING)){
-			tvHeadword.setText(getResources().getString(R.string.begin_word));
-			setProgress(0);
-			setTitle(this.getResources().getString(R.string.learn_title));
-		}else{
-			isLastWord=true;
-			fillLearnSnipViewHeadword(lastWord);
-			runLookupService(lastWord);
-		}
-	}
-
 	/**
 	 * TODO Fix hard code text here
 	 */
@@ -256,18 +289,6 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
     	}
     	return null;
     }
-
-	@Override
-	protected void onPause() {
-		status.save(dbAdapter);
-		super.onPause();
-	}
-
-	@Override
-	protected void onDestroy() {
-		dbAdapter.close();
-		super.onDestroy();
-	}
 
 	@Override
 	public void onClick(View v) {
@@ -320,26 +341,30 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 	 * @param headword
 	 */
 	private void fillLearnSnipViewHeadword(String headword){
-		int percentage=section.getWordsCount()*100/status.getUnitCreateStyleValue();
-		if (percentage*100>=10000){
-			setProgress(9999); 
-		}else{
-			setProgress(percentage*100);
+		if (!isReview){
+			int percentage=section.getWordsCount()*100/status.getUnitCreateStyleValue();
+			if (percentage*100>=10000){
+				setProgress(9999); 
+			}else{
+				setProgress(percentage*100);
+			}
 		}
 		tvHeadword.setText(headword);
 		tvPhonetic.setText("");
 		tvMeaning.setText("");
 	}
 	
-	private void fillLearnSnipViewContent(Word word){
+	private void fillLearnSnipViewContent(){
 		//TODO fix hard code text.
-		setTitle("Study Status: " +
-				String.valueOf(section.getWordsCount()) +
-				"/" +
-				String.valueOf(status.getUnitCreateStyleValue()));
-		tvPhonetic.setText(word.getPhonetic());
-		tvMeaning.setText(Html.fromHtml(word.getMeaning()));
-		dismissDialog(HANDLE_LOOKUP);
+		if (!isReview){
+			setTitle("Study Status: " +
+					String.valueOf(section.getWordsCount()) +
+					"/" +
+					String.valueOf(status.getUnitCreateStyleValue()));
+			dismissDialog(HANDLE_LOOKUP);
+		}
+		tvPhonetic.setText(cw.getPhonetic());
+		tvMeaning.setText(Html.fromHtml(cw.getMeaning()));
 	}
 	
 	private void fillExamplesSnipView(){
@@ -398,7 +423,7 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		if (newxtWord!=null){
 			cw=newxtWord;
 			fillLearnSnipViewHeadword(cw.getHeadword());
-			fillLearnSnipViewContent(cw);
+			fillLearnSnipViewContent();
 		}else{
 			try{
 				String headword=course.getContent(status.getNextContentOffset());// Fetch a new word from course.
@@ -422,7 +447,7 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		}
 		cw=pw;
 		fillLearnSnipViewHeadword(cw.getHeadword());
-		fillLearnSnipViewContent(cw);
+		fillLearnSnipViewContent();
 	}
 	
 	class MySimpleGestureListener extends SimpleOnGestureListener {
