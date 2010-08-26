@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+ <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+     android:orientation="vertical"
+     android:layout_width="fill_parent"
+     android:layout_height="wrap_content">
+	<EditText 
+		android:id="@+id/et_exam_spell"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:inputType="textFilter"
+		android:hint="Spell the word"
+		android:textSize="25dip"
+		android:imeOptions="actionDone"/>
+	<LinearLayout 
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal">
+	    <Button
+	    	android:id="@+id/btn_exam_spell_check"
+		    android:layout_width="wrap_content" 
+			android:layout_height="wrap_content"
+		    android:text="check spell"
+		    android:layout_weight="1"/>
+	    <Button
+	    	android:id="@+id/btn_exam_forgot"
+		    android:layout_width="wrap_content" 
+			android:layout_height="wrap_content"
+		    android:text=" forgot it "
+		    android:layout_weight="1"/>
+	</LinearLayout>
+	<LinearLayout 
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_weight="1">	
+		<ScrollView android:layout_width="fill_parent" android:layout_height="wrap_content">
+			<TextView  
+				android:id="@+id/tv_exam_spell_meaning"
+			    android:layout_width="fill_parent" 
+			    android:layout_height="wrap_content" 
+			    android:textSize="18dip"/>  
+	    </ScrollView>
+	</LinearLayout>
+
+
+</LinearLayout>
