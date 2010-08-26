@@ -3,36 +3,33 @@
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="fill_parent"
   android:layout_height="wrap_content"
-  android:orientation="horizontal">
+  android:orientation="horizontal"
+  style="@style/review_row_style">
 	<LinearLayout
 	  android:layout_width="fill_parent"
 	  android:layout_height="wrap_content"
 	  android:orientation="vertical"
 	  android:layout_weight="1">
 	    <TextView
-	        android:id="@+id/headword"
+	        android:id="@+id/tv_review_row_headword"
 	        android:layout_width="fill_parent" 
 	        android:layout_height="wrap_content"
-	        android:textSize="22dip"
-	        android:layout_marginBottom="3dip"/>
-		<LinearLayout
-		  android:layout_width="fill_parent"
-		  android:layout_height="wrap_content"
-		  android:orientation="horizontal">
-		    <TextView
-		        android:id="@+id/meaning"
-		        android:layout_width="fill_parent" 
-		        android:layout_height="wrap_content"
-		        android:singleLine="true"
-		        android:ellipsize="end"
-		        android:textColor="@color/grey"/>
-		</LinearLayout>
+	        android:textSize="22dip"/>
+	    <TextView
+	        android:id="@+id/tv_review_row_meaning"
+	        android:layout_width="fill_parent" 
+	        android:layout_height="wrap_content"
+	        android:singleLine="true"
+	        android:ellipsize="end"
+	        android:textColor="@color/grey"/>
 	</LinearLayout>
-		<ImageView
-			android:id="@+id/btn_star_me"
-	        android:layout_width="wrap_content" 
-	        android:layout_height="fill_parent"
-	        android:gravity="center_vertical"
-	    	android:src="@drawable/star"/>
+	<ImageView
+		android:id="@+id/iv_review_row_star_me"
+        android:layout_width="wrap_content" 
+        android:layout_height="fill_parent"
+        android:gravity="center_vertical"
+        android:paddingLeft="5dip"
+        android:paddingRight="5dip"
+    	android:src="@drawable/star"/>
 	  
 </LinearLayout>

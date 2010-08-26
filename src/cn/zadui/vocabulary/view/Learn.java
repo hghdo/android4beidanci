@@ -93,7 +93,7 @@ public class Learn extends Activity implements View.OnClickListener {
 	}
 	
 	private void display(){
-		int percentage=section.getWordsCount()*100/status.getUnitCreateStyleValue();
+		int percentage=0;//section.getWordsCount()*100/status.getUnitCreateStyleValue();
 		if (percentage*100>=10000){
 			setProgress(9999);
 			btnCloseUnit.setEnabled(true);
@@ -103,7 +103,7 @@ public class Learn extends Activity implements View.OnClickListener {
 		setTitle("Unit Status: " +
 				String.valueOf(section.getWordsCount()) +
 				"/" +
-				String.valueOf(status.getUnitCreateStyleValue()));
+				String.valueOf(0));
 		alpha=new AlphaAnimation(0.1f,1.0f);
 		alpha.setDuration(5000);
 		tvMeaning.setAnimation(alpha);

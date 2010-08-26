@@ -29,8 +29,8 @@ public class CourseStatus {
 	private int contentCount;
 	private long createdAt;
 	private long updatedAt;
-	private int unitCreateStyle=Section.WORDS_COUNT_STYLE;
-	private int unitCreateStyleValue=Section.WORDS_COUNT_STYLE_DEFAULT;
+	//private int unitCreateStyle=Section.WORDS_COUNT_STYLE;
+	//private int unitCreateStyleValue=Section.WORDS_COUNT_STYLE_DEFAULT;
 	
 	//Dict status
 	private String dictFileName;
@@ -48,8 +48,8 @@ public class CourseStatus {
 		lastWord=AT_BEGINNING;
 		nextContentOffset=0;	
 		contentCount=c.getContentCount();	
-		unitCreateStyle=Section.WORDS_COUNT_STYLE;
-		unitCreateStyleValue=Section.WORDS_COUNT_STYLE_DEFAULT;
+		//unitCreateStyle=Section.WORDS_COUNT_STYLE;
+		//unitCreateStyleValue=Section.WORDS_COUNT_STYLE_DEFAULT;
 	}
 	
 	/**
@@ -143,25 +143,25 @@ public class CourseStatus {
 	 * Means how to construct or separate a Unit. 
 	 * Currently there are two unit styles: by word counts or by time interval.  
 	 */
-	public int getUnitCreateStyle() {
-		return unitCreateStyle;
-	}
-
-	public void setUnitCreateStyle(int unitCreateStyle) {
-		this.unitCreateStyle = unitCreateStyle;
-	}
+//	public int getUnitCreateStyle() {
+//		return unitCreateStyle;
+//	}
+//
+//	public void setUnitCreateStyle(int unitCreateStyle) {
+//		this.unitCreateStyle = unitCreateStyle;
+//	}
 
 	/**
 	 * Means the trigger value to create a new {@link Section study unit} according to the 
 	 * {@link getUnitCreateStyle} settings
 	 */
-	public int getUnitCreateStyleValue() {
-		return unitCreateStyleValue;
-	}
-
-	public void setUnitCreateStyleValue(int unitCreateStyleValue) {
-		this.unitCreateStyleValue = unitCreateStyleValue;
-	}
+//	public int getUnitCreateStyleValue() {
+//		return unitCreateStyleValue;
+//	}
+//
+//	public void setUnitCreateStyleValue(int unitCreateStyleValue) {
+//		this.unitCreateStyleValue = unitCreateStyleValue;
+//	}
 
 	public long getNextContentOffset() {
 		return nextContentOffset;

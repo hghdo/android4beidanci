@@ -19,15 +19,15 @@ import cn.zadui.vocabulary.storage.StudyDbAdapter;
  */
 public class Section {
 	
-	public static final int WORDS_COUNT_STYLE=0;
-	public static final int WORDS_COUNT_STYLE_DEFAULT=20;
+//	public static final int WORDS_COUNT_STYLE=0;
+//	public static final int WORDS_COUNT_STYLE_DEFAULT=20;
 	public static final int TIME_INTERVAL_STYLE=1;
 	public static final int TIME_INTERVAL_STYLE_DEFAULT=1*3600;
 
 	private static final int MAX_UNSAVED_WORDS=5;
 	
 	private long rowId=0;
-	private int createStyle;
+	//private int createStyle;
 	private String courseName;
 	private int wordsCount=0;
 	private boolean virginFlag;
@@ -145,13 +145,13 @@ public class Section {
 //		return old;
 //	}
 
-	public int getCreatedStyle() {
-		return createStyle;
-	}
-
-	public void setCreatedStyle(int createdStyle) {
-		this.createStyle = createdStyle;
-	}
+//	public int getCreatedStyle() {
+//		return createStyle;
+//	}
+//
+//	public void setCreatedStyle(int createdStyle) {
+//		this.createStyle = createdStyle;
+//	}
 
 	public int getWordsCount() {
 		return wordsCount+unsavedWords.size();
@@ -166,7 +166,7 @@ public class Section {
     	if (c!=null && c.moveToFirst()){
     		rowId=c.getLong(c.getColumnIndex(StudyDbAdapter.KEY_ROWID));
     		courseName=c.getString(c.getColumnIndex(StudyDbAdapter.KEY_COURSE_NAME));
-    		createStyle=c.getInt(c.getColumnIndex(StudyDbAdapter.KEY_CREATE_STYLE));
+    		//createStyle=c.getInt(c.getColumnIndex(StudyDbAdapter.KEY_CREATE_STYLE));
     		wordsCount=c.getInt(c.getColumnIndex(StudyDbAdapter.KEY_WORDS_COUNT));
     		virginFlag=(c.getInt(c.getColumnIndex(StudyDbAdapter.KEY_VIRGIN_FLAG))!=0);
     		reviewTimes=c.getInt(c.getColumnIndex(StudyDbAdapter.KEY_COMMON_EXAM_TIMES));
@@ -185,7 +185,7 @@ public class Section {
 		reviewTimes=0;
 		createdAt=System.currentTimeMillis();
 		wordsCount=0;
-		createStyle=WORDS_COUNT_STYLE;
+		//createStyle=WORDS_COUNT_STYLE;
 		this.courseName=courseName;
 		adapter=dbAdapter;
 	}

@@ -82,7 +82,7 @@ public class StudyDbAdapter {
     private static final String DATABASE_CREATE_UNIT_TABLE =
         				"create table unit (_id integer primary key autoincrement, " + 
         				//"user_id integer, " +
-        				"create_style integer, "+
+        				//"create_style integer, "+
                 		"course_name text," +
                 		"words_count integer default 0," +
                 		"virgin_flag integer default 1," +
@@ -171,7 +171,7 @@ public class StudyDbAdapter {
 	public void createSectionInDb(Section section){
 		ContentValues args=new ContentValues();
 		args.put(KEY_COURSE_NAME, section.getCourseName());
-		args.put(KEY_CREATE_STYLE, section.getCreatedStyle());
+		//args.put(KEY_CREATE_STYLE, section.getCreatedStyle());
 		args.put(KEY_WORDS_COUNT, 0);
 		args.put(KEY_VIRGIN_FLAG, 1);
 		args.put(KEY_FINISHED, 0);

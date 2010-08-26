@@ -155,7 +155,7 @@ public class Sections extends ListActivity {
 			startActivity(i);
 		}else{
 			Intent newIntent=new Intent();
-			newIntent.putExtra("id", id);
+			newIntent.putExtra(StudyDbAdapter.KEY_ROWID, id);
 			newIntent.setClass(this, Review.class);
 			startActivity(newIntent);
 		}

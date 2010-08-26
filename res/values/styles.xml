@@ -42,6 +42,14 @@
 	<item name="android:background">@color/default_bg</item>
 </style>
 
+<!-- for common row item -->
+<style name="review_row_style">
+	<item name="android:paddingTop">3dip</item>
+	<item name="android:paddingLeft">8dip</item>
+	<item name="android:paddingRight">5dip</item>
+	<item name="android:paddingBottom">3dip</item>
+</style>
+
 <style name="phonetic_symbol">
 	<item name="android:textColor">@color/red</item>
 </style>

@@ -315,11 +315,6 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 			bringViewToFront(vSpelling);
 			tvSpellingMeaning.setText(cw.getMeaning());
 			this.etSpelling.setText("");
-//			etSpelling.setFilters(new InputFilter[]{
-//					new InputFilter.LengthFilter(cw.getHeadword().length())
-//			});
-//			etSpelling.selectAll();
-			//etSpelling.setBackgroundColor(this.getResources().getColor(R.color.white));
 			return;
 		}else if (v.getId()==R.id.btn_learn_examples){
 			bringViewToFront(vExamples);
@@ -364,10 +359,6 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 	private void fillLearnSnipViewContent(){
 		if (!isReview){
 			setTitle(String.format(getString(R.string.section_words_count),section.getWordsCount()));
-//			setTitle("Study Status: " +
-//					String.valueOf(section.getWordsCount()) +
-//					"/" +
-//					String.valueOf(status.getUnitCreateStyleValue()));
 			dismissDialog(HANDLE_LOOKUP);
 		}
 		tvPhonetic.setText(cw.getPhonetic());
