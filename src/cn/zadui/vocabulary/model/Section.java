@@ -1,8 +1,11 @@
 package cn.zadui.vocabulary.model;
 
-import java.util.Iterator;
+import java.text.DateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 
 import android.database.Cursor;
 import cn.zadui.vocabulary.model.course.SimpleCourse;
@@ -29,8 +32,8 @@ public class Section {
 	private int wordsCount=0;
 	private boolean virginFlag;
 	private int reviewTimes=0;
-	private int createdAt;
-	private int nextExamAt;
+	private long createdAt;
+	private long nextExamAt;
 	private StudyDbAdapter adapter;
 	private List<Word> unsavedWords=new LinkedList<Word>();
 
@@ -41,19 +44,30 @@ public class Section {
      * @return a virgin {@link Section} that can accept new words.
      */
 	public static Section obtain(StudyDbAdapter adapter,String courseName){
-		Section su=null;
+		Section se=null;
 		Cursor c=adapter.getLatestSection(courseName);
 		if (c!=null && c.moveToFirst()){
-			su=new Section(adapter,c);
-			if(!su.isVirgin()){
-				su=new Section(adapter,courseName);
-				adapter.createSectionInDb(su);
+			se=new Section(adapter,c);
+			if(!se.isVirgin()){
+				se=new Section(adapter,courseName);
+				adapter.createSectionInDb(se);
+			}else{
+				Calendar cal=Calendar.getInstance();
+				cal.setTimeInMillis(se.createdAt);
+				Date createdDay=cal.getTime();
+				Date today=new Date();
+				DateFormat df=DateFormat.getDateInstance(DateFormat.SHORT,Locale.getDefault());
+				if (!(df.format(createdDay).equals(df.format(today)))){
+					se.freeze();
+					se=new Section(adapter,courseName);
+					adapter.createSectionInDb(se);
+				}
 			}
 		}else{
-			su=new Section(adapter,courseName);
-			adapter.createSectionInDb(su);
+			se=new Section(adapter,courseName);
+			adapter.createSectionInDb(se);
 		}
-		return su;
+		return se;
 	}
 	
     /**
@@ -86,32 +100,19 @@ public class Section {
 	}
 	
 	/**
-	 * Add words to this StudyUnit 
-	 */
-//	public void saveUnsavedWords(){
-//		if (unsavedWords.size()==0) return;
-//		for(Iterator<Word> it=unsavedWords.iterator();it.hasNext();){
-//			adapter.insertWord(rowId, it.next());
-//		}
-//		if (adapter.updateSectionWordsCount(rowId,unsavedWords.size()+wordsCount)) wordsCount=wordsCount+unsavedWords.size();
-//		unsavedWords.clear();
-//	}
-	
-	/**
 	 * TODO schedule this section in Alarm manager
 	 */
 	public void freeze(){
 		//saveUnsavedWords();
-		int currentSec=(int)System.currentTimeMillis()/1000;
-		nextExamAt=currentSec + SimpleCourse.firstInterval;
+		nextExamAt=System.currentTimeMillis() + SimpleCourse.firstInterval;
 		adapter.updateSectionToOld(rowId,nextExamAt);
 	}
 	
-	public int getCreatedAt() {
+	public long getCreatedAt() {
 		return createdAt;
 	}
 	
-	public void setCreatedAt(int createdAt) {
+	public void setCreatedAt(long createdAt) {
 		this.createdAt = createdAt;
 	}
 	
@@ -169,8 +170,8 @@ public class Section {
     		wordsCount=c.getInt(c.getColumnIndex(StudyDbAdapter.KEY_WORDS_COUNT));
     		virginFlag=(c.getInt(c.getColumnIndex(StudyDbAdapter.KEY_VIRGIN_FLAG))!=0);
     		reviewTimes=c.getInt(c.getColumnIndex(StudyDbAdapter.KEY_COMMON_EXAM_TIMES));
-    		createdAt=c.getInt(c.getColumnIndex(StudyDbAdapter.KEY_CREATED_AT));
-    		nextExamAt=c.getInt(c.getColumnIndex(StudyDbAdapter.KEY_NEXT_COMMON_EXAM_AT));
+    		createdAt=c.getLong(c.getColumnIndex(StudyDbAdapter.KEY_CREATED_AT));
+    		nextExamAt=c.getLong(c.getColumnIndex(StudyDbAdapter.KEY_NEXT_COMMON_EXAM_AT));
     		c.close();
 		}
     	adapter=dbAdapter;
@@ -182,7 +183,7 @@ public class Section {
 	private Section(StudyDbAdapter dbAdapter,String courseName){
 		virginFlag=true;
 		reviewTimes=0;
-		createdAt=Helper.currentSecTime();
+		createdAt=System.currentTimeMillis();
 		wordsCount=0;
 		createStyle=WORDS_COUNT_STYLE;
 		this.courseName=courseName;

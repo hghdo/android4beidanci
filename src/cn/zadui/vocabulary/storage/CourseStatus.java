@@ -27,8 +27,8 @@ public class CourseStatus {
 	private long nextContentOffset=0;
 	private String lastWord;
 	private int contentCount;
-	private int createdAt;
-	private int updatedAt;
+	private long createdAt;
+	private long updatedAt;
 	private int unitCreateStyle=Section.WORDS_COUNT_STYLE;
 	private int unitCreateStyleValue=Section.WORDS_COUNT_STYLE_DEFAULT;
 	
@@ -93,8 +93,8 @@ public class CourseStatus {
 		lastWord=c.getString(c.getColumnIndex(StudyDbAdapter.KEY_LAST_WORD));
 		nextContentOffset=c.getLong(c.getColumnIndex(StudyDbAdapter.KEY_NEXT_CONTENT_OFFSET));
 		contentCount=c.getInt(c.getColumnIndex(StudyDbAdapter.KEY_CONTENT_COUNT));
-		createdAt=c.getInt(c.getColumnIndex(StudyDbAdapter.KEY_CREATED_AT));
-		updatedAt=c.getInt(c.getColumnIndex(StudyDbAdapter.KEY_UPDATED_AT));
+		createdAt=c.getLong(c.getColumnIndex(StudyDbAdapter.KEY_CREATED_AT));
+		updatedAt=c.getLong(c.getColumnIndex(StudyDbAdapter.KEY_UPDATED_AT));
 	}
 	
 	/**
@@ -104,10 +104,10 @@ public class CourseStatus {
 	 */
 	public long save(StudyDbAdapter dbAdapter){
 		if (isNew()){
-    		createdAt=Helper.currentSecTime();
+    		createdAt=System.currentTimeMillis();
     		updatedAt=createdAt;
 		}else{
-			updatedAt=Helper.currentSecTime();
+			updatedAt=System.currentTimeMillis();
 		}
 		rowId=dbAdapter.saveOrUpdateCourseStatus(this);
 		return rowId;
@@ -187,11 +187,11 @@ public class CourseStatus {
 		return courseLang;
 	}
 
-	public int getCreatedAt() {
+	public long getCreatedAt() {
 		return createdAt;
 	}
 
-	public int getUpdatedAt() {
+	public long getUpdatedAt() {
 		return updatedAt;
 	}
 	

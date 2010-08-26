@@ -184,7 +184,7 @@ public class StudyDbAdapter {
 		section.setRowId(mDb.insert(UNIT_TABLE, null, args));
 	}
 	
-	public boolean updateSectionToOld(long id,int nextExamAt){
+	public boolean updateSectionToOld(long id,long nextExamAt){
 		ContentValues args=new ContentValues();
 		args.put(KEY_VIRGIN_FLAG, 0);
 		args.put(KEY_NEXT_FAILED_EXAM_AT, nextExamAt);
@@ -213,6 +213,11 @@ public class StudyDbAdapter {
 	    		return mDb.query(UNIT_WORDS_TABLE, null, KEY_Unit_ID+"=? and "+KEY_MASTERED+"=?", new String[]{String.valueOf(unitId),"0"}, null, null, null);
 	    	default: return null;
     	}
+    }
+    
+    public void deleteSection(long sectionId){
+    	mDb.delete(UNIT_WORDS_TABLE, KEY_Unit_ID+"=? ", new String[]{String.valueOf(sectionId)});
+    	mDb.delete(UNIT_TABLE, "_id=? ", new String[]{String.valueOf(sectionId)});
     }
     
     public Cursor fetchWordById(long id){

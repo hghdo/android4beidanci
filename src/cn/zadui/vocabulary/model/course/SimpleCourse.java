@@ -18,7 +18,10 @@ import cn.zadui.vocabulary.storage.CourseStatus;
  */
 public class SimpleCourse extends Course {
 	
-	public static int[] studyInterval=new int[]{3600,4800};
+	public static int[] studyInterval=new int[]{
+		5  * 60 * 60 * 1000,
+		10 * 60 * 60 * 1000
+		};
 	public static int firstInterval=studyInterval[0];
 	
 	private static SimpleCourse course=null;

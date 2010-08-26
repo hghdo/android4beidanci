@@ -5,6 +5,5 @@
 					android:title="@string/mother_tongue"
 					android:entries="@array/language_entries"
 					android:entryValues="@array/language_entries"
-					android:defaultValue="English"
 					android:persistent="true"/>
 </PreferenceScreen>

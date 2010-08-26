@@ -33,18 +33,8 @@ public class Sections extends ListActivity {
 	public static final int STUDY					=6;
 	
 	SimpleCursorAdapter.ViewBinder viewBinder;
-	
-	
-	private View header;
-	
-	//DateFormat sdf=DateFormat.getDateTimeInstance(DateFormat.SHORT,DateFormat.SHORT,loc);
-	Calendar ca=Calendar.getInstance();
-	MessageFormat mf_created_at;
-	MessageFormat mf_next_exam_at;
-	MessageFormat mf_last_exam_at;
-	MessageFormat mf_words_count;	
-	MessageFormat mf_exam_times;	
-	MessageFormat mf_unit_id;
+	StudyDbAdapter dbAdapter;	
+	View header;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -54,14 +44,16 @@ public class Sections extends ListActivity {
 		
 		//setTitle(getResources().getString(R.string.units_title));
 		setTitle(getResources().getString(R.string.units_title)+" - "+getIntent().getExtras().getString(StudyDbAdapter.KEY_COURSE_NAME));
+		dbAdapter=new StudyDbAdapter(this);
+		dbAdapter.open();
 
 		viewBinder=new SimpleCursorAdapter.ViewBinder() {			
 			@Override
 			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
 				if (columnIndex==cursor.getColumnIndex(StudyDbAdapter.KEY_WORDS_COUNT)){
-					long createAt=cursor.getInt(cursor.getColumnIndex(StudyDbAdapter.KEY_CREATED_AT));
+					long createAt=cursor.getLong(cursor.getColumnIndex(StudyDbAdapter.KEY_CREATED_AT));
 					Calendar cal=Calendar.getInstance();
-					cal.setTimeInMillis(createAt*1000);
+					cal.setTimeInMillis(createAt);
 					
 					int wordsCount=cursor.getInt(columnIndex);
 					TextView tv=(TextView)view;
@@ -78,12 +70,11 @@ public class Sections extends ListActivity {
 					if (val==0){
 						tv.setText(getResources().getString(R.string.never_exam));
 					}else{
-						String[] textValues=Helper.friendlyTime(val);
+						Object[] textValues=Helper.friendlyTime(val);
 						if (textValues[1].equals("hour")) textValues[1]=Sections.this.getResources().getString(R.string.hour);
 						else if (textValues[1].equals("month")) textValues[1]=Sections.this.getResources().getString(R.string.month);
 						else if (textValues[1].equals("day")) textValues[1]=Sections.this.getResources().getString(R.string.day);
-						tv.setText(mf_last_exam_at.format(textValues));
-								//mf_words_count.format(new Integer[]{cursor.getInt(columnIndex)}));
+						tv.setText(String.format(getString(R.string.unit_last_exam_at), textValues));
 					}
 					return true;
 				}
@@ -103,7 +94,7 @@ public class Sections extends ListActivity {
 			menu.add(0,REVIEW,0,getString(R.string.review));
 			menu.add(0,EXAM_MEANING_TO_SPELLING,0,getString(R.string.exam_meaning_2_spelling));
 			menu.add(0,EXAM_SPELLING_TO_MEANING,0,getString(R.string.exam_spelling_2_meaning));
-			menu.add(0,EXAM_BY_EXAMPLES,0,getString(R.string.exam_by_example));
+			//menu.add(0,EXAM_BY_EXAMPLES,0,getString(R.string.exam_by_example));
 			menu.add(0,DELETE_SECTION,0,getString(R.string.delete));
 		}else{
 			menu.add(0,STUDY,0,"Go on study");
@@ -114,28 +105,38 @@ public class Sections extends ListActivity {
 	public boolean onContextItemSelected(MenuItem item){
 		AdapterContextMenuInfo info=(AdapterContextMenuInfo)item.getMenuInfo();
 		Intent newIntent=new Intent();
-		newIntent.putExtra("id", info.id);
+		newIntent.putExtra(StudyDbAdapter.KEY_ROWID, info.id);
 		
 		switch(item.getItemId()){
 		case REVIEW:
 			newIntent.setClass(this, Review.class);
+			startActivity(newIntent);
 			break;
 		case EXAM_MEANING_TO_SPELLING:
-			newIntent.setClass(this, Exam.class);
-			newIntent.putExtra(Exam.DIRECTION, EXAM_MEANING_TO_SPELLING);
+			newIntent.setClass(this, ExamSpelling.class);
+			//newIntent.putExtra(Exam.DIRECTION, EXAM_MEANING_TO_SPELLING);
+			startActivity(newIntent);
 			break;
 		case EXAM_SPELLING_TO_MEANING:
 			newIntent.setClass(this, Exam.class);
 			newIntent.putExtra(Exam.DIRECTION, EXAM_SPELLING_TO_MEANING);
+			startActivity(newIntent);
 			break;
 		case EXAM_BY_EXAMPLES:
 			newIntent.setClass(this, Examples.class);
 			newIntent.putExtra(Exam.DIRECTION, EXAM_BY_EXAMPLES);
+			startActivity(newIntent);
 			break;
 		case DELETE_SECTION:
+			dbAdapter.deleteSection(info.id);
+			fillData();
+			break;
+		case STUDY:
+			Intent i = new Intent(this, Study.class);
+			i.putExtra(StudyDbAdapter.KEY_COURSE_NAME, getIntent().getExtras().getString(StudyDbAdapter.KEY_COURSE_NAME));
+			startActivity(i);
 			break;
 		}
-		startActivity(newIntent);
 		return true;
 		
 	}
@@ -161,11 +162,7 @@ public class Sections extends ListActivity {
 	}
 
 	private void fillData() {
-		
-		StudyDbAdapter dbAdapter=new StudyDbAdapter(this);
-		dbAdapter.open();
 		Cursor cur=dbAdapter.fetchSectionsByCourse(getIntent().getExtras().getString(StudyDbAdapter.KEY_COURSE_NAME));
-
 		
 		int[] displayViews=new int[]{
 				//R.id.tv_unit_id,
@@ -189,6 +186,11 @@ public class Sections extends ListActivity {
 		SimpleCursorAdapter adapter=new SimpleCursorAdapter(this,R.layout.units_row,cur,columns,displayViews);
 		adapter.setViewBinder(viewBinder);
 		setListAdapter(adapter);
+	}
+
+	@Override
+	protected void onDestroy() {
 		dbAdapter.close();
+		super.onDestroy();
 	}	
 }

@@ -97,7 +97,7 @@ public class Exam extends Activity implements View.OnClickListener,StateChangeLi
 		
 		dbAdapter=new StudyDbAdapter(this);
 		dbAdapter.open();
-		unitId=getIntent().getExtras().getLong("id");
+		unitId=getIntent().getExtras().getLong(StudyDbAdapter.KEY_ROWID);
 		cur =dbAdapter.fetchSectionWords(unitId,StudyDbAdapter.UNIT_WORDS_FILTER_MASTERED_EXCLUDED);
 		startManagingCursor(cur);
 		if (cur.getCount()>0){

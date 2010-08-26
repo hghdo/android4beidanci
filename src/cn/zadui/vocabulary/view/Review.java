@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.Spanned;
+import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.RadioGroup;
@@ -19,8 +20,9 @@ import cn.zadui.vocabulary.storage.StudyDbAdapter;
 
 public class Review extends ListActivity implements RadioGroup.OnCheckedChangeListener {
 
-	SharedPreferences spSettings;
-	CourseStatus status;
+	static final String TAG="Review";
+//	SharedPreferences spSettings;
+//	CourseStatus status;
 	StudyDbAdapter dbAdapter;
     private RadioGroup mRadioGroup;
     private long unitId;
@@ -89,6 +91,10 @@ public class Review extends ListActivity implements RadioGroup.OnCheckedChangeLi
 
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
+		Log.d(TAG,"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+		Log.d(TAG,v.getClass().toString());
+		if(v.getId()==R.id.btn_star_me){
+		}
 		Intent i=new Intent(this,Study.class);
 		i.putExtra(Study.KEY_IS_REVIEW, true);
 		i.putExtra(StudyDbAdapter.KEY_ROWID, id);

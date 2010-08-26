@@ -51,7 +51,7 @@ public class PrefStore {
 	 * @return
 	 */
 	public static String getMotherTongueCode(Context ctx){
-		String lang=getSharedPreferences(ctx).getString(SP_KEY_MOTHER_TONGUE,"English");
+		String lang=getSharedPreferences(ctx).getString(SP_KEY_MOTHER_TONGUE,"initial");
 		return lang;
 //		if (lang.equals("en"))return lang;
 //		return lang.substring(lang.indexOf('[')+1,lang.indexOf(']'));

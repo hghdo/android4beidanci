@@ -50,7 +50,7 @@
     <string name="unit_words_count">License Detail: %1$s{0,number,integer} words</string>
     <string name="unit_exam_times">{0,number,integer}</string>
     <string name="unit_next_exam_at">{0,date,short} {1,time,short}</string>
-    <string name="unit_last_exam_at">examed {0} {1} ago</string>
+    <string name="unit_last_exam_at">examed %1$s %2$s ago</string>
     <string name="never_exam">never examed</string>
     <string name="go_on_study">Go on study this course</string>
     
@@ -68,6 +68,7 @@
     <string name="learn_title">Unit process</string>
     <string name="begin_word">Please begin your study!</string>
     <string name="close_unit">Click to close current unit</string>
+    <string name="section_words_count">You have studied %1$s words in this section</string>
     
     <!-- CourseList -->
     <string name="course_list_title">Courses from Internet</string>

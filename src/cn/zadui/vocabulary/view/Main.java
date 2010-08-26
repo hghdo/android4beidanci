@@ -58,7 +58,7 @@ public class Main extends Activity {
 			@Override
 			public void onClick(View v) {
 				Intent sc=new Intent(v.getContext(), CourseList.class);
-				startActivityForResult(sc, LearnedCourses.SELECT_COURSE_REQUEST);
+				startActivityForResult(sc, FirstScreen.SELECT_COURSE_REQUEST);
 			}
 		});
 
@@ -106,7 +106,7 @@ public class Main extends Activity {
 	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode==LearnedCourses.SELECT_COURSE_REQUEST){
+		if (requestCode==FirstScreen.SELECT_COURSE_REQUEST){
 			if (resultCode==RESULT_OK){
 				status=new CourseStatus(PrefStore.getSelectedCourseStatusId(this),dbAdapter);
 			}

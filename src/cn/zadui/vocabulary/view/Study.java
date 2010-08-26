@@ -56,6 +56,8 @@ import cn.zadui.vocabulary.storage.StudyDbAdapter;
  * Examples: show usage examples of the headword. The examples may get from Internet
  * Lookup: let user lookup this headword or change the spelling to lookup similar words.
  * 
+ * Section must closed today. Un-closed section will closed automatically in next day.
+ * 
  * TODO Should be opened to review a word in {@link Review} activity
  * 
  * @author Huang Gehua
@@ -117,12 +119,11 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 			PrefStore.saveSelectedCourseStatusId(this, status.getRowId());		
 			course=SimpleCourse.getInstance(status.getCourseFileName());
 			section=Section.obtain(dbAdapter,course.getName());
-			//status=new CourseStatus(PrefStore.getCurrentCourseStatusId(this),dbAdapter);
 		}
 		
-		requestWindowFeature(Window.FEATURE_PROGRESS);
+		//requestWindowFeature(Window.FEATURE_PROGRESS);
 		setContentView(R.layout.study);
-		setProgressBarVisibility(true);
+		//setProgressBarVisibility(true);
 		
 		gestureDetector = new GestureDetector(this,new MySimpleGestureListener());		
 		vLearn=findViewById(R.id.learn_snip);
@@ -185,7 +186,11 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 			c.close();
 			fillLearnSnipViewHeadword(cw.getHeadword());
 			fillLearnSnipViewContent();
-			//TODO disable some buttons in the bottom of this screen.
+			((ImageButton)findViewById(R.id.btn_next_word)).setEnabled(false);
+			//((ImageButton)findViewById(R.id.btn_mastered_word)).setEnabled(false);//.setOnClickListener(this);
+			((ImageButton)findViewById(R.id.btn_previous_word)).setEnabled(false);
+			((ImageButton)findViewById(R.id.btn_learn_close_section)).setEnabled(false);//.setOnClickListener(this);
+			((ImageButton)findViewById(R.id.btn_learn_spelling)).performClick();
 		}else{
 			String lastWord=status.getLastWord();
 			if (lastWord.equals(CourseStatus.AT_BEGINNING)){
@@ -298,7 +303,8 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		}else if (v.getId()==R.id.btn_mastered_word){
 			bringViewToFront(vLearn);
 			cw.review(dbAdapter, Word.MASTERED);
-			nextContent();
+			if (isReview)finish();
+			else nextContent();
 		}else if(v.getId()==R.id.btn_previous_word){
 			bringViewToFront(vLearn);
 			previousContent();
@@ -308,6 +314,7 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		}else if (v.getId()==R.id.btn_learn_spelling){
 			bringViewToFront(vSpelling);
 			tvSpellingMeaning.setText(cw.getMeaning());
+			this.etSpelling.setText("");
 //			etSpelling.setFilters(new InputFilter[]{
 //					new InputFilter.LengthFilter(cw.getHeadword().length())
 //			});
@@ -342,12 +349,12 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 	 */
 	private void fillLearnSnipViewHeadword(String headword){
 		if (!isReview){
-			int percentage=section.getWordsCount()*100/status.getUnitCreateStyleValue();
-			if (percentage*100>=10000){
-				setProgress(9999); 
-			}else{
-				setProgress(percentage*100);
-			}
+//			int percentage=section.getWordsCount()*100/status.getUnitCreateStyleValue();
+//			if (percentage*100>=10000){
+//				setProgress(9999); 
+//			}else{
+//				setProgress(percentage*100);
+//			}
 		}
 		tvHeadword.setText(headword);
 		tvPhonetic.setText("");
@@ -355,12 +362,12 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 	}
 	
 	private void fillLearnSnipViewContent(){
-		//TODO fix hard code text.
 		if (!isReview){
-			setTitle("Study Status: " +
-					String.valueOf(section.getWordsCount()) +
-					"/" +
-					String.valueOf(status.getUnitCreateStyleValue()));
+			setTitle(String.format(getString(R.string.section_words_count),section.getWordsCount()));
+//			setTitle("Study Status: " +
+//					String.valueOf(section.getWordsCount()) +
+//					"/" +
+//					String.valueOf(status.getUnitCreateStyleValue()));
 			dismissDialog(HANDLE_LOOKUP);
 		}
 		tvPhonetic.setText(cw.getPhonetic());
