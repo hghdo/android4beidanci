@@ -6,8 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.text.Html;
-import android.text.Spanned;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,7 +14,6 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RadioGroup;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import cn.zadui.vocabulary.R;
 import cn.zadui.vocabulary.storage.StudyDbAdapter;
@@ -63,39 +60,17 @@ public class Review extends ListActivity implements RadioGroup.OnCheckedChangeLi
 	}
 	
 	private void fillData(){
-//		int[] viewIds=new int[]{R.id.headword,R.id.meaning};
-//		String[] columns=new String[]{StudyDbAdapter.KEY_WORD,StudyDbAdapter.KEY_MEANING};
 		Cursor cur=dbAdapter.fetchSectionWords(
 				unitId,
 				(Integer)findViewById(mRadioGroup.getCheckedRadioButtonId()).getTag()
 				);
 		startManagingCursor(cur);
-		ReviewAdapter listAdapter=new ReviewAdapter(this,cur);
-//		SimpleCursorAdapter listAdapter=new SimpleCursorAdapter(this,R.layout.review_row,cur,columns,viewIds);
-//		listAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
-//			
-//			@Override
-//			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-//				if (columnIndex==cursor.getColumnIndex(StudyDbAdapter.KEY_MEANING)){
-//					TextView tv=(TextView)view;
-//					String meaning=cursor.getString(columnIndex);
-//					if (meaning!=null){
-//						Spanned sm=Html.fromHtml(meaning);
-//						tv.setText(sm);
-//					}else{
-//						tv.setText("");
-//					}
-//					return true;
-//				}
-//				return false;
-//			}
-//		});
+		ReviewAdapter listAdapter=new ReviewAdapter(this,cur,dbAdapter);
 		setListAdapter(listAdapter);
 	}
 
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
-		Log.d(TAG,"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB");
 		Intent i=new Intent(this,Study.class);
 		i.putExtra(Study.KEY_IS_REVIEW, true);
 		i.putExtra(StudyDbAdapter.KEY_ROWID, id);
@@ -107,11 +82,13 @@ public class Review extends ListActivity implements RadioGroup.OnCheckedChangeLi
         private LayoutInflater mInflater;
         private Cursor mCursor;
         private Context mContext;
+        private StudyDbAdapter mAdapter;
 		
-        public ReviewAdapter(Context ctx, Cursor cur){
+        public ReviewAdapter(Context ctx, Cursor cur, StudyDbAdapter dba){
         	mContext=ctx;
         	mInflater = LayoutInflater.from(mContext);
         	mCursor=cur;
+        	mAdapter=dba;
         }
         
 		@Override
@@ -123,24 +100,30 @@ public class Review extends ListActivity implements RadioGroup.OnCheckedChangeLi
 				holder.headword=(TextView)convertView.findViewById(R.id.tv_review_row_headword);
 				holder.meaning=(TextView)convertView.findViewById(R.id.tv_review_row_meaning);
 				holder.star=(ImageView)convertView.findViewById(R.id.iv_review_row_star_me);
+				holder.star.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						StarStruct ss=(StarStruct)v.getTag();
+						ss.starOn=!ss.starOn;
+						ImageView iv=(ImageView)v;						
+						iv.setImageResource(ss.starOn ? R.drawable.star_on : R.drawable.star_off);
+						ReviewAdapter.this.mAdapter.starWord(ss.starOn, ss.wordId);
+						ReviewAdapter.this.mCursor.requery();
+						Log.d(TAG,"AAAAAAAA--"+String.valueOf(ss.wordId));
+					}
+				});
 				convertView.setTag(holder);
 			}else{
 				holder=(ViewHolder)convertView.getTag();
 			}
-			//holder.star.setFocusable(true);
-			//holder.star.setClickable(true);
-			mCursor.moveToPosition(position);//StudyDbAdapter.KEY_WORD,StudyDbAdapter.KEY_MEANING
+			mCursor.moveToPosition(position);
 			holder.headword.setText(mCursor.getString(mCursor.getColumnIndex(StudyDbAdapter.KEY_WORD)));
 			holder.meaning.setText(mCursor.getString(mCursor.getColumnIndex(StudyDbAdapter.KEY_MEANING)));
-			holder.star.setTag(getItemId(position));
-			holder.star.setOnClickListener(new View.OnClickListener() {
-				
-				@Override
-				public void onClick(View v) {
-					Log.d(TAG,"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-					
-				}
-			});
+			StarStruct ss=new StarStruct();
+			ss.starOn=mCursor.getInt(mCursor.getColumnIndex(StudyDbAdapter.KEY_LAST_EXAM_FAILED))==1;
+			ss.wordId=getItemId(position);
+			holder.star.setTag(ss);
+			holder.star.setImageResource(ss.starOn ? R.drawable.star_on : R.drawable.star_off);
 			return convertView;
 		}
 
@@ -168,6 +151,11 @@ public class Review extends ListActivity implements RadioGroup.OnCheckedChangeLi
             TextView headword;
             TextView meaning;
             ImageView star;
+        }
+        
+        static class StarStruct{
+        	boolean starOn;
+        	long wordId;
         }
 		
 	}

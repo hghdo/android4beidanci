@@ -12,14 +12,14 @@
 	        android:layout_width="fill_parent"
 	        android:layout_height="wrap_content"
 	        android:orientation="horizontal"
-	        android:checkedButton="@+id/rb_review_forgot"
+	        android:checkedButton="@+id/rb_not_mastered"
 	        android:id="@+id/rg_review_filter">
 	        <RadioButton
 	            android:text="@string/forgot_words"
-	            android:id="@id/rb_review_forgot" />
+	            android:id="@+id/rb_review_forgot" />
 	        <RadioButton
 	            android:text="@string/not_mastered_words"
-	            android:id="@+id/rb_not_mastered" />
+	            android:id="@id/rb_not_mastered" />
 	        <RadioButton
 	            android:text="@string/all_words"
 	            android:id="@+id/rb_review_all" />

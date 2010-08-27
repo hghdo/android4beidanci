@@ -1,8 +1,6 @@
 package cn.zadui.vocabulary.view;
 
-import java.text.MessageFormat;
 import java.util.Calendar;
-import java.util.Locale;
 
 import android.app.ListActivity;
 import android.content.Context;
@@ -34,19 +32,18 @@ public class Sections extends ListActivity {
 	
 	SimpleCursorAdapter.ViewBinder viewBinder;
 	StudyDbAdapter dbAdapter;	
+	Cursor cur;
 	View header;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
 		setContentView(R.layout.units);
-		
-		//setTitle(getResources().getString(R.string.units_title));
 		setTitle(getResources().getString(R.string.units_title)+" - "+getIntent().getExtras().getString(StudyDbAdapter.KEY_COURSE_NAME));
 		dbAdapter=new StudyDbAdapter(this);
 		dbAdapter.open();
-
+		cur=dbAdapter.fetchSectionsByCourse(getIntent().getExtras().getString(StudyDbAdapter.KEY_COURSE_NAME));
+		
 		viewBinder=new SimpleCursorAdapter.ViewBinder() {			
 			@Override
 			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
@@ -90,14 +87,14 @@ public class Sections extends ListActivity {
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v,ContextMenuInfo menuInfo) {
 		AdapterContextMenuInfo info=(AdapterContextMenuInfo)menuInfo;
-		if (info.position>1){
+		if (info.position==0){
+			//do nothing
+		}else{
 			menu.add(0,REVIEW,0,getString(R.string.review));
 			menu.add(0,EXAM_MEANING_TO_SPELLING,0,getString(R.string.exam_meaning_2_spelling));
 			menu.add(0,EXAM_SPELLING_TO_MEANING,0,getString(R.string.exam_spelling_2_meaning));
 			//menu.add(0,EXAM_BY_EXAMPLES,0,getString(R.string.exam_by_example));
 			menu.add(0,DELETE_SECTION,0,getString(R.string.delete));
-		}else{
-			menu.add(0,STUDY,0,"Go on study");
 		}
 	}
 	
@@ -162,8 +159,7 @@ public class Sections extends ListActivity {
 	}
 
 	private void fillData() {
-		Cursor cur=dbAdapter.fetchSectionsByCourse(getIntent().getExtras().getString(StudyDbAdapter.KEY_COURSE_NAME));
-		
+		cur.requery();
 		int[] displayViews=new int[]{
 				//R.id.tv_unit_id,
 				//R.id.tv_unit_course_name,
@@ -182,7 +178,6 @@ public class Sections extends ListActivity {
 				//StudyDbAdapter.KEY_NEXT_COMMON_EXAM_AT,
 				//StudyDbAdapter.KEY_COMMON_EXAM_TIMES
 				};
-		
 		SimpleCursorAdapter adapter=new SimpleCursorAdapter(this,R.layout.units_row,cur,columns,displayViews);
 		adapter.setViewBinder(viewBinder);
 		setListAdapter(adapter);

@@ -36,7 +36,7 @@ public class StudyDbAdapter {
     public static final String KEY_COURSE_NAME="course_name";
     public static final String KEY_CREATE_STYLE="create_style";    
     public static final String KEY_WORDS_COUNT="words_count";
-    public static final String KEY_VIRGIN_FLAG="virgin_flag";
+    //public static final String KEY_VIRGIN_FLAG="virgin_flag";
     public static final String KEY_FINISHED="finished";
     public static final String KEY_COMMON_EXAM_TIMES="common_exam_times";
     public static final String KEY_LAST_EXAM_AT="last_exam_at";
@@ -146,7 +146,7 @@ public class StudyDbAdapter {
     }
     
     public Cursor fetchSections(){
-    	return mDb.query(UNIT_TABLE, null, KEY_VIRGIN_FLAG+"=0", null, null, null, KEY_CREATED_AT+" desc");
+    	return mDb.query(UNIT_TABLE, null, null, null, null, null, KEY_CREATED_AT+" desc");
     }
     
     public Cursor fetchSectionsByCourse(String courseName){
@@ -154,7 +154,7 @@ public class StudyDbAdapter {
     }
     
     public Cursor fetchSection(long rowId){
-    	Cursor c=mDb.query(true, UNIT_TABLE, new String[]{KEY_ROWID,KEY_COURSE_NAME,KEY_CREATE_STYLE,KEY_WORDS_COUNT,KEY_VIRGIN_FLAG,KEY_COMMON_EXAM_TIMES,KEY_CREATED_AT,KEY_WORDS_COUNT}, KEY_ROWID+"="+rowId, null, null, null, null, null);
+    	Cursor c=mDb.query(true, UNIT_TABLE, new String[]{KEY_ROWID,KEY_COURSE_NAME,KEY_CREATE_STYLE,KEY_WORDS_COUNT,KEY_COMMON_EXAM_TIMES,KEY_CREATED_AT,KEY_WORDS_COUNT}, KEY_ROWID+"="+rowId, null, null, null, null, null);
     	return c;
     }
     
@@ -173,7 +173,7 @@ public class StudyDbAdapter {
 		args.put(KEY_COURSE_NAME, section.getCourseName());
 		//args.put(KEY_CREATE_STYLE, section.getCreatedStyle());
 		args.put(KEY_WORDS_COUNT, 0);
-		args.put(KEY_VIRGIN_FLAG, 1);
+		//args.put(KEY_VIRGIN_FLAG, 1);
 		args.put(KEY_FINISHED, 0);
 		args.put(KEY_COMMON_EXAM_TIMES, 0);
 		//args(KEY_LAST_COMMON_exam_at, value);
@@ -186,7 +186,7 @@ public class StudyDbAdapter {
 	
 	public boolean updateSectionToOld(long id,long nextExamAt){
 		ContentValues args=new ContentValues();
-		args.put(KEY_VIRGIN_FLAG, 0);
+		//args.put(KEY_VIRGIN_FLAG, 0);
 		args.put(KEY_NEXT_FAILED_EXAM_AT, nextExamAt);
 		return mDb.update(UNIT_TABLE, args, KEY_ROWID + "=" + id, null) > 0;
 	}
@@ -230,7 +230,7 @@ public class StudyDbAdapter {
 		args.put(KEY_WORD, word.getHeadword());
 		args.put(KEY_MEANING, word.getMeaning());
 		args.put(KEY_PHONETIC, word.getPhonetic());
-		args.put(KEY_LAST_EXAM_FAILED, 1);
+		args.put(KEY_LAST_EXAM_FAILED, 0);
 		args.put(KEY_EXAM_TIMES, 0);
 		args.put(KEY_SUCCESS_TIMES, 0);
 		args.put(KEY_FAILED_TIMES, 0);
@@ -250,7 +250,7 @@ public class StudyDbAdapter {
 		
 	}
 	
-	public boolean updateWordStatus(int status,Word word){
+	public boolean updateWordStatusExam(int status,Word word){
 		ContentValues args=new ContentValues();
 		args.put(KEY_EXAM_TIMES, word.getReviewTimes()+1);
 		switch (status){
@@ -269,6 +269,12 @@ public class StudyDbAdapter {
 			args.put(KEY_LAST_EXAM_FAILED, 1);
 		}
 		return mDb.update(UNIT_WORDS_TABLE, args, KEY_ROWID + "=" + word.getId(), null) > 0;
+	}
+	
+	public void starWord(boolean star, long id){
+		ContentValues args=new ContentValues();
+		args.put(KEY_LAST_EXAM_FAILED, star ? 1 : 0);
+		mDb.update(UNIT_WORDS_TABLE, args, KEY_ROWID + "=" + id, null);
 	}
 	
 	public  Cursor findCourseStatusByCourseName(String courseName){

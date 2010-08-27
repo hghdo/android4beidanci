@@ -3,13 +3,18 @@
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="fill_parent"
   android:layout_height="wrap_content"
-  android:orientation="vertical">
+  android:orientation="vertical"
+  android:background="@color/examples_bg"
+  android:padding="5dip">
     <TextView
         android:id="@+id/tv_example_title"
         android:layout_width="fill_parent" 
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:textColor="@color/example_title_color"
+        android:layout_marginBottom="5dip"/>
     <TextView
         android:id="@+id/tv_example_content"
         android:layout_width="fill_parent" 
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"/>
 </LinearLayout>

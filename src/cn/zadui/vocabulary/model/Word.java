@@ -37,7 +37,7 @@ public class Word {
 	}
 	
 	public boolean review(StudyDbAdapter adapter,int status){
-		return adapter.updateWordStatus(status, this);
+		return adapter.updateWordStatusExam(status, this);
 	}
 	
 	public Word(String headword,String meaning){

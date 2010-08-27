@@ -95,6 +95,8 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 	private TextView tvHeadword;
 	private TextView tvMeaning;
 	private TextView tvPhonetic;
+	private ImageButton btnLearn;
+	private ImageButton btnExample;
 	// Spelling controls
 	private EditText etSpelling;
 	private TextView tvSpellingMeaning;
@@ -152,10 +154,16 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		((ImageButton)findViewById(R.id.btn_next_word)).setOnClickListener(this);
 		((ImageButton)findViewById(R.id.btn_mastered_word)).setOnClickListener(this);
 		((ImageButton)findViewById(R.id.btn_previous_word)).setOnClickListener(this);
-		((ImageButton)findViewById(R.id.btn_learn_close_section)).setOnClickListener(this);
+		//((ImageButton)findViewById(R.id.btn_learn_close_section)).setOnClickListener(this);
 		((ImageButton)findViewById(R.id.btn_learn_examples)).setOnClickListener(this);
-		((ImageButton)findViewById(R.id.btn_learn_study)).setOnClickListener(this);
-		((ImageButton)findViewById(R.id.btn_learn_spelling)).setOnClickListener(this);
+		btnLearn=(ImageButton)findViewById(R.id.btn_learn_study);
+		btnLearn.setOnClickListener(this);
+		btnLearn.setTag(true);//display learn
+		btnExample=(ImageButton)findViewById(R.id.btn_learn_examples);
+		btnExample.setOnClickListener(this);
+		btnExample.setTag(false);//display example
+		
+		//((ImageButton)findViewById(R.id.btn_learn_spelling)).setOnClickListener(this);
 		btnCheckSpelling=(ImageButton)findViewById(R.id.btn_study_spell_check);
 		btnCheckSpelling.setOnClickListener(this);
 		
@@ -189,8 +197,9 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 			((ImageButton)findViewById(R.id.btn_next_word)).setEnabled(false);
 			//((ImageButton)findViewById(R.id.btn_mastered_word)).setEnabled(false);//.setOnClickListener(this);
 			((ImageButton)findViewById(R.id.btn_previous_word)).setEnabled(false);
-			((ImageButton)findViewById(R.id.btn_learn_close_section)).setEnabled(false);//.setOnClickListener(this);
-			((ImageButton)findViewById(R.id.btn_learn_spelling)).performClick();
+			//((ImageButton)findViewById(R.id.btn_learn_close_section)).setEnabled(false);//.setOnClickListener(this);
+			//((ImageButton)findViewById(R.id.btn_learn_spelling)).performClick();
+			btnLearn.performClick();
 		}else{
 			String lastWord=status.getLastWord();
 			if (lastWord.equals(CourseStatus.AT_BEGINNING)){
@@ -309,27 +318,34 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 			bringViewToFront(vLearn);
 			previousContent();
 		}else if (v.getId()==R.id.btn_learn_study){
-			bringViewToFront(vLearn);
-			return;
-		}else if (v.getId()==R.id.btn_learn_spelling){
-			bringViewToFront(vSpelling);
-			tvSpellingMeaning.setText(cw.getMeaning());
-			this.etSpelling.setText("");
+			boolean toLearn=!(Boolean)btnLearn.getTag();
+			btnLearn.setTag(toLearn);
+			bringViewToFront(toLearn ? vLearn : vSpelling);	
+			if (!toLearn)tvSpellingMeaning.setText(Html.fromHtml(cw.getMeaning()));
+			btnLearn.setImageResource(toLearn ? R.drawable.tools_check_spelling : R.drawable.package_edutainment);
 			return;
 		}else if (v.getId()==R.id.btn_learn_examples){
-			bringViewToFront(vExamples);
-			if (exampleFor!=null && exampleFor.equals(cw.getHeadword())) return;
-			exampleFor=cw.getHeadword();
-			runExampleService(cw.getHeadword());
-			return;
-		}else if(v.getId()==R.id.btn_learn_close_section){
-			//TODO should give advice if the word amount of the section is too small.
-			section.freeze();
-			finish();
+			boolean displayExample=(Boolean)btnExample.getTag();
+			boolean displayLearn=(Boolean)btnLearn.getTag();
+			if (!displayExample){
+				bringViewToFront(vExamples);
+				displayExample=true;
+				if (exampleFor==null || !exampleFor.equals(cw.getHeadword())){
+					exampleFor=cw.getHeadword();
+					runExampleService(cw.getHeadword());
+				}
+				btnExample.setImageResource(displayLearn ? R.drawable.package_edutainment : R.drawable.tools_check_spelling);
+			}else{
+				bringViewToFront(displayLearn ? vLearn : vSpelling);
+				displayExample=false;
+				btnExample.setImageResource(R.drawable.quote_2);
+			}
+			btnExample.setTag(displayExample);
 			return;
 		}else if(v.getId()==R.id.btn_study_spell_check){
 			if (etSpelling.getText().toString().equals(cw.getHeadword())){
 				etSpelling.setTextColor(getResources().getColor(R.color.green));
+				etSpelling.clearFocus();
 			}else{
 				etSpelling.setTextColor(this.getResources().getColor(R.color.red));
 				etSpelling.selectAll();
@@ -362,7 +378,7 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 			dismissDialog(HANDLE_LOOKUP);
 		}
 		tvPhonetic.setText(cw.getPhonetic());
-		tvMeaning.setText(Html.fromHtml(cw.getMeaning()));
+		tvMeaning.setText(cw.getMeaning());
 	}
 	
 	private void fillExamplesSnipView(){
@@ -410,6 +426,9 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		vExamples.setVisibility(View.GONE);
 		vSpelling.setVisibility(View.GONE);
 		v.setVisibility(View.VISIBLE);
+		if (v.getId()==R.id.spelling_snip){
+			etSpelling.requestFocus();
+		}
 	}
 
 	/**

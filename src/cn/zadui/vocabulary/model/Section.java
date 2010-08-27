@@ -5,7 +5,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 
 import android.database.Cursor;
 import cn.zadui.vocabulary.model.course.SimpleCourse;
@@ -19,18 +18,12 @@ import cn.zadui.vocabulary.storage.StudyDbAdapter;
  */
 public class Section {
 	
-//	public static final int WORDS_COUNT_STYLE=0;
-//	public static final int WORDS_COUNT_STYLE_DEFAULT=20;
-	public static final int TIME_INTERVAL_STYLE=1;
-	public static final int TIME_INTERVAL_STYLE_DEFAULT=1*3600;
-
 	private static final int MAX_UNSAVED_WORDS=5;
 	
 	private long rowId=0;
-	//private int createStyle;
 	private String courseName;
 	private int wordsCount=0;
-	private boolean virginFlag;
+	//private boolean virginFlag;
 	private int reviewTimes=0;
 	private long createdAt;
 	private long nextExamAt;
@@ -48,20 +41,13 @@ public class Section {
 		Cursor c=adapter.getLatestSection(courseName);
 		if (c!=null && c.moveToFirst()){
 			se=new Section(adapter,c);
-			if(!se.isVirgin()){
+			Date today=new Date();
+			Date createdDate=se.getCreatedAtDate();
+			DateFormat df=DateFormat.getDateInstance(DateFormat.SHORT);
+			if(!(df.format(today).equals(df.format(createdDate)))){
+				se.freeze();
 				se=new Section(adapter,courseName);
-				adapter.createSectionInDb(se);
-			}else{
-				Calendar cal=Calendar.getInstance();
-				cal.setTimeInMillis(se.createdAt);
-				Date createdDay=cal.getTime();
-				Date today=new Date();
-				DateFormat df=DateFormat.getDateInstance(DateFormat.SHORT,Locale.getDefault());
-				if (!(df.format(createdDay).equals(df.format(today)))){
-					se.freeze();
-					se=new Section(adapter,courseName);
-					adapter.createSectionInDb(se);
-				}
+				adapter.createSectionInDb(se);				
 			}
 		}else{
 			se=new Section(adapter,courseName);
@@ -108,6 +94,12 @@ public class Section {
 		adapter.updateSectionToOld(rowId,nextExamAt);
 	}
 	
+	public Date getCreatedAtDate(){
+		Date createdDate=new Date();
+		createdDate.setTime(createdAt);
+		return createdDate;
+	}
+	
 	public long getCreatedAt() {
 		return createdAt;
 	}
@@ -132,13 +124,13 @@ public class Section {
 		this.reviewTimes = reviewTimes;
 	}
 
-	public boolean getVirginFlag() {
-		return virginFlag;
-	}
-
-	public void setVirginFlag(boolean virginFlag) {
-		this.virginFlag = virginFlag;
-	}
+//	public boolean getVirginFlag() {
+//		return virginFlag;
+//	}
+//
+//	public void setVirginFlag(boolean virginFlag) {
+//		this.virginFlag = virginFlag;
+//	}
 
 //	public boolean isOld() {
 //		old=((Helper.currentSecTime()-this.createdAt)>SimpleCourse.firstInterval);
@@ -168,7 +160,7 @@ public class Section {
     		courseName=c.getString(c.getColumnIndex(StudyDbAdapter.KEY_COURSE_NAME));
     		//createStyle=c.getInt(c.getColumnIndex(StudyDbAdapter.KEY_CREATE_STYLE));
     		wordsCount=c.getInt(c.getColumnIndex(StudyDbAdapter.KEY_WORDS_COUNT));
-    		virginFlag=(c.getInt(c.getColumnIndex(StudyDbAdapter.KEY_VIRGIN_FLAG))!=0);
+    		//virginFlag=(c.getInt(c.getColumnIndex(StudyDbAdapter.KEY_VIRGIN_FLAG))!=0);
     		reviewTimes=c.getInt(c.getColumnIndex(StudyDbAdapter.KEY_COMMON_EXAM_TIMES));
     		createdAt=c.getLong(c.getColumnIndex(StudyDbAdapter.KEY_CREATED_AT));
     		nextExamAt=c.getLong(c.getColumnIndex(StudyDbAdapter.KEY_NEXT_COMMON_EXAM_AT));
@@ -181,7 +173,7 @@ public class Section {
 	 * Create a new StudyUnit.
 	 */
 	private Section(StudyDbAdapter dbAdapter,String courseName){
-		virginFlag=true;
+		//virginFlag=true;
 		reviewTimes=0;
 		createdAt=System.currentTimeMillis();
 		wordsCount=0;
@@ -199,11 +191,11 @@ public class Section {
 	 * 3) created within one hour.
 	 * @return whether the unit is a virgin one.
 	 */
-	private boolean isVirgin(){
-		if (isNew()) return false;
-		//return (virginFlag && !isOld());
-		return virginFlag;
-	}
+//	private boolean isVirgin(){
+//		if (isNew()) return false;
+//		//return (virginFlag && !isOld());
+//		return virginFlag;
+//	}
 
 	public String getCourseName() {
 		return courseName;

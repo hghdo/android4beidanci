@@ -95,6 +95,7 @@ public class ExamSpelling extends Activity implements View.OnClickListener {
 				etSpelling.selectAll();
 			}
 		}else{
+			word.review(dbAdapter, Word.FORGOT);
 			showDialog(TIP_DIALOG);
 		}
 		

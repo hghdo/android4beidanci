@@ -7,4 +7,6 @@
     <color name="default_bg">#205AA7</color>
     <color name="units_row_bg">#103667</color>
     <color name="green">#2f821f</color>
+    <color name="example_title_color">#8a3014</color>
+    <color name="examples_bg">#e6ddd5</color>
 </resources>

@@ -30,6 +30,6 @@
         android:gravity="center_vertical"
         android:paddingLeft="5dip"
         android:paddingRight="5dip"
-    	android:src="@drawable/star"/>
+    	android:src="@drawable/star_off"/>
 	  
 </LinearLayout>
