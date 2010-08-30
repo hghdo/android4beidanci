@@ -30,58 +30,73 @@ public class Sections extends ListActivity {
 	public static final int DELETE_SECTION			=5;
 	public static final int STUDY					=6;
 	
-	SimpleCursorAdapter.ViewBinder viewBinder;
+	//SimpleCursorAdapter.ViewBinder viewBinder;
 	StudyDbAdapter dbAdapter;	
 	Cursor cur;
 	View header;
+	int[] displayViews=new int[]{
+			//R.id.tv_unit_id,
+			//R.id.tv_unit_course_name,
+			R.id.tv_units_row_item_title,
+			R.id.tv_unit_last_exam_at,
+			//R.id.tv_unit_created_at,
+			//R.id.tv_unit_next_exam_at,
+			//R.id.tv_unit_exam_times
+			};
+	String[] columns=new String[]{	
+			//StudyDbAdapter.KEY_ROWID,
+			//StudyDbAdapter.KEY_COURSE_NAME,
+			//StudyDbAdapter.KEY_CREATED_AT,
+			StudyDbAdapter.KEY_WORDS_COUNT,
+			StudyDbAdapter.KEY_LAST_EXAM_AT,
+			//StudyDbAdapter.KEY_NEXT_COMMON_EXAM_AT,
+			//StudyDbAdapter.KEY_COMMON_EXAM_TIMES
+			};
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.units);
 		setTitle(getResources().getString(R.string.units_title)+" - "+getIntent().getExtras().getString(StudyDbAdapter.KEY_COURSE_NAME));
-		dbAdapter=new StudyDbAdapter(this);
-		dbAdapter.open();
-		cur=dbAdapter.fetchSectionsByCourse(getIntent().getExtras().getString(StudyDbAdapter.KEY_COURSE_NAME));
-		
-		viewBinder=new SimpleCursorAdapter.ViewBinder() {			
-			@Override
-			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-				if (columnIndex==cursor.getColumnIndex(StudyDbAdapter.KEY_WORDS_COUNT)){
-					long createAt=cursor.getLong(cursor.getColumnIndex(StudyDbAdapter.KEY_CREATED_AT));
-					Calendar cal=Calendar.getInstance();
-					cal.setTimeInMillis(createAt);
-					
-					int wordsCount=cursor.getInt(columnIndex);
-					TextView tv=(TextView)view;
-					tv.setText(
-							String.format(
-									getString(R.string.sections_row_item_title),
-									android.text.format.DateFormat.getDateFormat(Sections.this).format(cal.getTime()),
-									wordsCount)
-							 );
-					return true;
-				}else if (columnIndex==cursor.getColumnIndex(StudyDbAdapter.KEY_LAST_EXAM_AT)){
-					TextView tv=(TextView)view;
-					int val=cursor.getInt(columnIndex);
-					if (val==0){
-						tv.setText(getResources().getString(R.string.never_exam));
-					}else{
-						Object[] textValues=Helper.friendlyTime(val);
-						if (textValues[1].equals("hour")) textValues[1]=Sections.this.getResources().getString(R.string.hour);
-						else if (textValues[1].equals("month")) textValues[1]=Sections.this.getResources().getString(R.string.month);
-						else if (textValues[1].equals("day")) textValues[1]=Sections.this.getResources().getString(R.string.day);
-						tv.setText(String.format(getString(R.string.unit_last_exam_at), textValues));
-					}
-					return true;
-				}
-				return false;
-			}
-		};
 		LayoutInflater mInflater=(LayoutInflater)getSystemService( Context.LAYOUT_INFLATER_SERVICE );
 		header=mInflater.inflate(R.layout.units_header, null);
 		getListView().addHeaderView(header);
+		dbAdapter=new StudyDbAdapter(this);
+		dbAdapter.open();
+		cur=dbAdapter.fetchSectionsByCourse(getIntent().getExtras().getString(StudyDbAdapter.KEY_COURSE_NAME));
+		startManagingCursor(cur);
 		registerForContextMenu(getListView());
+		fillData();
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		getListView().invalidate();
+	}
+
+	@Override
+	protected void onDestroy() {
+		dbAdapter.close();
+		super.onDestroy();
+	}	
+
+	@Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+		if (position==0){
+			continueStudy();
+		}else{
+			Intent newIntent=new Intent();
+			newIntent.putExtra(StudyDbAdapter.KEY_ROWID, id);
+			newIntent.setClass(this, Review.class);
+			startActivity(newIntent);
+		}
+	}
+
+	private void continueStudy() {
+		Intent i = new Intent(this, Study.class);
+		i.putExtra(StudyDbAdapter.KEY_COURSE_NAME, getIntent().getExtras().getString(StudyDbAdapter.KEY_COURSE_NAME));
+		startActivity(i);
 	}
 
 	@Override
@@ -116,6 +131,7 @@ public class Sections extends ListActivity {
 			break;
 		case EXAM_SPELLING_TO_MEANING:
 			newIntent.setClass(this, Exam.class);
+			//TODO remove the direction parameter
 			newIntent.putExtra(Exam.DIRECTION, EXAM_SPELLING_TO_MEANING);
 			startActivity(newIntent);
 			break;
@@ -129,63 +145,49 @@ public class Sections extends ListActivity {
 			fillData();
 			break;
 		case STUDY:
-			Intent i = new Intent(this, Study.class);
-			i.putExtra(StudyDbAdapter.KEY_COURSE_NAME, getIntent().getExtras().getString(StudyDbAdapter.KEY_COURSE_NAME));
-			startActivity(i);
+			continueStudy();
 			break;
 		}
 		return true;
 		
 	}
 
-	@Override
-	protected void onResume() {
-		super.onResume();
-		fillData();
-	}
-
-	@Override
-	protected void onListItemClick(ListView l, View v, int position, long id) {
-		if (position==0){
-			Intent i = new Intent(v.getContext(), Study.class);
-			i.putExtra(StudyDbAdapter.KEY_COURSE_NAME, getIntent().getExtras().getString(StudyDbAdapter.KEY_COURSE_NAME));
-			startActivity(i);
-		}else{
-			Intent newIntent=new Intent();
-			newIntent.putExtra(StudyDbAdapter.KEY_ROWID, id);
-			newIntent.setClass(this, Review.class);
-			startActivity(newIntent);
-		}
-	}
-
 	private void fillData() {
-		cur.requery();
-		int[] displayViews=new int[]{
-				//R.id.tv_unit_id,
-				//R.id.tv_unit_course_name,
-				R.id.tv_units_row_item_title,
-				R.id.tv_unit_last_exam_at,
-				//R.id.tv_unit_created_at,
-				//R.id.tv_unit_next_exam_at,
-				//R.id.tv_unit_exam_times
-				};
-		String[] columns=new String[]{	
-				//StudyDbAdapter.KEY_ROWID,
-				//StudyDbAdapter.KEY_COURSE_NAME,
-				//StudyDbAdapter.KEY_CREATED_AT,
-				StudyDbAdapter.KEY_WORDS_COUNT,
-				StudyDbAdapter.KEY_LAST_EXAM_AT,
-				//StudyDbAdapter.KEY_NEXT_COMMON_EXAM_AT,
-				//StudyDbAdapter.KEY_COMMON_EXAM_TIMES
-				};
 		SimpleCursorAdapter adapter=new SimpleCursorAdapter(this,R.layout.units_row,cur,columns,displayViews);
-		adapter.setViewBinder(viewBinder);
+		adapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {			
+			@Override
+			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+				if (columnIndex==cursor.getColumnIndex(StudyDbAdapter.KEY_WORDS_COUNT)){
+					long createAt=cursor.getLong(cursor.getColumnIndex(StudyDbAdapter.KEY_CREATED_AT));
+					Calendar cal=Calendar.getInstance();
+					cal.setTimeInMillis(createAt);
+					
+					int wordsCount=cursor.getInt(columnIndex);
+					TextView tv=(TextView)view;
+					tv.setText(
+							String.format(
+									getString(R.string.sections_row_item_title),
+									android.text.format.DateFormat.getDateFormat(Sections.this).format(cal.getTime()),
+									wordsCount)
+							 );
+					return true;
+				}else if (columnIndex==cursor.getColumnIndex(StudyDbAdapter.KEY_LAST_EXAM_AT)){
+					TextView tv=(TextView)view;
+					int val=cursor.getInt(columnIndex);
+					if (val==0){
+						tv.setText(getResources().getString(R.string.never_exam));
+					}else{
+						Object[] textValues=Helper.friendlyTime(val);
+						if (textValues[1].equals("hour")) textValues[1]=Sections.this.getResources().getString(R.string.hour);
+						else if (textValues[1].equals("month")) textValues[1]=Sections.this.getResources().getString(R.string.month);
+						else if (textValues[1].equals("day")) textValues[1]=Sections.this.getResources().getString(R.string.day);
+						tv.setText(String.format(getString(R.string.unit_last_exam_at), textValues));
+					}
+					return true;
+				}
+				return false;
+			}
+		});
 		setListAdapter(adapter);
 	}
-
-	@Override
-	protected void onDestroy() {
-		dbAdapter.close();
-		super.onDestroy();
-	}	
 }

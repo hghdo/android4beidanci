@@ -21,63 +21,66 @@ import cn.zadui.vocabulary.storage.StudyDbAdapter;
 
 public class FirstScreen extends ListActivity {
 	
-	static final String TAG="LLLLLLLLLLLLLLLLLLLLLLLLLLearnedCourses";
-	//LinkedList<Map<String,String>> list;
-	static final int SELECT_COURSE_REQUEST=0;
-	static final int MENU_SETTINGS=0;
-	static final int MENU_ABOUT=1;
-	StudyDbAdapter dbAdapter;
+	private static final String TAG="FirstScreennnnnnnnnnnnnnnnnnnnnnnn";
+	private static final int SELECT_LANG=0;
+	private static final int ABOUT=1;
+	private static final int MENU_SETTINGS=0;
+	private static final int MENU_ABOUT=1;
+	
+	private static int[] displayViews=new int[]{
+			R.id.tv_selected_courses_course_name,
+			R.id.tv_selected_courses_progress,
+			//R.id.tv_selected_courses_content_count
+			//R.id.tv_unit_created_at,
+			//R.id.tv_unit_next_exam_at,
+			//R.id.tv_unit_exam_times
+			};
+	private static String[] columns=new String[]{	
+			//StudyDbAdapter.KEY_ROWID,
+			StudyDbAdapter.KEY_COURSE_NAME,
+			StudyDbAdapter.KEY_LEARNED_CONTENT_COUNT,
+			//StudyDbAdapter.KEY_CONTENT_COUNT,
+			//StudyDbAdapter.KEY_CREATED_AT,
+			//StudyDbAdapter.KEY_NEXT_COMMON_EXAM_AT,
+			//StudyDbAdapter.KEY_COMMON_EXAM_TIMES
+			};
+	
+	private StudyDbAdapter dbAdapter;
 	private Cursor cur;
+	
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-				
 		setContentView(R.layout.first);
 		LayoutInflater mInflater=(LayoutInflater)getSystemService( Context.LAYOUT_INFLATER_SERVICE );
 		View v=mInflater.inflate(R.layout.first_header, null);
 		getListView().addHeaderView(v);
 		
 		dbAdapter=new StudyDbAdapter(this);
-		dbAdapter.open();		
+		dbAdapter.open();	
+		cur=dbAdapter.fetchCourseStatus();
+		startManagingCursor(cur);
+		fillData();
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
 		if (PrefStore.getMotherTongueCode(this).equals("initial")){
-			showDialog(0);
+			showDialog(SELECT_LANG);
 		}
-		fillData();
+		getListView().invalidate();
+	}
+
+	@Override
+	protected void onDestroy() {
+		dbAdapter.close();
+		super.onDestroy();
 	}
 
 	private void fillData() {
-		int[] displayViews=new int[]{
-				R.id.tv_selected_courses_course_name,
-				R.id.tv_selected_courses_progress,
-				//R.id.tv_selected_courses_content_count
-				//R.id.tv_unit_created_at,
-				//R.id.tv_unit_next_exam_at,
-				//R.id.tv_unit_exam_times
-				};
-		String[] columns=new String[]{	
-				//StudyDbAdapter.KEY_ROWID,
-				StudyDbAdapter.KEY_COURSE_NAME,
-				StudyDbAdapter.KEY_LEARNED_CONTENT_COUNT,
-				//StudyDbAdapter.KEY_CONTENT_COUNT,
-				//StudyDbAdapter.KEY_CREATED_AT,
-				//StudyDbAdapter.KEY_NEXT_COMMON_EXAM_AT,
-				//StudyDbAdapter.KEY_COMMON_EXAM_TIMES
-				};
-		cur=dbAdapter.fetchCourseStatus();
-		startManagingCursor(cur);
 		SimpleCursorAdapter adapter=new SimpleCursorAdapter(this,R.layout.first_row,cur,columns,displayViews);
-		//list=dbAdapter.fetchCourseStatusList();
-		//dbAdapter.close();
-//		Map<String,String> header=new HashMap<String,String>();
-//		header.put(StudyDbAdapter.KEY_COURSE_NAME, "Donwload New Course");
-//		list.add(0, header);
-		//SimpleAdapter adapter=new SimpleAdapter(this,list,R.layout.learned_courses_row,columns,displayViews);
 		adapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
 			
 			@Override
@@ -101,12 +104,13 @@ public class FirstScreen extends ListActivity {
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		if (position==0){
 			Intent sc=new Intent(this, CourseList.class);
-			startActivityForResult(sc, FirstScreen.SELECT_COURSE_REQUEST);
+			startActivityForResult(sc, Actions.SELECT_COURSE_REQUEST);
 		}else{
 			cur.moveToFirst();
 			cur.move(position-1);
 			Intent i=new Intent();
 			i.setClass(this, Sections.class);
+			// TODO should use course unique id to replace the course name. the uuid should generated in server side.
 			i.putExtra(StudyDbAdapter.KEY_COURSE_NAME, cur.getString(cur.getColumnIndex(StudyDbAdapter.KEY_COURSE_NAME)));
 			startActivity(i);
 		}
@@ -114,19 +118,13 @@ public class FirstScreen extends ListActivity {
 	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode==FirstScreen.SELECT_COURSE_REQUEST){
+		if (requestCode==Actions.SELECT_COURSE_REQUEST){
 			if (resultCode==RESULT_OK){
 				Intent i = new Intent(this, Study.class);
 				i.putExtra(StudyDbAdapter.KEY_COURSE_NAME, PrefStore.getSelectedCourseName(this));
 				startActivity(i);
 			}
 		}
-	}
-
-	@Override
-	protected void onDestroy() {
-		dbAdapter.close();
-		super.onDestroy();
 	}
 
 	@Override
