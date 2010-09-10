@@ -16,7 +16,7 @@ public class Settings extends PreferenceActivity implements OnPreferenceChangeLi
 		super.onCreate(savedInstanceState);
 		PreferenceManager prefMgr = getPreferenceManager();		
 		 addPreferencesFromResource(R.xml.settings);
-		 
+		 //TODO fix hard code here
 		 setTitle("Settings");
 		 
 		 Preference pref=prefMgr.findPreference(PrefStore.SP_KEY_MOTHER_TONGUE);
@@ -31,7 +31,5 @@ public class Settings extends PreferenceActivity implements OnPreferenceChangeLi
 		preference.setSummary((String)newValue);
 		return true;
 	}
-	
-	
 
 }

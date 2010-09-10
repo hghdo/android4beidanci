@@ -21,7 +21,7 @@ import cn.zadui.vocabulary.storage.StudyDbAdapter;
 
 public class FirstScreen extends ListActivity {
 	
-	private static final String TAG="FirstScreennnnnnnnnnnnnnnnnnnnnnnn";
+	private static final String TAG="FirstScreennnnn";
 	private static final int SELECT_LANG=0;
 	private static final int ABOUT=1;
 	private static final int MENU_SETTINGS=0;

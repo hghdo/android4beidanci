@@ -42,7 +42,7 @@ public class CourseList extends ListActivity implements View.OnClickListener {
 	public static final String COURSE_LIST_CACHE="courseList.cache"; 
 	
 	public static final String COURSE_NODE_NAME_OF_XML="course";
-	public static final String ROOT_NODE_NAME_OF_XML="courses";
+	public static final String ROOT_NODE_NAME_OF_XML="course-list";
 	
 	private static final String LOG_TAG="CourseList";
 	private List<Map<String,String>> courseList=new ArrayList<Map<String,String>>();
@@ -78,13 +78,18 @@ public class CourseList extends ListActivity implements View.OnClickListener {
 			.setView(courseInfoView)
 			.setPositiveButton(R.string.select_it, new DialogInterface.OnClickListener() {
 	            public void onClick(DialogInterface dialog, int whichButton) {
-	            	//Check whether the course file is already existed. down load it if needed.
+	            	// TODO if the file is existed then ask user whether override it.
+	            	// Also should add version to the file name like: xxxxxx_version-code.cou
+	            	// the version-code will become larger if the content is modified at server side.
+	            	// TODO check whether this course is already in user db. If already existed should not 
+	            	// create duplicated CourseStatus
 	            	File courseFile=new File(CourseStatus.DATA_DIR+selectedCourse.get(Course.FILE_NAME_KEY));
 	            	if (!courseFile.exists()){
 	            		InputStream in=null;
 	            		OutputStream out=null;
 		            	try {
-		            		in=NetworkHelper.buildUrlConnection(selectedCourse.get(Course.COURSE_URL_KEY)).getInputStream();
+		            		String cu=selectedCourse.get(Course.COURSE_URL_KEY);
+		            		in=NetworkHelper.buildUrlConnection(cu).getInputStream();
 		            		byte[] buf=new byte[4*1024];
 		            		int readBytes=0;
 		            		out=new FileOutputStream(courseFile);
@@ -233,7 +238,8 @@ public class CourseList extends ListActivity implements View.OnClickListener {
 	}
 	
 	private void fillData(){
-		String[] from=new String[]{Course.NAME_KEY,
+		String[] from=new String[]{
+				Course.NAME_KEY,
 				Course.LANGUAGE_KEY,
 				//Course.REGION_KEY,
 				//Course.LEVEL_KEY,

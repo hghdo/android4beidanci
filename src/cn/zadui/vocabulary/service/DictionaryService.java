@@ -27,7 +27,8 @@ public class DictionaryService extends NetworkService {
 		switch (action){
 		case NetworkService.LOOKUP_ACTION:
 			final String headword=intent.getExtras().getString(NetworkService.KEY_HEADWORD);
-			final String srcLang=DictFactory.LangNames.get(intent.getExtras().getString(KEY_SRC_LANGUAGE));
+			//final String srcLang=DictFactory.LangNames.get(intent.getExtras().getString(KEY_SRC_LANGUAGE));
+			final String srcLang=intent.getExtras().getString(KEY_SRC_LANGUAGE);
 			new Thread(){
 				public void run(){
 					Dict dict=DictFactory.getDict(DictionaryService.this, srcLang, toLang);

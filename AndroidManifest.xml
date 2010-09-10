@@ -4,14 +4,13 @@
       android:versionCode="1"
       android:versionName="1.0">
     <application android:icon="@drawable/library" android:label="@string/app_name">
-        <activity android:name="cn.zadui.vocabulary.view.FirstScreen"
-                  android:label="@string/app_name">
+        <activity android:name="cn.zadui.vocabulary.view.FirstScreen" android:label="@string/app_name" android:theme="@style/LookupTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="cn.zadui.vocabulary.view.Lookup" />
+        <activity android:name="cn.zadui.vocabulary.view.Lookup" android:theme="@style/LookupTheme" />
         <!--
         	android:label="@string/mini_dictionary" android:icon="@drawable/search">
             <intent-filter>
@@ -21,7 +20,7 @@
         </activity>
         -->
         <activity android:name="cn.zadui.vocabulary.view.Study" />
-        <activity android:name="cn.zadui.vocabulary.view.Sections" />
+        <activity android:name="cn.zadui.vocabulary.view.Sections" android:theme="@style/HistoryTheme"/>
         <activity android:name="cn.zadui.vocabulary.view.Review" />
         <activity android:name="cn.zadui.vocabulary.view.Exam" />
         <activity android:name="cn.zadui.vocabulary.view.ExamSpelling" />

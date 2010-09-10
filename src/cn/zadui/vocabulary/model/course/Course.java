@@ -14,6 +14,8 @@ import cn.zadui.vocabulary.model.dictionary.Dict;
  * @author Huang Gehua
  * Abstract class of a course. Course is the main index that lead the 
  * study process of the user.
+ * 
+ * TODO each course as a unique key which was generated at server side.
  *
  */
 public abstract class Course {
@@ -21,7 +23,7 @@ public abstract class Course {
 	/*
 	 * XML tag name in course list XML file.
 	 */
-	public static final String NAME_KEY="name";
+	public static final String NAME_KEY="title";
 	public static final String LANGUAGE_KEY="language";
 	public static final String REGION_KEY="region";
 	public static final String LEVEL_KEY="level";
@@ -29,9 +31,9 @@ public abstract class Course {
 	public static final String TYPE_KEY="type";
 	public static final String CONTENT_COUNT_KEY="content_count";
 	public static final String SEPARATOR_KEY="separator";
-	public static final String DESC_KEY="desc";
-	public static final String FILE_NAME_KEY="file_name";
-	public static final String COURSE_URL_KEY="course_url";
+	public static final String DESC_KEY="summary";
+	public static final String FILE_NAME_KEY="filename";
+	public static final String COURSE_URL_KEY="url";
 	
 	protected String courseFileName;
 	protected int headSize;
@@ -130,7 +132,7 @@ public abstract class Course {
 					if (found) break;
 				}
 			}
-			String s=new String(buffer,0,end);
+			String s=new String(buffer,0,end,"utf-8").trim();
 			return s;
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block

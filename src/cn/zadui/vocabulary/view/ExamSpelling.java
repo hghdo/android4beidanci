@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
@@ -42,8 +43,14 @@ public class ExamSpelling extends Activity implements View.OnClickListener {
 		setProgressBarVisibility(true);
 		
 		etSpelling=(EditText)findViewById(R.id.et_exam_spell);
+		etSpelling.setInputType(EditorInfo.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+        int sdkLevel = 1;
+        try {
+            sdkLevel = Integer.parseInt(Build.VERSION.SDK);
+        } catch (NumberFormatException nfe) {}
+        //524288 means TYPE_TEXT_FLAG_NO_SUGGESTIONS
+		if (sdkLevel>4)	etSpelling.setInputType(524288);
 		etSpelling.setOnEditorActionListener(new OnEditorActionListener(){
-
 			@Override
 			public boolean onEditorAction(TextView v, int actionId,KeyEvent event) {
 				if (actionId==EditorInfo.IME_ACTION_DONE){
@@ -133,12 +140,23 @@ public class ExamSpelling extends Activity implements View.OnClickListener {
 	        .setMessage(word.getMeaning())
 	        .setPositiveButton(R.string.alert_dialog_ok, new DialogInterface.OnClickListener() {
 	            public void onClick(DialogInterface dialog, int whichButton) {
-	            	//ExamSpelling.this.finish();
+	            	ExamSpelling.this.dismissDialog(TIP_DIALOG);
 	            }
 	        })
 	        .create();			
 		}
 		return null;
 	}
+
+	@Override
+	protected void onPrepareDialog(int id, Dialog dialog) {
+		switch (id){
+		case TIP_DIALOG:
+			AlertDialog d=(AlertDialog)dialog;
+			d.setTitle(word.getHeadword());
+			d.setMessage(word.getMeaning());
+		}
+	}
+	
 
 }

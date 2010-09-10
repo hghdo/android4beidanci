@@ -19,12 +19,12 @@ public class NetworkHelper {
 	
 	public static final String XML_FORMAT="xml";
 	public static final String JSON_FORMAT="json";
-	//public static final String HOST_ROOT="http://172.29.1.67:3000/";
-	public static final String HOST_ROOT="http://17ttxs.com/";
+	public static final String HOST_ROOT="http://172.29.1.67:8000/";
+	//public static final String HOST_ROOT="http://17ttxs.com/";
 	
 	public static String courseListUrl(String format){
 		if (format==null) format=XML_FORMAT;
-		return HOST_ROOT+"courses."+format;
+		return HOST_ROOT+"courses/list."+format;
 	}
 	
 	public static String lookup(String format,String word,String srcLang,String toLang){
