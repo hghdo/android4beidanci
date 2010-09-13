@@ -132,7 +132,7 @@ public abstract class Course {
 					if (found) break;
 				}
 			}
-			String s=new String(buffer,0,end,"utf-8").trim();
+			String s=new String(buffer,0,end,"utf-8");//.trim();
 			return s;
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block

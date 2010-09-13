@@ -84,7 +84,8 @@ public class CourseList extends ListActivity implements View.OnClickListener {
 	            	// TODO check whether this course is already in user db. If already existed should not 
 	            	// create duplicated CourseStatus
 	            	File courseFile=new File(CourseStatus.DATA_DIR+selectedCourse.get(Course.FILE_NAME_KEY));
-	            	if (!courseFile.exists()){
+	            	//if (!courseFile.exists()){
+	            	if (true){
 	            		InputStream in=null;
 	            		OutputStream out=null;
 		            	try {

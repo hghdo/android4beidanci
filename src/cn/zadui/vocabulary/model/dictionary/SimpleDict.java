@@ -97,6 +97,10 @@ public class SimpleDict implements Dict {
 	
 	@Override
 	public Word lookup(String headword, String srcLang, String toLang) {
+		if (headword==null || headword.length()==0||headword.length()==1){
+			Log.d("BBBBBBBBBBBBBBBBBBB=>","NULL");			
+		}
+		Log.d("AAAAAAAAAAAAAAAAAAAA",headword);
 		return convert(
 				headword,look(headword, srcLang, toLang)
 				);
