@@ -31,9 +31,10 @@ public class StudyDbAdapter {
     public static final String KEY_ROWID = "_id";
     
     private static final String UNIT_TABLE = "unit";
+    public static final String KEY_UNIT_COURSE_KEY="course_key";
     //public static final String KEY_USER_ID = "user_id";
     //public static final String KEY_COURSE_ID="course_id";
-    public static final String KEY_COURSE_NAME="course_name";
+    public static final String KEY_COURSE_NAME="title";
     public static final String KEY_CREATE_STYLE="create_style";    
     public static final String KEY_WORDS_COUNT="words_count";
     //public static final String KEY_VIRGIN_FLAG="virgin_flag";
@@ -46,6 +47,7 @@ public class StudyDbAdapter {
     public static final String KEY_CREATED_AT="created_at";
     
     public static final String UNIT_WORDS_TABLE = "unit_words";
+    //public static final String KEY_UNIT_COURSE_KEY="course_key";
     public static final String KEY_Unit_ID="user_unit_id";
     public static final String KEY_WORD="word";
     public static final String KEY_MEANING="meaning";
@@ -66,7 +68,8 @@ public class StudyDbAdapter {
     
     */
     private static final String COURSE_STATUS_TABLE = "course_status";
-    //public static final String KEY_COURSE_NAME="course_name";
+    public static final String KEY_COURSE_KEY="key";
+    public static final String KEY_COURSE_MD5="md5";
     public static final String KEY_COURSE_FILE_NAME="course_file_name";
     public static final String KEY_LEARNED_CONTENT_COUNT="learned_content_count";
     public static final String KEY_NEXT_CONTENT_OFFSET="next_content_offset";
@@ -81,9 +84,10 @@ public class StudyDbAdapter {
     
     private static final String DATABASE_CREATE_UNIT_TABLE =
         				"create table unit (_id integer primary key autoincrement, " + 
+        				"course_key text," +
         				//"user_id integer, " +
         				//"create_style integer, "+
-                		"course_name text," +
+                		"title text," +
                 		"words_count integer default 0," +
                 		"virgin_flag integer default 1," +
                 		"finished integer default 0," +
@@ -96,6 +100,7 @@ public class StudyDbAdapter {
     
     private static final String DATABASE_CREATE_UNIT_WORDS_TABLE =
                 		"create table unit_words (_id integer primary key autoincrement,"+
+        				"course_key text," +
                 		"user_unit_id integer," +
                 		"word text," +
                 		"meaning text," +
@@ -108,7 +113,9 @@ public class StudyDbAdapter {
     
     private static final String DATABASE_CREATE_COURSE_STATUS_TABLE =
                 		"create table course_status (_id integer primary key autoincrement,"+
-                		"course_name text," +
+                		"key text," +
+                		"md5 text," +
+                		"title text," +
                 		"course_file_name text," +
                 		"learned_content_count integer default 0," +
                 		"next_content_offset integer default 0," +
@@ -150,7 +157,7 @@ public class StudyDbAdapter {
     }
     
     public Cursor fetchSectionsByCourse(String courseName){
-    	return mDb.query(UNIT_TABLE, null, "course_name='"+courseName+"'", null, null, null, KEY_CREATED_AT+" desc");
+    	return mDb.query(UNIT_TABLE, null, "title='"+courseName+"'", null, null, null, KEY_CREATED_AT+" desc");
     }
     
     public Cursor fetchSection(long rowId){
@@ -164,12 +171,13 @@ public class StudyDbAdapter {
      */
     public Cursor getLatestSection(String courseName){
     	//String [] columns=new String[]{KEY_ROWID,KEY_COURSE_NAME,KEY_CREATE_STYLE,KEY_WORDS_COUNT,KEY_VIRGIN_FLAG,KEY_COMMON_EXAM_TIMES,KEY_CREATED_AT};
-    	Cursor c=mDb.query(UNIT_TABLE, null, "course_name=?", new String[]{courseName}, null, null, KEY_CREATED_AT+" desc");
+    	Cursor c=mDb.query(UNIT_TABLE, null, "title=?", new String[]{courseName}, null, null, KEY_CREATED_AT+" desc");
     	return c;
     }
     	
 	public void createSectionInDb(Section section){
 		ContentValues args=new ContentValues();
+		args.put(this.KEY_UNIT_COURSE_KEY, section.getCourseKey());
 		args.put(KEY_COURSE_NAME, section.getCourseName());
 		//args.put(KEY_CREATE_STYLE, section.getCreatedStyle());
 		args.put(KEY_WORDS_COUNT, 0);
@@ -224,9 +232,10 @@ public class StudyDbAdapter {
     	return mDb.query(UNIT_WORDS_TABLE, null, "_id=? ", new String[]{String.valueOf(id)}, null, null, null);
     }
 	
-	public long insertWord(long unitId,Word word){
+	public long insertWord(long unitId,Word word,String courseKey){
 		ContentValues args=new ContentValues();
 		args.put(KEY_Unit_ID, unitId);
+		args.put(KEY_UNIT_COURSE_KEY, courseKey);
 		args.put(KEY_WORD, word.getHeadword());
 		args.put(KEY_MEANING, word.getMeaning());
 		args.put(KEY_PHONETIC, word.getPhonetic());
@@ -277,8 +286,13 @@ public class StudyDbAdapter {
 		mDb.update(UNIT_WORDS_TABLE, args, KEY_ROWID + "=" + id, null);
 	}
 	
+	public  Cursor findCourseStatusByKey(String key){
+		Cursor c=mDb.query(COURSE_STATUS_TABLE,null,"key='"+key+"'",null,null,null,null);
+		return c;
+	}	
+	
 	public  Cursor findCourseStatusByCourseName(String courseName){
-		Cursor c=mDb.query(COURSE_STATUS_TABLE,null,"course_name='"+courseName+"'",null,null,null,null);
+		Cursor c=mDb.query(COURSE_STATUS_TABLE,null,"title='"+courseName+"'",null,null,null,null);
 		return c;
 	}
 	
@@ -319,6 +333,8 @@ public class StudyDbAdapter {
     
     public long insertCourseStatus(CourseStatus cs){
 		ContentValues args=new ContentValues();
+		args.put(KEY_COURSE_KEY, cs.getCourseKey());
+		args.put(KEY_COURSE_MD5, cs.getCourseMd5());
 		args.put(KEY_COURSE_NAME, cs.getCourseName());
 		args.put(KEY_COURSE_FILE_NAME, cs.getCourseFileName());
 		args.put(KEY_LEARNED_CONTENT_COUNT, cs.getLearnedWordsCount());
@@ -341,6 +357,17 @@ public class StudyDbAdapter {
 		args.put(KEY_UPDATED_AT, cs.getUpdatedAt());
 		return mDb.update(COURSE_STATUS_TABLE, args, KEY_ROWID + "=" + cs.getRowId(), null)>0;    	
     }	
+    
+    /**
+     * TODO should also delete Section and Word of this Course
+     * @param _id
+     * @return
+     */
+    public boolean deleteCourseStatus(long _id){
+    	mDb.delete(UNIT_TABLE, KEY_UNIT_COURSE_KEY + "=" + _id, null);
+    	mDb.delete(UNIT_WORDS_TABLE, KEY_UNIT_COURSE_KEY + "=" + _id, null);
+    	return mDb.delete(COURSE_STATUS_TABLE, KEY_ROWID + "=" + _id, null)>0;
+    }
 	
 	private static class DatabaseHelper extends SQLiteOpenHelper{
 
@@ -366,7 +393,7 @@ public class StudyDbAdapter {
 		}
 	}
 	
-	private static final int DATABASE_VERSION = 18;
+	private static final int DATABASE_VERSION = 21;
     private static final String DATABASE_NAME = "data";
 		
 }

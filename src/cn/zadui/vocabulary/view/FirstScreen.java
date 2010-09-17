@@ -8,13 +8,17 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import cn.zadui.vocabulary.R;
 import cn.zadui.vocabulary.storage.PrefStore;
 import cn.zadui.vocabulary.storage.StudyDbAdapter;
@@ -22,8 +26,9 @@ import cn.zadui.vocabulary.storage.StudyDbAdapter;
 public class FirstScreen extends ListActivity {
 	
 	private static final String TAG="FirstScreennnnn";
-	private static final int SELECT_LANG=0;
-	private static final int ABOUT=1;
+	private static final int DIALOG_SELECT_LANG=0;
+	private static final int DIALOG_CONFIRM_DELETE=1;
+	private static final int CONTEXT_MENU_DELETE=5;
 	private static final int MENU_SETTINGS=0;
 	private static final int MENU_ABOUT=1;
 	
@@ -47,6 +52,7 @@ public class FirstScreen extends ListActivity {
 	
 	private StudyDbAdapter dbAdapter;
 	private Cursor cur;
+	private long deleteCourseId;
 	
 	
 	@Override
@@ -54,23 +60,26 @@ public class FirstScreen extends ListActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.first);
 		LayoutInflater mInflater=(LayoutInflater)getSystemService( Context.LAYOUT_INFLATER_SERVICE );
-		View v=mInflater.inflate(R.layout.first_header, null);
-		getListView().addHeaderView(v);
+		View header=mInflater.inflate(R.layout.first_header, null);
+		getListView().addHeaderView(header);
 		
 		dbAdapter=new StudyDbAdapter(this);
 		dbAdapter.open();	
 		cur=dbAdapter.fetchCourseStatus();
 		startManagingCursor(cur);
 		fillData();
+		registerForContextMenu(getListView());
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
 		if (PrefStore.getMotherTongueCode(this).equals("initial")){
-			showDialog(SELECT_LANG);
+			showDialog(DIALOG_SELECT_LANG);
 		}
-		getListView().invalidate();
+		Log.d("BBBBBBBBBBBBBBBB","show dialog");
+		fillData();
+		//getListView().invalidate();
 	}
 
 	@Override
@@ -80,6 +89,7 @@ public class FirstScreen extends ListActivity {
 	}
 
 	private void fillData() {
+		cur.requery();
 		SimpleCursorAdapter adapter=new SimpleCursorAdapter(this,R.layout.first_row,cur,columns,displayViews);
 		adapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
 			
@@ -117,6 +127,24 @@ public class FirstScreen extends ListActivity {
 	}	
 	
 	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v,ContextMenuInfo menuInfo) {
+		AdapterContextMenuInfo info=(AdapterContextMenuInfo)menuInfo;
+		if (info.position==0){
+			//do nothing
+		}else{
+			menu.add(0,CONTEXT_MENU_DELETE,0,getString(R.string.delete));
+		}
+	}
+	
+	@Override
+	public boolean onContextItemSelected(MenuItem item){
+		AdapterContextMenuInfo info=(AdapterContextMenuInfo)item.getMenuInfo();
+		deleteCourseId=info.id;
+		showDialog(DIALOG_CONFIRM_DELETE);				
+		return true;
+	}
+	
+	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode==Actions.SELECT_COURSE_REQUEST){
 			if (resultCode==RESULT_OK){
@@ -135,32 +163,56 @@ public class FirstScreen extends ListActivity {
 	}
 
 	@Override
-	public boolean onMenuItemSelected(int featureId, MenuItem item) {
+	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()){
 		case MENU_SETTINGS:
 			Intent settings=new Intent(this,Settings.class);
 			startActivity(settings);
-			break;
+			return true;
 		case MENU_ABOUT:
-			break;
+			return true;
+		default:
+			return false;
 		}
-		return true;
 	}
 
 	@Override
 	protected Dialog onCreateDialog(int id) {
-		return new AlertDialog.Builder(this)
-			.setTitle("Please select your language")
-			.setPositiveButton(R.string.alert_dialog_ok,new DialogInterface.OnClickListener() {
-				
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					Intent settings=new Intent(FirstScreen.this,Settings.class);
-					startActivity(settings);
-				}
-			})
-			.setCancelable(false)
-			.create();
+		switch (id){
+		case DIALOG_SELECT_LANG:
+			return new AlertDialog.Builder(this)
+				.setTitle("Please select your language")
+				.setPositiveButton(R.string.alert_dialog_ok,new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						Intent settings=new Intent(FirstScreen.this,Settings.class);
+						startActivity(settings);
+					}
+				})
+				.setCancelable(false)
+				.create();
+		case DIALOG_CONFIRM_DELETE:
+			return new AlertDialog.Builder(this)
+				.setTitle("Did your really want to delete it?")
+				.setPositiveButton(R.string.alert_dialog_ok,new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						dbAdapter.deleteCourseStatus(deleteCourseId);
+						fillData();
+						//FirstScreen.this.getListView().invalidate();
+					}
+				})
+				.setNegativeButton(R.string.alert_dialog_cancel, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						// TODO Auto-generated method stub
+						
+					}
+				})
+				.create();
+		}
+		return null;
 	}
 
 }

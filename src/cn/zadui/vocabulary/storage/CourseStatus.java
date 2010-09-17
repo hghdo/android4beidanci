@@ -20,6 +20,8 @@ public class CourseStatus {
 	private boolean empty=false;
 	
 	// Course status
+	private String courseKey;
+	private String courseMd5;
 	private String courseName;
 	private String courseFileName;
 	private String courseLang;
@@ -41,7 +43,9 @@ public class CourseStatus {
 	 * Create a CourseStatus using a {@Link Course}
 	 * @param c
 	 */
-	public CourseStatus(Course c){
+	public CourseStatus(Course c,String md5,String key){
+		courseMd5=md5;
+		courseKey=key;
 		courseName=c.getName();
 		courseFileName=c.getCourseFileName();
 		learnedWordsCount=0;	
@@ -87,6 +91,8 @@ public class CourseStatus {
 	
 	private void loadFromCursor(Cursor c){
 		rowId=c.getLong(c.getColumnIndex(StudyDbAdapter.KEY_ROWID));
+		courseKey=c.getString(c.getColumnIndex(StudyDbAdapter.KEY_COURSE_KEY));
+		courseMd5=c.getString(c.getColumnIndex(StudyDbAdapter.KEY_COURSE_MD5));
 		courseName=c.getString(c.getColumnIndex(StudyDbAdapter.KEY_COURSE_NAME));
 		courseFileName=c.getString(c.getColumnIndex(StudyDbAdapter.KEY_COURSE_FILE_NAME));
 		learnedWordsCount=c.getInt(c.getColumnIndex(StudyDbAdapter.KEY_LEARNED_CONTENT_COUNT));
@@ -202,6 +208,22 @@ public class CourseStatus {
 	public boolean isEmpty() {
 		empty=(courseFileName==null || courseFileName.length()<1);
 		return empty;
+	}
+
+	public String getCourseKey() {
+		return courseKey;
+	}
+
+	public void setCourseKey(String courseKey) {
+		this.courseKey = courseKey;
+	}
+
+	public String getCourseMd5() {
+		return courseMd5;
+	}
+
+	public void setCourseMd5(String courseMd5) {
+		this.courseMd5 = courseMd5;
 	}
 
 	

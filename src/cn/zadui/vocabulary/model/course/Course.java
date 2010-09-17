@@ -8,6 +8,7 @@ import java.io.RandomAccessFile;
 
 import cn.zadui.vocabulary.model.Helper;
 import cn.zadui.vocabulary.model.dictionary.Dict;
+import cn.zadui.vocabulary.storage.StudyDbAdapter;
 
 /**
  * 
@@ -23,7 +24,10 @@ public abstract class Course {
 	/*
 	 * XML tag name in course list XML file.
 	 */
-	public static final String NAME_KEY="title";
+	
+	public static final String MD5_KEY="md5";
+	public static final String KEY_KEY="key";
+	public static final String TITLE_KEY="title";
 	public static final String LANGUAGE_KEY="language";
 	public static final String REGION_KEY="region";
 	public static final String LEVEL_KEY="level";
@@ -39,6 +43,7 @@ public abstract class Course {
 	protected int headSize;
 	protected int contentBeginAt;
 	
+	protected String key;
 	protected String name;
 	protected String lang;
 	protected String region;
@@ -74,7 +79,8 @@ public abstract class Course {
 			}else if (c=='\n'){
 				value=new String(cache,0,point,"UTF-8");
 				point=0;
-				if (key.equals(NAME_KEY)) name=value;
+				if (key.equals(StudyDbAdapter.KEY_COURSE_NAME)) name=value;
+				else if (key.equals(KEY_KEY)) key=value;
 				else if (key.equals(LANGUAGE_KEY)) lang=value;
 				else if (key.equals(REGION_KEY)) region=value;
 				else if (key.equals(LEVEL_KEY)) level=value;
@@ -209,6 +215,10 @@ public abstract class Course {
 
 	public String getCourseFileName() {
 		return courseFileName;
+	}
+
+	public String getKey() {
+		return key;
 	}
 	
 }

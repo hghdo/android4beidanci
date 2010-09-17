@@ -65,7 +65,7 @@ public class Learn extends Activity implements View.OnClickListener {
 		
 		adapter=new StudyDbAdapter(this);
 		adapter.open();
-		section=Section.obtain(adapter,course.getName());
+		section=Section.obtain(adapter,course.getName(),course.getKey());
         
 		tvHeadword=(TextView) findViewById(R.id.headword);
 		tvMeaning=(TextView) findViewById(R.id.meaning);

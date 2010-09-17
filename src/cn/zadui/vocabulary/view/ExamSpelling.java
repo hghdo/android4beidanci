@@ -49,7 +49,7 @@ public class ExamSpelling extends Activity implements View.OnClickListener {
             sdkLevel = Integer.parseInt(Build.VERSION.SDK);
         } catch (NumberFormatException nfe) {}
         //524288 means TYPE_TEXT_FLAG_NO_SUGGESTIONS
-		if (sdkLevel>4)	etSpelling.setInputType(524288);
+//		if (sdkLevel>4)	etSpelling.setInputType(524288);
 		etSpelling.setOnEditorActionListener(new OnEditorActionListener(){
 			@Override
 			public boolean onEditorAction(TextView v, int actionId,KeyEvent event) {
@@ -140,7 +140,9 @@ public class ExamSpelling extends Activity implements View.OnClickListener {
 	        .setMessage(word.getMeaning())
 	        .setPositiveButton(R.string.alert_dialog_ok, new DialogInterface.OnClickListener() {
 	            public void onClick(DialogInterface dialog, int whichButton) {
-	            	ExamSpelling.this.dismissDialog(TIP_DIALOG);
+	            	etSpelling.selectAll();
+	            	//etSpelling.setText("");
+	            	//ExamSpelling.this.dismissDialog(TIP_DIALOG);
 	            }
 	        })
 	        .create();			

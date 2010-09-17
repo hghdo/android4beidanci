@@ -15,6 +15,8 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -24,7 +26,6 @@ import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.Window;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
@@ -120,7 +121,7 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 			status=new CourseStatus(getIntent().getExtras().getString(StudyDbAdapter.KEY_COURSE_NAME),dbAdapter);
 			PrefStore.saveSelectedCourseStatusId(this, status.getRowId());		
 			course=SimpleCourse.getInstance(status.getCourseFileName());
-			section=Section.obtain(dbAdapter,course.getName());
+			section=Section.obtain(dbAdapter,course.getName(),course.getKey());
 		}
 		
 		//requestWindowFeature(Window.FEATURE_PROGRESS);
@@ -136,7 +137,19 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		tvHeadword=(TextView) findViewById(R.id.headword);
 		tvMeaning=(TextView) findViewById(R.id.meaning);
 		tvPhonetic=(TextView) findViewById(R.id.phonetic);
+		Typeface mFace=Typeface.createFromAsset(getAssets(), "font/FreeSans.ttf");
+		tvPhonetic.setTypeface(mFace);		
+		
 		etSpelling=(EditText)findViewById(R.id.et_study_spell);
+		etSpelling.setInputType(EditorInfo.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+        int sdkLevel = 1;
+        try {
+            sdkLevel = Integer.parseInt(Build.VERSION.SDK);
+        } catch (NumberFormatException nfe) {}
+        //524288 means TYPE_TEXT_FLAG_NO_SUGGESTIONS
+//		if (sdkLevel>4)	etSpelling.setInputType(524288);
+
+		
 		etSpelling.setOnEditorActionListener(new OnEditorActionListener(){
 
 			@Override
@@ -321,7 +334,8 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 			boolean toLearn=!(Boolean)btnLearn.getTag();
 			btnLearn.setTag(toLearn);
 			bringViewToFront(toLearn ? vLearn : vSpelling);	
-			if (!toLearn)tvSpellingMeaning.setText(Html.fromHtml(cw.getMeaning()));
+//			if (!toLearn)tvSpellingMeaning.setText(Html.fromHtml(cw.getMeaning()));
+			if (!toLearn)tvSpellingMeaning.setText(cw.getMeaning());
 			btnLearn.setImageResource(toLearn ? R.drawable.tools_check_spelling : R.drawable.package_edutainment);
 			return;
 		}else if (v.getId()==R.id.btn_learn_examples){

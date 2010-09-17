@@ -22,6 +22,7 @@ public class Section {
 	
 	private long rowId=0;
 	private String courseName;
+	private String courseKey;
 	private int wordsCount=0;
 	//private boolean virginFlag;
 	private int reviewTimes=0;
@@ -36,7 +37,7 @@ public class Section {
      * 
      * @return a virgin {@link Section} that can accept new words.
      */
-	public static Section obtain(StudyDbAdapter adapter,String courseName){
+	public static Section obtain(StudyDbAdapter adapter,String courseName,String courseKey){
 		Section se=null;
 		Cursor c=adapter.getLatestSection(courseName);
 		if (c!=null && c.moveToFirst()){
@@ -46,11 +47,11 @@ public class Section {
 			DateFormat df=DateFormat.getDateInstance(DateFormat.SHORT);
 			if(!(df.format(today).equals(df.format(createdDate)))){
 				se.freeze();
-				se=new Section(adapter,courseName);
+				se=new Section(adapter,courseName,courseKey);
 				adapter.createSectionInDb(se);				
 			}
 		}else{
-			se=new Section(adapter,courseName);
+			se=new Section(adapter,courseName,courseKey);
 			adapter.createSectionInDb(se);
 		}
 		return se;
@@ -71,7 +72,7 @@ public class Section {
 	}
 	
 	public void addWord(Word word){
-		adapter.insertWord(rowId, word);
+		adapter.insertWord(rowId, word,courseKey);
 		adapter.updateSectionWordsCount(rowId,++wordsCount);
 	}
 	
@@ -158,6 +159,7 @@ public class Section {
     	if (c!=null && c.moveToFirst()){
     		rowId=c.getLong(c.getColumnIndex(StudyDbAdapter.KEY_ROWID));
     		courseName=c.getString(c.getColumnIndex(StudyDbAdapter.KEY_COURSE_NAME));
+    		courseKey=c.getString(c.getColumnIndex(StudyDbAdapter.KEY_UNIT_COURSE_KEY));
     		//createStyle=c.getInt(c.getColumnIndex(StudyDbAdapter.KEY_CREATE_STYLE));
     		wordsCount=c.getInt(c.getColumnIndex(StudyDbAdapter.KEY_WORDS_COUNT));
     		//virginFlag=(c.getInt(c.getColumnIndex(StudyDbAdapter.KEY_VIRGIN_FLAG))!=0);
@@ -172,13 +174,14 @@ public class Section {
 	/**
 	 * Create a new StudyUnit.
 	 */
-	private Section(StudyDbAdapter dbAdapter,String courseName){
+	private Section(StudyDbAdapter dbAdapter,String courseName,String courseKey){
 		//virginFlag=true;
 		reviewTimes=0;
 		createdAt=System.currentTimeMillis();
 		wordsCount=0;
 		//createStyle=WORDS_COUNT_STYLE;
 		this.courseName=courseName;
+		this.courseKey=courseKey;
 		adapter=dbAdapter;
 	}
 		
@@ -203,6 +206,10 @@ public class Section {
 
 	public void setCourseName(String courseName) {
 		this.courseName = courseName;
+	}
+
+	public String getCourseKey() {
+		return courseKey;
 	}
 	
 }

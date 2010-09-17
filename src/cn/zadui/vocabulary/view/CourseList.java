@@ -18,8 +18,10 @@ import org.xmlpull.v1.XmlPullParserFactory;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -44,9 +46,14 @@ public class CourseList extends ListActivity implements View.OnClickListener {
 	public static final String COURSE_NODE_NAME_OF_XML="course";
 	public static final String ROOT_NODE_NAME_OF_XML="course-list";
 	
+	static final String TAG="CourseList";
+	private static final int NEW=0;
+	private static final int OLD=1;
+	private static final int DOWNLOAD_COURSE_LIST=2;
 	private static final String LOG_TAG="CourseList";
 	private List<Map<String,String>> courseList=new ArrayList<Map<String,String>>();
 	
+	ProgressDialog progressDialog;
 	SharedPreferences spSettings ;
 	Map<String,String> selectedCourse;
 	
@@ -65,61 +72,82 @@ public class CourseList extends ListActivity implements View.OnClickListener {
 
 	@Override
 	protected Dialog onCreateDialog(int id) {
-		selectedCourse=courseList.get(id);
-		LayoutInflater factory = LayoutInflater.from(this);
-		final View courseInfoView = factory.inflate(R.layout.course_info, null);
-//		TextView tvName=(TextView)courseInfoView.findViewById(R.id.tv_course_list_dialog_name);
-//		tvName.setText(courseList.get(id).get(Course.NAME_KEY));
-		TextView tvDesc=(TextView)courseInfoView.findViewById(R.id.tv_course_list_dialog_desc);
-		tvDesc.setText(courseList.get(id).get(Course.DESC_KEY));
-		//tvDesc.setText(getResources().getString(R.string.long_string));
-		return new AlertDialog.Builder(this)
-			.setTitle(courseList.get(id).get(Course.NAME_KEY))
+		switch (id){
+		case DOWNLOAD_COURSE_LIST:
+        	progressDialog = new ProgressDialog(this);
+    		progressDialog.setMessage("Please wait while fetch courses...");
+        	progressDialog.setIndeterminate(true);
+        	progressDialog.setCancelable(true);
+        	return progressDialog;			
+		case OLD:
+			return new AlertDialog.Builder(this)
+			.setTitle(selectedCourse.get(Course.TITLE_KEY))
+			.setMessage("This course is already in your study list")
+			.setNegativeButton(R.string.alert_dialog_cancel, new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					//CourseList.this.setResult(RESULT_OK);
+				}
+			})
+			.create();
+		case NEW:
+			LayoutInflater factory = LayoutInflater.from(this);
+			final View courseInfoView = factory.inflate(R.layout.course_info, null);
+//			TextView tvName=(TextView)courseInfoView.findViewById(R.id.tv_course_list_dialog_name);
+//			tvName.setText(courseList.get(id).get(Course.NAME_KEY));
+			TextView tvDesc=(TextView)courseInfoView.findViewById(R.id.tv_course_list_dialog_desc);
+			tvDesc.setText(selectedCourse.get(Course.DESC_KEY));
+			//tvDesc.setText(getResources().getString(R.string.long_string));
+			return new AlertDialog.Builder(this)
+			.setTitle(selectedCourse.get(Course.TITLE_KEY))
 			.setView(courseInfoView)
 			.setPositiveButton(R.string.select_it, new DialogInterface.OnClickListener() {
-	            public void onClick(DialogInterface dialog, int whichButton) {
-	            	// TODO if the file is existed then ask user whether override it.
-	            	// Also should add version to the file name like: xxxxxx_version-code.cou
-	            	// the version-code will become larger if the content is modified at server side.
-	            	// TODO check whether this course is already in user db. If already existed should not 
-	            	// create duplicated CourseStatus
-	            	File courseFile=new File(CourseStatus.DATA_DIR+selectedCourse.get(Course.FILE_NAME_KEY));
-	            	//if (!courseFile.exists()){
-	            	if (true){
-	            		InputStream in=null;
-	            		OutputStream out=null;
-		            	try {
-		            		String cu=selectedCourse.get(Course.COURSE_URL_KEY);
-		            		in=NetworkHelper.buildUrlConnection(cu).getInputStream();
-		            		byte[] buf=new byte[4*1024];
-		            		int readBytes=0;
-		            		out=new FileOutputStream(courseFile);
-		            		while((readBytes=in.read(buf))!=-1){
-		            			out.write(buf,0,readBytes);
-		            		}
-		            		out.flush();
-		            	} catch (IOException e) {
-		            		// TODO Can't down load this course file. Let user check network.
-		            		e.printStackTrace();
-		            	} finally{
-		    				try {
-		    					if(in!=null)in.close();
-		    					if(out!=null)out.close();
-		    				} catch (IOException e1) {}
-		    			}
-	            	}
-	            	
+				public void onClick(DialogInterface dialog, int whichButton) {
+					// TODO if the file is existed then ask user whether override it.
+					// Also should add version to the file name like: xxxxxx_version-code.cou
+					// the version-code will become larger if the content is modified at server side.
+					// TODO check whether this course is already in user db. If already existed should not 
+					// create duplicated CourseStatus
+					File courseFile=new File(CourseStatus.DATA_DIR+selectedCourse.get(Course.FILE_NAME_KEY));
+					//if (!courseFile.exists()){
+					if (true){
+						InputStream in=null;
+						OutputStream out=null;
+						try {
+							in=NetworkHelper.buildUrlConnection(selectedCourse.get(Course.COURSE_URL_KEY)).getInputStream();
+							byte[] buf=new byte[4*1024];
+							int readBytes=0;
+							out=new FileOutputStream(courseFile);
+							while((readBytes=in.read(buf))!=-1){
+								out.write(buf,0,readBytes);
+							}
+							out.flush();
+						} catch (IOException e) {
+							// TODO Can't down load this course file. Let user check network.
+							e.printStackTrace();
+						} finally{
+							try {
+								if(in!=null)in.close();
+								if(out!=null)out.close();
+							} catch (IOException e1) {}
+						}
+					}
+					
 					Course course=SimpleCourse.getInstance(courseFile.getAbsolutePath());
 					//Update courseStatus
 					StudyDbAdapter dbAdapter=new StudyDbAdapter(CourseList.this);
 					dbAdapter.open();
 					//TODO for learned course can't create new CourseStatus.
-					PrefStore.saveSelectedCourseStatusId(CourseList.this, (new CourseStatus(course)).save(dbAdapter));
+					CourseStatus cs=new CourseStatus(course,
+							selectedCourse.get(Course.MD5_KEY),
+							selectedCourse.get(Course.KEY_KEY)
+					);
+					PrefStore.saveSelectedCourseStatusId(CourseList.this, cs.save(dbAdapter));
 					PrefStore.saveSelectedCourseName(CourseList.this, course.getName());
 					dbAdapter.close();
 					CourseList.this.setResult(RESULT_OK);
-	            	CourseList.this.finish();
-	            }
+					CourseList.this.finish();
+				}
 			})
 			.setNegativeButton(R.string.alert_dialog_cancel, new DialogInterface.OnClickListener() {
 				@Override
@@ -128,15 +156,26 @@ public class CourseList extends ListActivity implements View.OnClickListener {
 				}
 			})
 			.create();
+		}
+		return null;
 	}
 
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
-		super.onListItemClick(l, v, position, id);
+		//super.onListItemClick(l, v, position, id);
 		selectedCourse=courseList.get(position);
-		Log.d(LOG_TAG,"position==>"+String.valueOf(position));
-		Log.d(LOG_TAG,"id==>"+String.valueOf(id));
-		showDialog(position);
+		// Verify whether it is a selected course
+		String key=selectedCourse.get(Course.KEY_KEY);
+		Log.d(TAG,key);
+		StudyDbAdapter dbAdapter=new StudyDbAdapter(CourseList.this);
+		dbAdapter.open();
+		Cursor c=dbAdapter.findCourseStatusByKey(key);
+		if (c.getCount()>0){
+			showDialog(OLD);
+		}else{
+			showDialog(NEW);			
+		}
+		dbAdapter.close();
 	}
 
 	@Override
@@ -150,19 +189,8 @@ public class CourseList extends ListActivity implements View.OnClickListener {
 	 * @param forceRemote Whether force get list from remote web site.
 	 */
 	private void getCourseList(boolean forceRemote){
-		InputStream in=null;
-		OutputStream out=null;
-		
-		if (forceRemote){
-			downloadRemoteCourseList(in,out);
-		}else{
-			try {
-				in = this.openFileInput(COURSE_LIST_CACHE);
-			} catch (FileNotFoundException e) {
-				downloadRemoteCourseList(in,out);
-			}
-		}
-		parseCourseListXmlFile(in);
+		showDialog(DOWNLOAD_COURSE_LIST);
+		new CourseListBuilder(forceRemote).start();
 	}
 	
 	private void downloadRemoteCourseList(InputStream in,OutputStream out){
@@ -184,7 +212,7 @@ public class CourseList extends ListActivity implements View.OnClickListener {
 				if(in!=null)in.close();
 				if(out!=null)out.close();
 			} catch (IOException e1) {}
-		}
+		}			
 	}
 	
 	private void parseCourseListXmlFile(InputStream in){
@@ -240,7 +268,7 @@ public class CourseList extends ListActivity implements View.OnClickListener {
 	
 	private void fillData(){
 		String[] from=new String[]{
-				Course.NAME_KEY,
+				Course.TITLE_KEY,
 				Course.LANGUAGE_KEY,
 				//Course.REGION_KEY,
 				//Course.LEVEL_KEY,
@@ -250,5 +278,40 @@ public class CourseList extends ListActivity implements View.OnClickListener {
 		setListAdapter(adapter);		
 	}
 	
+	class CourseListBuilder extends Thread{
+		
+		boolean forceRemote=false;
+		
+		public CourseListBuilder(boolean fr){
+			forceRemote=fr;
+		}
+		
+		@Override
+		public void run() {
+			InputStream in=null;
+			OutputStream out=null;
+
+			if (forceRemote){
+				downloadRemoteCourseList(in,out);
+			}else{
+				try {
+					in = CourseList.this.openFileInput(COURSE_LIST_CACHE);
+				} catch (FileNotFoundException e) {
+					downloadRemoteCourseList(in,out);
+				}
+			}
+			parseCourseListXmlFile(in);
+			CourseList.this.runOnUiThread(new Runnable(){
+
+				@Override
+				public void run() {
+					CourseList.this.fillData();
+					CourseList.this.dismissDialog(DOWNLOAD_COURSE_LIST);
+				}
+				
+			});
+		}
+		
+	}
 	
 }

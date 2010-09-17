@@ -51,6 +51,7 @@
 
 <style name="phonetic_symbol">
 	<item name="android:textColor">@color/red</item>
+	<item name="android:textSize">20dip</item>
 </style>
 
 
