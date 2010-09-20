@@ -26,14 +26,14 @@ public class Word {
 	
 	public Word(Cursor cur){
 		_id=cur.getLong(cur.getColumnIndex(StudyDbAdapter.KEY_ROWID));
-		headword=cur.getString(cur.getColumnIndex(StudyDbAdapter.KEY_WORD));
-		meaning=cur.getString(cur.getColumnIndex(StudyDbAdapter.KEY_MEANING));
-		phonetic=cur.getString(cur.getColumnIndex(StudyDbAdapter.KEY_PHONETIC));
-		lastFailed=cur.getInt(cur.getColumnIndex(StudyDbAdapter.KEY_LAST_EXAM_FAILED));
-		reviewTimes=cur.getInt(cur.getColumnIndex(StudyDbAdapter.KEY_EXAM_TIMES));
-		successTimes=cur.getInt(cur.getColumnIndex(StudyDbAdapter.KEY_SUCCESS_TIMES));
-		failedTimes=cur.getInt(cur.getColumnIndex(StudyDbAdapter.KEY_FAILED_TIMES));
-		mastered=cur.getInt(cur.getColumnIndex(StudyDbAdapter.KEY_MASTERED));
+		headword=cur.getString(cur.getColumnIndex(StudyDbAdapter.DB_COL_WORD));
+		meaning=cur.getString(cur.getColumnIndex(StudyDbAdapter.DB_COL_MEANING));
+		phonetic=cur.getString(cur.getColumnIndex(StudyDbAdapter.DB_COL_PHONETIC));
+		lastFailed=cur.getInt(cur.getColumnIndex(StudyDbAdapter.DB_COL_LAST_EXAM_FAILED));
+		reviewTimes=cur.getInt(cur.getColumnIndex(StudyDbAdapter.DB_COL_EXAM_TIMES));
+		successTimes=cur.getInt(cur.getColumnIndex(StudyDbAdapter.DB_COL_SUCCESS_TIMES));
+		failedTimes=cur.getInt(cur.getColumnIndex(StudyDbAdapter.DB_COL_FAILED_TIMES));
+		mastered=cur.getInt(cur.getColumnIndex(StudyDbAdapter.DB_COL_MASTERED));
 	}
 	
 	public boolean review(StudyDbAdapter adapter,int status){

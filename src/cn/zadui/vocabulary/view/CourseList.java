@@ -41,15 +41,14 @@ import cn.zadui.vocabulary.util.NetworkHelper;
 
 public class CourseList extends ListActivity implements View.OnClickListener {
 	
-	public static final String COURSE_LIST_CACHE="courseList.cache"; 
-	
-	public static final String COURSE_NODE_NAME_OF_XML="course";
-	public static final String ROOT_NODE_NAME_OF_XML="course-list";
-	
 	static final String TAG="CourseList";
-	private static final int NEW=0;
-	private static final int OLD=1;
-	private static final int DOWNLOAD_COURSE_LIST=2;
+	public static final String COURSE_LIST_CACHE="courseList.cache"; 	
+	public static final String COURSE_TAG_NAME_OF_XML="course";
+	public static final String ROOT_TAG_NAME_OF_XML="course-list";
+	
+	private static final int NEW_DIALOG=0;
+	private static final int OLD_DIALOG=1;
+	private static final int DOWNLOAD_COURSE_LIST_PROGRESS_DIALOG=2;
 	private static final String LOG_TAG="CourseList";
 	private List<Map<String,String>> courseList=new ArrayList<Map<String,String>>();
 	
@@ -73,16 +72,16 @@ public class CourseList extends ListActivity implements View.OnClickListener {
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		switch (id){
-		case DOWNLOAD_COURSE_LIST:
+		case DOWNLOAD_COURSE_LIST_PROGRESS_DIALOG:
         	progressDialog = new ProgressDialog(this);
     		progressDialog.setMessage("Please wait while fetch courses...");
         	progressDialog.setIndeterminate(true);
         	progressDialog.setCancelable(true);
         	return progressDialog;			
-		case OLD:
+		case OLD_DIALOG:
 			return new AlertDialog.Builder(this)
-			.setTitle(selectedCourse.get(Course.TITLE_KEY))
-			.setMessage("This course is already in your study list")
+			.setTitle(selectedCourse.get(Course.COURSE_TITLE_TAG))
+			.setMessage("This course is already in your study list!")
 			.setNegativeButton(R.string.alert_dialog_cancel, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
@@ -90,60 +89,56 @@ public class CourseList extends ListActivity implements View.OnClickListener {
 				}
 			})
 			.create();
-		case NEW:
+		case NEW_DIALOG:
 			LayoutInflater factory = LayoutInflater.from(this);
 			final View courseInfoView = factory.inflate(R.layout.course_info, null);
 //			TextView tvName=(TextView)courseInfoView.findViewById(R.id.tv_course_list_dialog_name);
 //			tvName.setText(courseList.get(id).get(Course.NAME_KEY));
 			TextView tvDesc=(TextView)courseInfoView.findViewById(R.id.tv_course_list_dialog_desc);
-			tvDesc.setText(selectedCourse.get(Course.DESC_KEY));
+			tvDesc.setText(selectedCourse.get(Course.COURSE_DESC_TAG));
 			//tvDesc.setText(getResources().getString(R.string.long_string));
 			return new AlertDialog.Builder(this)
-			.setTitle(selectedCourse.get(Course.TITLE_KEY))
+			.setTitle(selectedCourse.get(Course.COURSE_TITLE_TAG))
 			.setView(courseInfoView)
 			.setPositiveButton(R.string.select_it, new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int whichButton) {
-					// TODO if the file is existed then ask user whether override it.
-					// Also should add version to the file name like: xxxxxx_version-code.cou
-					// the version-code will become larger if the content is modified at server side.
-					// TODO check whether this course is already in user db. If already existed should not 
-					// create duplicated CourseStatus
-					File courseFile=new File(CourseStatus.DATA_DIR+selectedCourse.get(Course.FILE_NAME_KEY));
-					//if (!courseFile.exists()){
-					if (true){
-						InputStream in=null;
-						OutputStream out=null;
-						try {
-							in=NetworkHelper.buildUrlConnection(selectedCourse.get(Course.COURSE_URL_KEY)).getInputStream();
-							byte[] buf=new byte[4*1024];
-							int readBytes=0;
-							out=new FileOutputStream(courseFile);
-							while((readBytes=in.read(buf))!=-1){
-								out.write(buf,0,readBytes);
-							}
-							out.flush();
-						} catch (IOException e) {
-							// TODO Can't down load this course file. Let user check network.
-							e.printStackTrace();
-						} finally{
-							try {
-								if(in!=null)in.close();
-								if(out!=null)out.close();
-							} catch (IOException e1) {}
+					File courseFile=new File(CourseStatus.DATA_DIR+selectedCourse.get(Course.COURSE_FILE_NAME_TAG));
+					InputStream in=null;
+					OutputStream out=null;
+					try {
+						in=NetworkHelper.buildUrlConnection(selectedCourse.get(Course.COURSE_URL_TAG)).getInputStream();
+						byte[] buf=new byte[4*1024];
+						int readBytes=0;
+						out=new FileOutputStream(courseFile);
+						while((readBytes=in.read(buf))!=-1){
+							out.write(buf,0,readBytes);
 						}
+						out.flush();
+					} catch (IOException e) {
+						// TODO Can't down load this course file. Let user check network.
+						e.printStackTrace();
+					} finally{
+						try {
+							if(in!=null)in.close();
+							if(out!=null)out.close();
+						} catch (IOException e1) {}
 					}
 					
-					Course course=SimpleCourse.getInstance(courseFile.getAbsolutePath());
+					//Course course=SimpleCourse.getInstance(courseFile.getAbsolutePath());
+					
 					//Update courseStatus
 					StudyDbAdapter dbAdapter=new StudyDbAdapter(CourseList.this);
 					dbAdapter.open();
-					//TODO for learned course can't create new CourseStatus.
-					CourseStatus cs=new CourseStatus(course,
-							selectedCourse.get(Course.MD5_KEY),
-							selectedCourse.get(Course.KEY_KEY)
+					CourseStatus cs=new CourseStatus(
+							selectedCourse.get(Course.COURSE_KEY_TAG),
+							selectedCourse.get(Course.COURSE_MD5_TAG),
+							selectedCourse.get(Course.COURSE_TITLE_TAG),
+							selectedCourse.get(Course.COURSE_FILE_NAME_TAG),
+							Integer.valueOf(selectedCourse.get(Course.COURSE_CONTENT_COUNT_TAG))
 					);
-					PrefStore.saveSelectedCourseStatusId(CourseList.this, cs.save(dbAdapter));
-					PrefStore.saveSelectedCourseName(CourseList.this, course.getName());
+					cs.save(dbAdapter);
+					//PrefStore.saveSelectedCourseStatusId(CourseList.this, cs.save(dbAdapter));
+					PrefStore.saveSelectedCourseKey(CourseList.this, selectedCourse.get(Course.COURSE_KEY_TAG));
 					dbAdapter.close();
 					CourseList.this.setResult(RESULT_OK);
 					CourseList.this.finish();
@@ -165,15 +160,15 @@ public class CourseList extends ListActivity implements View.OnClickListener {
 		//super.onListItemClick(l, v, position, id);
 		selectedCourse=courseList.get(position);
 		// Verify whether it is a selected course
-		String key=selectedCourse.get(Course.KEY_KEY);
+		String key=selectedCourse.get(Course.COURSE_KEY_TAG);
 		Log.d(TAG,key);
 		StudyDbAdapter dbAdapter=new StudyDbAdapter(CourseList.this);
 		dbAdapter.open();
 		Cursor c=dbAdapter.findCourseStatusByKey(key);
 		if (c.getCount()>0){
-			showDialog(OLD);
+			showDialog(OLD_DIALOG);
 		}else{
-			showDialog(NEW);			
+			showDialog(NEW_DIALOG);			
 		}
 		dbAdapter.close();
 	}
@@ -189,7 +184,7 @@ public class CourseList extends ListActivity implements View.OnClickListener {
 	 * @param forceRemote Whether force get list from remote web site.
 	 */
 	private void getCourseList(boolean forceRemote){
-		showDialog(DOWNLOAD_COURSE_LIST);
+		showDialog(DOWNLOAD_COURSE_LIST_PROGRESS_DIALOG);
 		new CourseListBuilder(forceRemote).start();
 	}
 	
@@ -230,7 +225,7 @@ public class CourseList extends ListActivity implements View.OnClickListener {
 					courseList.clear();
 					break;
 				case XmlPullParser.START_TAG:
-					if (xpp.getName().equals(COURSE_NODE_NAME_OF_XML)){
+					if (xpp.getName().equals(COURSE_TAG_NAME_OF_XML)){
 						course=new HashMap<String, String>();
 					}
 					break;
@@ -239,10 +234,10 @@ public class CourseList extends ListActivity implements View.OnClickListener {
 					attr=xpp.getText();
 					break;
 				case XmlPullParser.END_TAG:
-					if (xpp.getName().equals(COURSE_NODE_NAME_OF_XML)){
+					if (xpp.getName().equals(COURSE_TAG_NAME_OF_XML)){
 						courseList.add(course);
 						break;
-					}else if (xpp.getName().equals(ROOT_NODE_NAME_OF_XML)){
+					}else if (xpp.getName().equals(ROOT_TAG_NAME_OF_XML)){
 						break;
 					}else{
 						Log.d(LOG_TAG,xpp.getName()+"==>"+attr);
@@ -268,11 +263,11 @@ public class CourseList extends ListActivity implements View.OnClickListener {
 	
 	private void fillData(){
 		String[] from=new String[]{
-				Course.TITLE_KEY,
-				Course.LANGUAGE_KEY,
+				Course.COURSE_TITLE_TAG,
+				Course.COURSE_LANGUAGE_TAG,
 				//Course.REGION_KEY,
 				//Course.LEVEL_KEY,
-				Course.CONTENT_COUNT_KEY};
+				Course.COURSE_CONTENT_COUNT_TAG};
 		int[] displayViews=new int[] {R.id.tv_course_list_course_name,R.id.tv_course_list_course_lang,R.id.tv_course_list_content_count};
 		ListAdapter adapter=new SimpleAdapter(this,courseList,R.layout.course_list_item,from,displayViews);
 		setListAdapter(adapter);		
@@ -306,7 +301,7 @@ public class CourseList extends ListActivity implements View.OnClickListener {
 				@Override
 				public void run() {
 					CourseList.this.fillData();
-					CourseList.this.dismissDialog(DOWNLOAD_COURSE_LIST);
+					CourseList.this.dismissDialog(DOWNLOAD_COURSE_LIST_PROGRESS_DIALOG);
 				}
 				
 			});

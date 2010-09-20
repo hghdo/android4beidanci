@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 
+import android.util.Log;
 import cn.zadui.vocabulary.model.Helper;
 import cn.zadui.vocabulary.model.dictionary.Dict;
 import cn.zadui.vocabulary.storage.StudyDbAdapter;
@@ -25,21 +26,21 @@ public abstract class Course {
 	 * XML tag name in course list XML file.
 	 */
 	
-	public static final String MD5_KEY="md5";
-	public static final String KEY_KEY="key";
-	public static final String TITLE_KEY="title";
-	public static final String LANGUAGE_KEY="language";
-	public static final String REGION_KEY="region";
-	public static final String LEVEL_KEY="level";
-	public static final String VERISON_KEY="version";
-	public static final String TYPE_KEY="type";
-	public static final String CONTENT_COUNT_KEY="content_count";
-	public static final String SEPARATOR_KEY="separator";
-	public static final String DESC_KEY="summary";
-	public static final String FILE_NAME_KEY="filename";
-	public static final String COURSE_URL_KEY="url";
+	public static final String COURSE_MD5_TAG="md5";
+	public static final String COURSE_KEY_TAG="key";
+	public static final String COURSE_TITLE_TAG="title";
+	public static final String COURSE_LANGUAGE_TAG="language";
+	public static final String COURSE_REGION_TAG="region";
+	public static final String COURSE_LEVEL_TAG="level";
+	public static final String COURSE_VERISON_TAG="version";
+	public static final String COURSE_TYPE_TAG="type";
+	public static final String COURSE_CONTENT_COUNT_TAG="content_count";
+	public static final String COURSE_SEPARATOR_TAG="separator";
+	public static final String COURSE_DESC_TAG="summary";
+	public static final String COURSE_FILE_NAME_TAG="filename";
+	public static final String COURSE_URL_TAG="url";
 	
-	protected String courseFileName;
+	protected String courseAbsolutFilePath;
 	protected int headSize;
 	protected int contentBeginAt;
 	
@@ -56,14 +57,15 @@ public abstract class Course {
 	protected byte[] buffer=new byte[8192];
 
 
-	protected Course(String fileName) throws IOException{
-		courseFileName=fileName;
+	protected Course(String absolutFilePath) throws IOException{
+		courseAbsolutFilePath=absolutFilePath;
 		loadCourseInfo();
 		contentBeginAt=headSize+2;
 	}
 	
 	protected void loadCourseInfo() throws IOException{
-		InputStream in=new FileInputStream(courseFileName);
+		Log.d("ABSOLUT PATH IS =>",courseAbsolutFilePath);
+		InputStream in=new FileInputStream(courseAbsolutFilePath);
 		byte[] cache=new byte[50];
 		in.read(cache,0,2);
 		headSize=Helper.byteArray2Short(cache,0);
@@ -79,15 +81,15 @@ public abstract class Course {
 			}else if (c=='\n'){
 				value=new String(cache,0,point,"UTF-8");
 				point=0;
-				if (key.equals(StudyDbAdapter.KEY_COURSE_NAME)) name=value;
-				else if (key.equals(KEY_KEY)) key=value;
-				else if (key.equals(LANGUAGE_KEY)) lang=value;
-				else if (key.equals(REGION_KEY)) region=value;
-				else if (key.equals(LEVEL_KEY)) level=value;
-				else if (key.equals(VERISON_KEY)) version=Integer.valueOf(value);
-				else if (key.equals(TYPE_KEY)) type=(value);
-				else if (key.equals(CONTENT_COUNT_KEY)) contentCount=Integer.valueOf(value);
-				else if (key.equals(SEPARATOR_KEY)){
+				if (key.equals(StudyDbAdapter.DB_COL_COURSE_TITLE)) name=value;
+				else if (key.equals(COURSE_KEY_TAG)) key=value;
+				else if (key.equals(COURSE_LANGUAGE_TAG)) lang=value;
+				else if (key.equals(COURSE_REGION_TAG)) region=value;
+				else if (key.equals(COURSE_LEVEL_TAG)) level=value;
+				else if (key.equals(COURSE_VERISON_TAG)) version=Integer.valueOf(value);
+				else if (key.equals(COURSE_TYPE_TAG)) type=(value);
+				else if (key.equals(COURSE_CONTENT_COUNT_TAG)) contentCount=Integer.valueOf(value);
+				else if (key.equals(COURSE_SEPARATOR_TAG)){
 					String[] s=value.split(":");
 					separator=new char[s.length];
 					for(int j=0;j<s.length;j++)separator[j]=(char)(int)(Integer.valueOf(s[j]));
@@ -116,7 +118,7 @@ public abstract class Course {
 	 */
 	public String getContent(long position) throws EOFCourseException{
 		try {
-			RandomAccessFile rio=new RandomAccessFile(courseFileName,"r");
+			RandomAccessFile rio=new RandomAccessFile(courseAbsolutFilePath,"r");
 			rio.seek(position+this.contentBeginAt);
 			int l=rio.read(buffer);
 			//Throw EOFCourseException if reached the end of the course.
@@ -214,7 +216,7 @@ public abstract class Course {
 	}
 
 	public String getCourseFileName() {
-		return courseFileName;
+		return courseAbsolutFilePath;
 	}
 
 	public String getKey() {

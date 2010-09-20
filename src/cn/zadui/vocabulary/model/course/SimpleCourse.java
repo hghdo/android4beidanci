@@ -1,11 +1,8 @@
 package cn.zadui.vocabulary.model.course;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 
 import cn.zadui.vocabulary.model.dictionary.Dict;
-import cn.zadui.vocabulary.storage.CourseStatus;
 
 
 /**
@@ -26,18 +23,18 @@ public class SimpleCourse extends Course {
 	
 	private static SimpleCourse course=null;
 	
-	private SimpleCourse(String fileName) throws IOException{
-		super(fileName);
+	private SimpleCourse(String absolutFilePath) throws IOException{
+		super(absolutFilePath);
 	}
 	
 //	public static Course getInstance(CourseStatus status){
 //		return getInstance(status.getCourseFileName());
 //	}
 
-	public static Course getInstance(String filename){
-		if(course==null || !course.getCourseFileName().equalsIgnoreCase(filename)){
+	public static Course getInstance(String absolutFilePath){
+		if(course==null || !course.getCourseFileName().equalsIgnoreCase(absolutFilePath)){
 			try {
-				course=new SimpleCourse(filename);
+				course=new SimpleCourse(absolutFilePath);
 			} catch (IOException e) {
 				course=null;
 				e.printStackTrace();

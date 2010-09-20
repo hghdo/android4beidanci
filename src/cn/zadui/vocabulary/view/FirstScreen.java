@@ -42,8 +42,8 @@ public class FirstScreen extends ListActivity {
 			};
 	private static String[] columns=new String[]{	
 			//StudyDbAdapter.KEY_ROWID,
-			StudyDbAdapter.KEY_COURSE_NAME,
-			StudyDbAdapter.KEY_LEARNED_CONTENT_COUNT,
+			StudyDbAdapter.DB_COL_COURSE_TITLE,
+			StudyDbAdapter.DB_COL_LEARNED_CONTENT_COUNT,
 			//StudyDbAdapter.KEY_CONTENT_COUNT,
 			//StudyDbAdapter.KEY_CREATED_AT,
 			//StudyDbAdapter.KEY_NEXT_COMMON_EXAM_AT,
@@ -95,12 +95,12 @@ public class FirstScreen extends ListActivity {
 			
 			@Override
 			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-				if (columnIndex==cursor.getColumnIndex(StudyDbAdapter.KEY_LEARNED_CONTENT_COUNT)){
+				if (columnIndex==cursor.getColumnIndex(StudyDbAdapter.DB_COL_LEARNED_CONTENT_COUNT)){
 					TextView tv=(TextView)view;
 					tv.setText(String.format(
 							getString(R.string.course_progress), 
 							cursor.getInt(columnIndex),
-							cursor.getInt(cursor.getColumnIndex(StudyDbAdapter.KEY_CONTENT_COUNT))
+							cursor.getInt(cursor.getColumnIndex(StudyDbAdapter.DB_COL_CONTENT_COUNT))
 							));
 					return true;
 				}
@@ -121,7 +121,7 @@ public class FirstScreen extends ListActivity {
 			Intent i=new Intent();
 			i.setClass(this, Sections.class);
 			// TODO should use course unique id to replace the course name. the uuid should generated in server side.
-			i.putExtra(StudyDbAdapter.KEY_COURSE_NAME, cur.getString(cur.getColumnIndex(StudyDbAdapter.KEY_COURSE_NAME)));
+			i.putExtra(StudyDbAdapter.DB_COL_COURSE_KEY, cur.getString(cur.getColumnIndex(StudyDbAdapter.DB_COL_COURSE_KEY)));
 			startActivity(i);
 		}
 	}	
@@ -149,7 +149,7 @@ public class FirstScreen extends ListActivity {
 		if (requestCode==Actions.SELECT_COURSE_REQUEST){
 			if (resultCode==RESULT_OK){
 				Intent i = new Intent(this, Study.class);
-				i.putExtra(StudyDbAdapter.KEY_COURSE_NAME, PrefStore.getSelectedCourseName(this));
+				i.putExtra(StudyDbAdapter.DB_COL_COURSE_KEY, PrefStore.getSelectedCourseKey(this));
 				startActivity(i);
 			}
 		}

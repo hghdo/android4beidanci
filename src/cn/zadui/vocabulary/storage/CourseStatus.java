@@ -22,7 +22,7 @@ public class CourseStatus {
 	// Course status
 	private String courseKey;
 	private String courseMd5;
-	private String courseName;
+	private String courseTitle;
 	private String courseFileName;
 	private String courseLang;
 	private int learnedWordsCount=0;
@@ -39,31 +39,30 @@ public class CourseStatus {
 	
 	private long rowId=StudyDbAdapter.INVALID_ROW_ID;
 	
+	
 	/**
 	 * Create a CourseStatus using a {@Link Course}
 	 * @param c
 	 */
-	public CourseStatus(Course c,String md5,String key){
-		courseMd5=md5;
+	public CourseStatus(String key,String md5,String title,String filename,int count){
+		courseTitle=title;
 		courseKey=key;
-		courseName=c.getName();
-		courseFileName=c.getCourseFileName();
+		courseMd5=md5;
+		courseFileName=filename;
 		learnedWordsCount=0;	
 		lastWord=AT_BEGINNING;
 		nextContentOffset=0;	
-		contentCount=c.getContentCount();	
-		//unitCreateStyle=Section.WORDS_COUNT_STYLE;
-		//unitCreateStyleValue=Section.WORDS_COUNT_STYLE_DEFAULT;
+		contentCount=count;	
 	}
-	
+		
 	/**
 	 * Try to load by course name
-	 * @param courseName
+	 * @param courseKey
 	 * @param dbAdapter
 	 */
-	public CourseStatus(String courseName,StudyDbAdapter dbAdapter){
+	public CourseStatus(String courseKey,StudyDbAdapter dbAdapter){
 		empty=true;
-		Cursor c=dbAdapter.findCourseStatusByCourseName(courseName);
+		Cursor c=dbAdapter.findCourseStatusByKey(courseKey);
 		if (!c.moveToFirst()){
 			c.close();
 			return;
@@ -91,16 +90,16 @@ public class CourseStatus {
 	
 	private void loadFromCursor(Cursor c){
 		rowId=c.getLong(c.getColumnIndex(StudyDbAdapter.KEY_ROWID));
-		courseKey=c.getString(c.getColumnIndex(StudyDbAdapter.KEY_COURSE_KEY));
-		courseMd5=c.getString(c.getColumnIndex(StudyDbAdapter.KEY_COURSE_MD5));
-		courseName=c.getString(c.getColumnIndex(StudyDbAdapter.KEY_COURSE_NAME));
-		courseFileName=c.getString(c.getColumnIndex(StudyDbAdapter.KEY_COURSE_FILE_NAME));
-		learnedWordsCount=c.getInt(c.getColumnIndex(StudyDbAdapter.KEY_LEARNED_CONTENT_COUNT));
-		lastWord=c.getString(c.getColumnIndex(StudyDbAdapter.KEY_LAST_WORD));
-		nextContentOffset=c.getLong(c.getColumnIndex(StudyDbAdapter.KEY_NEXT_CONTENT_OFFSET));
-		contentCount=c.getInt(c.getColumnIndex(StudyDbAdapter.KEY_CONTENT_COUNT));
-		createdAt=c.getLong(c.getColumnIndex(StudyDbAdapter.KEY_CREATED_AT));
-		updatedAt=c.getLong(c.getColumnIndex(StudyDbAdapter.KEY_UPDATED_AT));
+		courseKey=c.getString(c.getColumnIndex(StudyDbAdapter.DB_COL_COURSE_KEY));
+		courseMd5=c.getString(c.getColumnIndex(StudyDbAdapter.DB_COL_COURSE_MD5));
+		courseTitle=c.getString(c.getColumnIndex(StudyDbAdapter.DB_COL_COURSE_TITLE));
+		courseFileName=c.getString(c.getColumnIndex(StudyDbAdapter.DB_COL_COURSE_FILE_NAME));
+		learnedWordsCount=c.getInt(c.getColumnIndex(StudyDbAdapter.DB_COL_LEARNED_CONTENT_COUNT));
+		lastWord=c.getString(c.getColumnIndex(StudyDbAdapter.DB_COL_LAST_WORD));
+		nextContentOffset=c.getLong(c.getColumnIndex(StudyDbAdapter.DB_COL_NEXT_CONTENT_OFFSET));
+		contentCount=c.getInt(c.getColumnIndex(StudyDbAdapter.DB_COL_CONTENT_COUNT));
+		createdAt=c.getLong(c.getColumnIndex(StudyDbAdapter.DB_COL_CREATED_AT));
+		updatedAt=c.getLong(c.getColumnIndex(StudyDbAdapter.DB_COL_UPDATED_AT));
 	}
 	
 	/**
@@ -119,8 +118,8 @@ public class CourseStatus {
 		return rowId;
 	}
 	
-	public String getCourseName() {
-		return courseName;
+	public String getCourseTitle() {
+		return courseTitle;
 	}
 	
 	public String getCourseFileName() {

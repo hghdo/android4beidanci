@@ -8,6 +8,7 @@ import java.util.List;
 
 import android.database.Cursor;
 import cn.zadui.vocabulary.model.course.SimpleCourse;
+import cn.zadui.vocabulary.storage.CourseStatus;
 import cn.zadui.vocabulary.storage.StudyDbAdapter;
 
 /**
@@ -37,9 +38,9 @@ public class Section {
      * 
      * @return a virgin {@link Section} that can accept new words.
      */
-	public static Section obtain(StudyDbAdapter adapter,String courseName,String courseKey){
+	public static Section obtain(StudyDbAdapter adapter,CourseStatus cs){
 		Section se=null;
-		Cursor c=adapter.getLatestSection(courseName);
+		Cursor c=adapter.getLatestSection(cs.getCourseKey());
 		if (c!=null && c.moveToFirst()){
 			se=new Section(adapter,c);
 			Date today=new Date();
@@ -47,11 +48,11 @@ public class Section {
 			DateFormat df=DateFormat.getDateInstance(DateFormat.SHORT);
 			if(!(df.format(today).equals(df.format(createdDate)))){
 				se.freeze();
-				se=new Section(adapter,courseName,courseKey);
+				se=new Section(adapter,cs.getCourseTitle(),cs.getCourseKey());
 				adapter.createSectionInDb(se);				
 			}
 		}else{
-			se=new Section(adapter,courseName,courseKey);
+			se=new Section(adapter,cs.getCourseTitle(),cs.getCourseKey());
 			adapter.createSectionInDb(se);
 		}
 		return se;
@@ -158,14 +159,14 @@ public class Section {
 	private Section(StudyDbAdapter dbAdapter,Cursor c){
     	if (c!=null && c.moveToFirst()){
     		rowId=c.getLong(c.getColumnIndex(StudyDbAdapter.KEY_ROWID));
-    		courseName=c.getString(c.getColumnIndex(StudyDbAdapter.KEY_COURSE_NAME));
-    		courseKey=c.getString(c.getColumnIndex(StudyDbAdapter.KEY_UNIT_COURSE_KEY));
+    		courseName=c.getString(c.getColumnIndex(StudyDbAdapter.DB_COL_COURSE_TITLE));
+    		courseKey=c.getString(c.getColumnIndex(StudyDbAdapter.DB_COL_COURSE_KEY));
     		//createStyle=c.getInt(c.getColumnIndex(StudyDbAdapter.KEY_CREATE_STYLE));
-    		wordsCount=c.getInt(c.getColumnIndex(StudyDbAdapter.KEY_WORDS_COUNT));
+    		wordsCount=c.getInt(c.getColumnIndex(StudyDbAdapter.DB_COL_WORDS_COUNT));
     		//virginFlag=(c.getInt(c.getColumnIndex(StudyDbAdapter.KEY_VIRGIN_FLAG))!=0);
-    		reviewTimes=c.getInt(c.getColumnIndex(StudyDbAdapter.KEY_COMMON_EXAM_TIMES));
-    		createdAt=c.getLong(c.getColumnIndex(StudyDbAdapter.KEY_CREATED_AT));
-    		nextExamAt=c.getLong(c.getColumnIndex(StudyDbAdapter.KEY_NEXT_COMMON_EXAM_AT));
+    		reviewTimes=c.getInt(c.getColumnIndex(StudyDbAdapter.DB_COL_COMMON_EXAM_TIMES));
+    		createdAt=c.getLong(c.getColumnIndex(StudyDbAdapter.DB_COL_CREATED_AT));
+    		nextExamAt=c.getLong(c.getColumnIndex(StudyDbAdapter.DB_COL_NEXT_COMMON_EXAM_AT));
     		c.close();
 		}
     	adapter=dbAdapter;
@@ -175,11 +176,9 @@ public class Section {
 	 * Create a new StudyUnit.
 	 */
 	private Section(StudyDbAdapter dbAdapter,String courseName,String courseKey){
-		//virginFlag=true;
 		reviewTimes=0;
 		createdAt=System.currentTimeMillis();
 		wordsCount=0;
-		//createStyle=WORDS_COUNT_STYLE;
 		this.courseName=courseName;
 		this.courseKey=courseKey;
 		adapter=dbAdapter;

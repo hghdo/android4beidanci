@@ -118,10 +118,11 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		
 		isReview=getIntent().getExtras().getBoolean(KEY_IS_REVIEW);
 		if (!isReview){
-			status=new CourseStatus(getIntent().getExtras().getString(StudyDbAdapter.KEY_COURSE_NAME),dbAdapter);
-			PrefStore.saveSelectedCourseStatusId(this, status.getRowId());		
-			course=SimpleCourse.getInstance(status.getCourseFileName());
-			section=Section.obtain(dbAdapter,course.getName(),course.getKey());
+			status=new CourseStatus(getIntent().getExtras().getString(StudyDbAdapter.DB_COL_COURSE_KEY),dbAdapter);
+			//PrefStore.saveSelectedCourseStatusId(this, status.getRowId());		
+			course=SimpleCourse.getInstance(CourseStatus.DATA_DIR+status.getCourseFileName());
+			section=Section.obtain(dbAdapter,status);
+			Log.d("Course key of this section =>",section.getCourseKey());
 		}
 		
 		//requestWindowFeature(Window.FEATURE_PROGRESS);

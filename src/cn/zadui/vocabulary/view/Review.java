@@ -117,10 +117,10 @@ public class Review extends ListActivity implements RadioGroup.OnCheckedChangeLi
 				holder=(ViewHolder)convertView.getTag();
 			}
 			mCursor.moveToPosition(position);
-			holder.headword.setText(mCursor.getString(mCursor.getColumnIndex(StudyDbAdapter.KEY_WORD)));
-			holder.meaning.setText(mCursor.getString(mCursor.getColumnIndex(StudyDbAdapter.KEY_MEANING)));
+			holder.headword.setText(mCursor.getString(mCursor.getColumnIndex(StudyDbAdapter.DB_COL_WORD)));
+			holder.meaning.setText(mCursor.getString(mCursor.getColumnIndex(StudyDbAdapter.DB_COL_MEANING)));
 			StarStruct ss=new StarStruct();
-			ss.starOn=mCursor.getInt(mCursor.getColumnIndex(StudyDbAdapter.KEY_LAST_EXAM_FAILED))==1;
+			ss.starOn=mCursor.getInt(mCursor.getColumnIndex(StudyDbAdapter.DB_COL_LAST_EXAM_FAILED))==1;
 			ss.wordId=getItemId(position);
 			holder.star.setTag(ss);
 			holder.star.setImageResource(ss.starOn ? R.drawable.star_on : R.drawable.star_off);

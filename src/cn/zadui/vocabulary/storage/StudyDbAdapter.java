@@ -30,33 +30,29 @@ public class StudyDbAdapter {
    
     public static final String KEY_ROWID = "_id";
     
-    private static final String UNIT_TABLE = "unit";
-    public static final String KEY_UNIT_COURSE_KEY="course_key";
-    //public static final String KEY_USER_ID = "user_id";
-    //public static final String KEY_COURSE_ID="course_id";
-    public static final String KEY_COURSE_NAME="title";
-    public static final String KEY_CREATE_STYLE="create_style";    
-    public static final String KEY_WORDS_COUNT="words_count";
-    //public static final String KEY_VIRGIN_FLAG="virgin_flag";
-    public static final String KEY_FINISHED="finished";
-    public static final String KEY_COMMON_EXAM_TIMES="common_exam_times";
-    public static final String KEY_LAST_EXAM_AT="last_exam_at";
-    public static final String KEY_NEXT_COMMON_EXAM_AT="next_common_exam_at";
+    public static final String DB_TABLE_SECTION = "sections";
+    public static final String DB_COL_COURSE_KEY="course_key";
+    public static final String DB_COL_COURSE_TITLE="title";
+    public static final String DB_COL_WORDS_COUNT="words_count";
+    public static final String DB_COL_FINISHED="finished";
+    public static final String DB_COL_COMMON_EXAM_TIMES="common_exam_times";
+    public static final String DB_COL_LAST_EXAM_AT="last_exam_at";
+    public static final String DB_COL_NEXT_COMMON_EXAM_AT="next_common_exam_at";
     //public static final String KEY_LAST_FAILED_EXAM_AT="last_failed_exam_at";
-    public static final String KEY_NEXT_FAILED_EXAM_AT="next_failed_exam_at";
-    public static final String KEY_CREATED_AT="created_at";
+    public static final String DB_COL_NEXT_FAILED_EXAM_AT="next_failed_exam_at";
+    public static final String DB_COL_CREATED_AT="created_at";
     
-    public static final String UNIT_WORDS_TABLE = "unit_words";
-    //public static final String KEY_UNIT_COURSE_KEY="course_key";
-    public static final String KEY_Unit_ID="user_unit_id";
-    public static final String KEY_WORD="word";
-    public static final String KEY_MEANING="meaning";
-    public static final String KEY_PHONETIC="phonetic";
-    public static final String KEY_LAST_EXAM_FAILED="last_exam_failed";
-    public static final String KEY_EXAM_TIMES="exam_times";
-    public static final String KEY_SUCCESS_TIMES="success_times";
-    public static final String KEY_FAILED_TIMES="failed_times";
-    public static final String KEY_MASTERED="mastered";
+    public static final String DB_TABLE_WORDS = "words";
+    //public static final String DB_COL_COURSE_KEY="course_key";
+    public static final String DB_COL_SECTION_ID="section_id";
+    public static final String DB_COL_WORD="word";
+    public static final String DB_COL_MEANING="meaning";
+    public static final String DB_COL_PHONETIC="phonetic";
+    public static final String DB_COL_LAST_EXAM_FAILED="last_exam_failed";
+    public static final String DB_COL_EXAM_TIMES="exam_times";
+    public static final String DB_COL_SUCCESS_TIMES="success_times";
+    public static final String DB_COL_FAILED_TIMES="failed_times";
+    public static final String DB_COL_MASTERED="mastered";
     
     //columns for course status
     /*
@@ -67,26 +63,23 @@ public class StudyDbAdapter {
 	public static final String SP_KEY_LAST_WORD="lastWord";
     
     */
-    private static final String COURSE_STATUS_TABLE = "course_status";
-    public static final String KEY_COURSE_KEY="key";
-    public static final String KEY_COURSE_MD5="md5";
-    public static final String KEY_COURSE_FILE_NAME="course_file_name";
-    public static final String KEY_LEARNED_CONTENT_COUNT="learned_content_count";
-    public static final String KEY_NEXT_CONTENT_OFFSET="next_content_offset";
-    public static final String KEY_LAST_WORD="last_word";
-    public static final String KEY_CONTENT_COUNT="content_count";   
-    public static final String KEY_UPDATED_AT="updated_at";   
-    //public static final String KEY_CREATED_AT="created_at";
+    private static final String DB_TABLE_COURSE_STATUS = "course_status";
+    //public static final String DB_COL_COURSE_KEY="course_key";
+    public static final String DB_COL_COURSE_MD5="md5";
+    public static final String DB_COL_COURSE_FILE_NAME="course_file_name";
+    public static final String DB_COL_LEARNED_CONTENT_COUNT="learned_content_count";
+    public static final String DB_COL_NEXT_CONTENT_OFFSET="next_content_offset";
+    public static final String DB_COL_LAST_WORD="last_word";
+    public static final String DB_COL_CONTENT_COUNT="content_count";   
+    public static final String DB_COL_UPDATED_AT="updated_at";   
     
-    public static final String EXAMPLES_TABLE = "examples";
-    public static final String KEY_SENTENCE = "sentence";
-    public static final String KEY_TIMESTAMP = "timestamp";
+//    public static final String EXAMPLES_TABLE = "examples";
+//    public static final String KEY_SENTENCE = "sentence";
+//    public static final String KEY_TIMESTAMP = "timestamp";
     
-    private static final String DATABASE_CREATE_UNIT_TABLE =
-        				"create table unit (_id integer primary key autoincrement, " + 
+    private static final String DATABASE_CREATE_SECTIONS_TABLE =
+        				"create table sections (_id integer primary key autoincrement, " + 
         				"course_key text," +
-        				//"user_id integer, " +
-        				//"create_style integer, "+
                 		"title text," +
                 		"words_count integer default 0," +
                 		"virgin_flag integer default 1," +
@@ -99,9 +92,9 @@ public class StudyDbAdapter {
                 		"created_at integer);";
     
     private static final String DATABASE_CREATE_UNIT_WORDS_TABLE =
-                		"create table unit_words (_id integer primary key autoincrement,"+
+                		"create table words (_id integer primary key autoincrement,"+
         				"course_key text," +
-                		"user_unit_id integer," +
+                		"section_id integer," +
                 		"word text," +
                 		"meaning text," +
                 		"phonetic text," +
@@ -113,7 +106,7 @@ public class StudyDbAdapter {
     
     private static final String DATABASE_CREATE_COURSE_STATUS_TABLE =
                 		"create table course_status (_id integer primary key autoincrement,"+
-                		"key text," +
+                		"course_key text," +
                 		"md5 text," +
                 		"title text," +
                 		"course_file_name text," +
@@ -153,15 +146,15 @@ public class StudyDbAdapter {
     }
     
     public Cursor fetchSections(){
-    	return mDb.query(UNIT_TABLE, null, null, null, null, null, KEY_CREATED_AT+" desc");
+    	return mDb.query(DB_TABLE_SECTION, null, null, null, null, null, DB_COL_CREATED_AT+" desc");
     }
     
-    public Cursor fetchSectionsByCourse(String courseName){
-    	return mDb.query(UNIT_TABLE, null, "title='"+courseName+"'", null, null, null, KEY_CREATED_AT+" desc");
+    public Cursor fetchSectionsByCourseKey(String courseKey){
+    	return mDb.query(DB_TABLE_SECTION, null, DB_COL_COURSE_KEY + "='"+courseKey+"'", null, null, null, DB_COL_CREATED_AT+" desc");
     }
     
     public Cursor fetchSection(long rowId){
-    	Cursor c=mDb.query(true, UNIT_TABLE, new String[]{KEY_ROWID,KEY_COURSE_NAME,KEY_CREATE_STYLE,KEY_WORDS_COUNT,KEY_COMMON_EXAM_TIMES,KEY_CREATED_AT,KEY_WORDS_COUNT}, KEY_ROWID+"="+rowId, null, null, null, null, null);
+    	Cursor c=mDb.query(true, DB_TABLE_SECTION, null, KEY_ROWID+"="+rowId, null, null, null, null, null);
     	return c;
     }
     
@@ -169,146 +162,146 @@ public class StudyDbAdapter {
      * Get the latest Study Unit from the DB.
      * @return the latest created study unit from the DB or null if the DB is empty.
      */
-    public Cursor getLatestSection(String courseName){
+    public Cursor getLatestSection(String courseKey){
     	//String [] columns=new String[]{KEY_ROWID,KEY_COURSE_NAME,KEY_CREATE_STYLE,KEY_WORDS_COUNT,KEY_VIRGIN_FLAG,KEY_COMMON_EXAM_TIMES,KEY_CREATED_AT};
-    	Cursor c=mDb.query(UNIT_TABLE, null, "title=?", new String[]{courseName}, null, null, KEY_CREATED_AT+" desc");
+    	Cursor c=mDb.query(DB_TABLE_SECTION, null, "course_key=?", new String[]{courseKey}, null, null, DB_COL_CREATED_AT+" desc");
     	return c;
     }
     	
 	public void createSectionInDb(Section section){
 		ContentValues args=new ContentValues();
-		args.put(this.KEY_UNIT_COURSE_KEY, section.getCourseKey());
-		args.put(KEY_COURSE_NAME, section.getCourseName());
+		args.put(DB_COL_COURSE_KEY, section.getCourseKey());
+		args.put(DB_COL_COURSE_TITLE, section.getCourseName());
 		//args.put(KEY_CREATE_STYLE, section.getCreatedStyle());
-		args.put(KEY_WORDS_COUNT, 0);
+		args.put(DB_COL_WORDS_COUNT, 0);
 		//args.put(KEY_VIRGIN_FLAG, 1);
-		args.put(KEY_FINISHED, 0);
-		args.put(KEY_COMMON_EXAM_TIMES, 0);
+		args.put(DB_COL_FINISHED, 0);
+		args.put(DB_COL_COMMON_EXAM_TIMES, 0);
 		//args(KEY_LAST_COMMON_exam_at, value);
 		//args.put(KEY_NEXT_COMMON_EXAM_AT, su.getCreatedAt()+SimpleCourse.firstInterval);
 		//args(KEY_LAST_FAILED_REVIEW_AT, value);
 		//args(KEY_NEXT_FAILED_REVIEW_AT, value);
-		args.put(KEY_CREATED_AT, section.getCreatedAt());
-		section.setRowId(mDb.insert(UNIT_TABLE, null, args));
+		args.put(DB_COL_CREATED_AT, section.getCreatedAt());
+		section.setRowId(mDb.insert(DB_TABLE_SECTION, null, args));
 	}
 	
 	public boolean updateSectionToOld(long id,long nextExamAt){
 		ContentValues args=new ContentValues();
 		//args.put(KEY_VIRGIN_FLAG, 0);
-		args.put(KEY_NEXT_FAILED_EXAM_AT, nextExamAt);
-		return mDb.update(UNIT_TABLE, args, KEY_ROWID + "=" + id, null) > 0;
+		args.put(DB_COL_NEXT_FAILED_EXAM_AT, nextExamAt);
+		return mDb.update(DB_TABLE_SECTION, args, KEY_ROWID + "=" + id, null) > 0;
 	}
 	
 	public boolean updateSectionWordsCount(long id,int newCount){
 		ContentValues args=new ContentValues();
-		args.put(KEY_WORDS_COUNT, newCount);
-		return mDb.update(UNIT_TABLE, args, KEY_ROWID + "=" + id, null) > 0;
+		args.put(DB_COL_WORDS_COUNT, newCount);
+		return mDb.update(DB_TABLE_SECTION, args, KEY_ROWID + "=" + id, null) > 0;
 	}
 	
 	public boolean updateSection(long id,int arg,String columnName){
 		ContentValues args=new ContentValues();
 		args.put(columnName, arg);
-		return mDb.update(UNIT_TABLE, args, KEY_ROWID + "=" + id, null) > 0;
+		return mDb.update(DB_TABLE_SECTION, args, KEY_ROWID + "=" + id, null) > 0;
 	}
     
     public Cursor fetchSectionWords(long unitId,int filter){   
     	switch (filter){
 	    	case UNIT_WORDS_FILTER_FORGOT_ONLY:
-	    		return mDb.query(UNIT_WORDS_TABLE, null, KEY_Unit_ID+"=? and "+KEY_LAST_EXAM_FAILED+"=?", new String[]{String.valueOf(unitId),"1"}, null, null, null);
+	    		return mDb.query(DB_TABLE_WORDS, null, DB_COL_SECTION_ID+"=? and "+DB_COL_LAST_EXAM_FAILED+"=?", new String[]{String.valueOf(unitId),"1"}, null, null, null);
 	    	case UNIT_WORDS_FILTER_ALL:
-	    		return mDb.query(UNIT_WORDS_TABLE, null, KEY_Unit_ID+"="+unitId, null, null, null, null);
+	    		return mDb.query(DB_TABLE_WORDS, null, DB_COL_SECTION_ID+"="+unitId, null, null, null, null);
 	    	case UNIT_WORDS_FILTER_MASTERED_EXCLUDED:
-	    		return mDb.query(UNIT_WORDS_TABLE, null, KEY_Unit_ID+"=? and "+KEY_MASTERED+"=?", new String[]{String.valueOf(unitId),"0"}, null, null, null);
+	    		return mDb.query(DB_TABLE_WORDS, null, DB_COL_SECTION_ID+"=? and "+DB_COL_MASTERED+"=?", new String[]{String.valueOf(unitId),"0"}, null, null, null);
 	    	default: return null;
     	}
     }
     
     public void deleteSection(long sectionId){
-    	mDb.delete(UNIT_WORDS_TABLE, KEY_Unit_ID+"=? ", new String[]{String.valueOf(sectionId)});
-    	mDb.delete(UNIT_TABLE, "_id=? ", new String[]{String.valueOf(sectionId)});
+    	mDb.delete(DB_TABLE_WORDS, DB_COL_SECTION_ID+"=? ", new String[]{String.valueOf(sectionId)});
+    	mDb.delete(DB_TABLE_SECTION, "_id=? ", new String[]{String.valueOf(sectionId)});
     }
     
     public Cursor fetchWordById(long id){
-    	return mDb.query(UNIT_WORDS_TABLE, null, "_id=? ", new String[]{String.valueOf(id)}, null, null, null);
+    	return mDb.query(DB_TABLE_WORDS, null, "_id=? ", new String[]{String.valueOf(id)}, null, null, null);
     }
 	
 	public long insertWord(long unitId,Word word,String courseKey){
 		ContentValues args=new ContentValues();
-		args.put(KEY_Unit_ID, unitId);
-		args.put(KEY_UNIT_COURSE_KEY, courseKey);
-		args.put(KEY_WORD, word.getHeadword());
-		args.put(KEY_MEANING, word.getMeaning());
-		args.put(KEY_PHONETIC, word.getPhonetic());
-		args.put(KEY_LAST_EXAM_FAILED, 0);
-		args.put(KEY_EXAM_TIMES, 0);
-		args.put(KEY_SUCCESS_TIMES, 0);
-		args.put(KEY_FAILED_TIMES, 0);
-		args.put(KEY_MASTERED, 0);
-		word.setId(mDb.insert(UNIT_WORDS_TABLE, null, args));
+		args.put(DB_COL_SECTION_ID, unitId);
+		args.put(DB_COL_COURSE_KEY, courseKey);
+		args.put(DB_COL_WORD, word.getHeadword());
+		args.put(DB_COL_MEANING, word.getMeaning());
+		args.put(DB_COL_PHONETIC, word.getPhonetic());
+		args.put(DB_COL_LAST_EXAM_FAILED, 0);
+		args.put(DB_COL_EXAM_TIMES, 0);
+		args.put(DB_COL_SUCCESS_TIMES, 0);
+		args.put(DB_COL_FAILED_TIMES, 0);
+		args.put(DB_COL_MASTERED, 0);
+		word.setId(mDb.insert(DB_TABLE_WORDS, null, args));
 		return word.getId();
 	}
 	
 	public Word previousWordInSection(long unitId,Word word){
-		Cursor c=mDb.query(UNIT_WORDS_TABLE, null, KEY_Unit_ID+"=? and "+KEY_ROWID+"<?", new String[]{String.valueOf(unitId),String.valueOf(word.getId())}, null, null, "_id desc");
+		Cursor c=mDb.query(DB_TABLE_WORDS, null, DB_COL_SECTION_ID+"=? and "+KEY_ROWID+"<?", new String[]{String.valueOf(unitId),String.valueOf(word.getId())}, null, null, "_id desc");
 		return c.moveToFirst() ? new Word(c) : null;
 	}
 	
 	public Word nextWordInSection(long unitId,Word word){
-		Cursor c=mDb.query(UNIT_WORDS_TABLE, null, KEY_Unit_ID+"=? and "+KEY_ROWID+">?", new String[]{String.valueOf(unitId),String.valueOf(word.getId())}, null, null, "_id");
+		Cursor c=mDb.query(DB_TABLE_WORDS, null, DB_COL_SECTION_ID+"=? and "+KEY_ROWID+">?", new String[]{String.valueOf(unitId),String.valueOf(word.getId())}, null, null, "_id");
 		return c.moveToFirst() ? new Word(c) : null;
 		
 	}
 	
 	public boolean updateWordStatusExam(int status,Word word){
 		ContentValues args=new ContentValues();
-		args.put(KEY_EXAM_TIMES, word.getReviewTimes()+1);
+		args.put(DB_COL_EXAM_TIMES, word.getReviewTimes()+1);
 		switch (status){
 		case Word.MASTERED:
-			args.put(KEY_MASTERED, 1);
-			args.put(KEY_LAST_EXAM_FAILED, 0);
+			args.put(DB_COL_MASTERED, 1);
+			args.put(DB_COL_LAST_EXAM_FAILED, 0);
 			break;
 		case Word.PASS:
-			args.put(KEY_SUCCESS_TIMES, word.getSuccessTimes()+1);
-			args.put(KEY_MASTERED, 0);
-			args.put(KEY_LAST_EXAM_FAILED, 0);
+			args.put(DB_COL_SUCCESS_TIMES, word.getSuccessTimes()+1);
+			args.put(DB_COL_MASTERED, 0);
+			args.put(DB_COL_LAST_EXAM_FAILED, 0);
 			break;
 		case Word.FORGOT:
-			args.put(KEY_FAILED_TIMES, word.getFailedTimes()+1);
-			args.put(KEY_MASTERED, 0);
-			args.put(KEY_LAST_EXAM_FAILED, 1);
+			args.put(DB_COL_FAILED_TIMES, word.getFailedTimes()+1);
+			args.put(DB_COL_MASTERED, 0);
+			args.put(DB_COL_LAST_EXAM_FAILED, 1);
 		}
-		return mDb.update(UNIT_WORDS_TABLE, args, KEY_ROWID + "=" + word.getId(), null) > 0;
+		return mDb.update(DB_TABLE_WORDS, args, KEY_ROWID + "=" + word.getId(), null) > 0;
 	}
 	
 	public void starWord(boolean star, long id){
 		ContentValues args=new ContentValues();
-		args.put(KEY_LAST_EXAM_FAILED, star ? 1 : 0);
-		mDb.update(UNIT_WORDS_TABLE, args, KEY_ROWID + "=" + id, null);
+		args.put(DB_COL_LAST_EXAM_FAILED, star ? 1 : 0);
+		mDb.update(DB_TABLE_WORDS, args, KEY_ROWID + "=" + id, null);
 	}
 	
 	public  Cursor findCourseStatusByKey(String key){
-		Cursor c=mDb.query(COURSE_STATUS_TABLE,null,"key='"+key+"'",null,null,null,null);
+		Cursor c=mDb.query(DB_TABLE_COURSE_STATUS,null,"course_key='"+key+"'",null,null,null,null);
 		return c;
 	}	
 	
-	public  Cursor findCourseStatusByCourseName(String courseName){
-		Cursor c=mDb.query(COURSE_STATUS_TABLE,null,"title='"+courseName+"'",null,null,null,null);
-		return c;
-	}
+//	public  Cursor findCourseStatusByCourseTitle(String courseName){
+//		Cursor c=mDb.query(DB_TABLE_COURSE_STATUS,null,"title='"+courseName+"'",null,null,null,null);
+//		return c;
+//	}
 	
 	public Cursor findCourseStatus(long rowId){
-		Cursor c=mDb.query(COURSE_STATUS_TABLE,null,"_id="+String.valueOf(rowId),null,null,null,null);
+		Cursor c=mDb.query(DB_TABLE_COURSE_STATUS,null,"_id="+String.valueOf(rowId),null,null,null,null);
 		return c;
 	}
     
     public LinkedList<Map<String,String>> fetchCourseStatusList(){
-    	Cursor c=mDb.query(COURSE_STATUS_TABLE,null,null,null,null,null,null);
+    	Cursor c=mDb.query(DB_TABLE_COURSE_STATUS,null,null,null,null,null,null);
     	LinkedList<Map<String,String>> list=new LinkedList<Map<String,String>>();
     	while(c.moveToNext()){
     		Map<String,String> m=new HashMap<String,String>();
-    		m.put(KEY_COURSE_NAME, c.getString(c.getColumnIndex(KEY_COURSE_NAME)));
-    		m.put(KEY_LEARNED_CONTENT_COUNT, String.valueOf(c.getInt(c.getColumnIndex(KEY_LEARNED_CONTENT_COUNT))));
-    		m.put(KEY_LEARNED_CONTENT_COUNT, String.valueOf(c.getInt(c.getColumnIndex(KEY_CONTENT_COUNT))));
+    		m.put(DB_COL_COURSE_TITLE, c.getString(c.getColumnIndex(DB_COL_COURSE_TITLE)));
+    		m.put(DB_COL_LEARNED_CONTENT_COUNT, String.valueOf(c.getInt(c.getColumnIndex(DB_COL_LEARNED_CONTENT_COUNT))));
+    		m.put(DB_COL_LEARNED_CONTENT_COUNT, String.valueOf(c.getInt(c.getColumnIndex(DB_COL_CONTENT_COUNT))));
 			list.add(m);
     	}
     	return list;
@@ -319,7 +312,7 @@ public class StudyDbAdapter {
 	 * @return
 	 */
     public Cursor fetchCourseStatus(){
-    	return mDb.query(COURSE_STATUS_TABLE,null,null,null,null,null,null);
+    	return mDb.query(DB_TABLE_COURSE_STATUS,null,null,null,null,null,null);
     }
     
     public long saveOrUpdateCourseStatus(CourseStatus cs){
@@ -333,29 +326,29 @@ public class StudyDbAdapter {
     
     public long insertCourseStatus(CourseStatus cs){
 		ContentValues args=new ContentValues();
-		args.put(KEY_COURSE_KEY, cs.getCourseKey());
-		args.put(KEY_COURSE_MD5, cs.getCourseMd5());
-		args.put(KEY_COURSE_NAME, cs.getCourseName());
-		args.put(KEY_COURSE_FILE_NAME, cs.getCourseFileName());
-		args.put(KEY_LEARNED_CONTENT_COUNT, cs.getLearnedWordsCount());
-		args.put(KEY_NEXT_CONTENT_OFFSET, cs.getNextContentOffset());
-		args.put(KEY_LAST_WORD, cs.getLastWord());
-		args.put(KEY_CONTENT_COUNT, cs.getContentCount());
-		args.put(KEY_CREATED_AT, cs.getCreatedAt());
-		args.put(KEY_UPDATED_AT, cs.getUpdatedAt());
-		return mDb.insert(COURSE_STATUS_TABLE, null, args);
+		args.put(DB_COL_COURSE_KEY, cs.getCourseKey());
+		args.put(DB_COL_COURSE_MD5, cs.getCourseMd5());
+		args.put(DB_COL_COURSE_TITLE, cs.getCourseTitle());
+		args.put(DB_COL_COURSE_FILE_NAME, cs.getCourseFileName());
+		args.put(DB_COL_LEARNED_CONTENT_COUNT, cs.getLearnedWordsCount());
+		args.put(DB_COL_NEXT_CONTENT_OFFSET, cs.getNextContentOffset());
+		args.put(DB_COL_LAST_WORD, cs.getLastWord());
+		args.put(DB_COL_CONTENT_COUNT, cs.getContentCount());
+		args.put(DB_COL_CREATED_AT, cs.getCreatedAt());
+		args.put(DB_COL_UPDATED_AT, cs.getUpdatedAt());
+		return mDb.insert(DB_TABLE_COURSE_STATUS, null, args);
     }
     
     public boolean updateCourseStatus(CourseStatus cs){
 		ContentValues args=new ContentValues();
 		//args.put(KEY_COURSE_NAME, cs.getCourseName());
 		//args.put(KEY_COURSE_FILE_NAME, cs.getCourseFileName());
-		args.put(KEY_LEARNED_CONTENT_COUNT, cs.getLearnedWordsCount());
-		args.put(KEY_NEXT_CONTENT_OFFSET, cs.getNextContentOffset());
-		args.put(KEY_LAST_WORD, cs.getLastWord());
+		args.put(DB_COL_LEARNED_CONTENT_COUNT, cs.getLearnedWordsCount());
+		args.put(DB_COL_NEXT_CONTENT_OFFSET, cs.getNextContentOffset());
+		args.put(DB_COL_LAST_WORD, cs.getLastWord());
 		//args.put(KEY_CONTENT_COUNT, cs.getContentCount());
-		args.put(KEY_UPDATED_AT, cs.getUpdatedAt());
-		return mDb.update(COURSE_STATUS_TABLE, args, KEY_ROWID + "=" + cs.getRowId(), null)>0;    	
+		args.put(DB_COL_UPDATED_AT, cs.getUpdatedAt());
+		return mDb.update(DB_TABLE_COURSE_STATUS, args, KEY_ROWID + "=" + cs.getRowId(), null)>0;    	
     }	
     
     /**
@@ -364,9 +357,9 @@ public class StudyDbAdapter {
      * @return
      */
     public boolean deleteCourseStatus(long _id){
-    	mDb.delete(UNIT_TABLE, KEY_UNIT_COURSE_KEY + "=" + _id, null);
-    	mDb.delete(UNIT_WORDS_TABLE, KEY_UNIT_COURSE_KEY + "=" + _id, null);
-    	return mDb.delete(COURSE_STATUS_TABLE, KEY_ROWID + "=" + _id, null)>0;
+    	mDb.delete(DB_TABLE_SECTION, DB_COL_COURSE_KEY + "=" + _id, null);
+    	mDb.delete(DB_TABLE_WORDS, DB_COL_COURSE_KEY + "=" + _id, null);
+    	return mDb.delete(DB_TABLE_COURSE_STATUS, KEY_ROWID + "=" + _id, null)>0;
     }
 	
 	private static class DatabaseHelper extends SQLiteOpenHelper{
@@ -377,7 +370,7 @@ public class StudyDbAdapter {
 
 		@Override
 		public void onCreate(SQLiteDatabase db) {
-			db.execSQL(DATABASE_CREATE_UNIT_TABLE);
+			db.execSQL(DATABASE_CREATE_SECTIONS_TABLE);
 			db.execSQL(DATABASE_CREATE_UNIT_WORDS_TABLE);
 			db.execSQL(DATABASE_CREATE_COURSE_STATUS_TABLE);
 			db.execSQL(DATABASE_CREATE_EXAMPLES_TABLE);
@@ -385,8 +378,8 @@ public class StudyDbAdapter {
 
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-			db.execSQL("DROP TABLE IF EXISTS unit");
-			db.execSQL("DROP TABLE IF EXISTS unit_words");
+			db.execSQL("DROP TABLE IF EXISTS sections");
+			db.execSQL("DROP TABLE IF EXISTS words");
 			db.execSQL("DROP TABLE IF EXISTS course_status");
 			db.execSQL("DROP TABLE IF EXISTS examples");
 			onCreate(db);

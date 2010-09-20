@@ -47,8 +47,8 @@ public class Sections extends ListActivity {
 			//StudyDbAdapter.KEY_ROWID,
 			//StudyDbAdapter.KEY_COURSE_NAME,
 			//StudyDbAdapter.KEY_CREATED_AT,
-			StudyDbAdapter.KEY_WORDS_COUNT,
-			StudyDbAdapter.KEY_LAST_EXAM_AT,
+			StudyDbAdapter.DB_COL_WORDS_COUNT,
+			StudyDbAdapter.DB_COL_LAST_EXAM_AT,
 			//StudyDbAdapter.KEY_NEXT_COMMON_EXAM_AT,
 			//StudyDbAdapter.KEY_COMMON_EXAM_TIMES
 			};
@@ -57,13 +57,13 @@ public class Sections extends ListActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.units);
-		setTitle(getResources().getString(R.string.units_title)+" - "+getIntent().getExtras().getString(StudyDbAdapter.KEY_COURSE_NAME));
+		setTitle(getResources().getString(R.string.units_title)+" - "+getIntent().getExtras().getString(StudyDbAdapter.DB_COL_COURSE_TITLE));
 		LayoutInflater mInflater=(LayoutInflater)getSystemService( Context.LAYOUT_INFLATER_SERVICE );
 		header=mInflater.inflate(R.layout.units_header, null);
 		getListView().addHeaderView(header);
 		dbAdapter=new StudyDbAdapter(this);
 		dbAdapter.open();
-		cur=dbAdapter.fetchSectionsByCourse(getIntent().getExtras().getString(StudyDbAdapter.KEY_COURSE_NAME));
+		cur=dbAdapter.fetchSectionsByCourseKey(getIntent().getExtras().getString(StudyDbAdapter.DB_COL_COURSE_KEY));
 		startManagingCursor(cur);
 		registerForContextMenu(getListView());
 		fillData();
@@ -95,7 +95,7 @@ public class Sections extends ListActivity {
 
 	private void continueStudy() {
 		Intent i = new Intent(this, Study.class);
-		i.putExtra(StudyDbAdapter.KEY_COURSE_NAME, getIntent().getExtras().getString(StudyDbAdapter.KEY_COURSE_NAME));
+		i.putExtra(StudyDbAdapter.DB_COL_COURSE_KEY, getIntent().getExtras().getString(StudyDbAdapter.DB_COL_COURSE_KEY));
 		startActivity(i);
 	}
 
@@ -157,8 +157,8 @@ public class Sections extends ListActivity {
 		adapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {			
 			@Override
 			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-				if (columnIndex==cursor.getColumnIndex(StudyDbAdapter.KEY_WORDS_COUNT)){
-					long createAt=cursor.getLong(cursor.getColumnIndex(StudyDbAdapter.KEY_CREATED_AT));
+				if (columnIndex==cursor.getColumnIndex(StudyDbAdapter.DB_COL_WORDS_COUNT)){
+					long createAt=cursor.getLong(cursor.getColumnIndex(StudyDbAdapter.DB_COL_CREATED_AT));
 					Calendar cal=Calendar.getInstance();
 					cal.setTimeInMillis(createAt);
 					
@@ -171,7 +171,7 @@ public class Sections extends ListActivity {
 									wordsCount)
 							 );
 					return true;
-				}else if (columnIndex==cursor.getColumnIndex(StudyDbAdapter.KEY_LAST_EXAM_AT)){
+				}else if (columnIndex==cursor.getColumnIndex(StudyDbAdapter.DB_COL_LAST_EXAM_AT)){
 					TextView tv=(TextView)view;
 					int val=cursor.getInt(columnIndex);
 					if (val==0){
