@@ -14,6 +14,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.TextView.OnEditorActionListener;
 import cn.zadui.vocabulary.R;
 import cn.zadui.vocabulary.model.Word;
@@ -33,6 +34,10 @@ public class ExamSpelling extends Activity implements View.OnClickListener {
 	private TextView tvSpellingMeaning;
 	private Button btnCheckSpelling;
 	private Button btnforgot;
+	
+	Toast rightToast;
+	Toast wrongToast;
+	
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +86,10 @@ public class ExamSpelling extends Activity implements View.OnClickListener {
 			setProgress(10000);
 			showDialog(FINISH_DIALOG);
 		}
+		
+		//TODO fix the hard code strings
+		rightToast=Toast.makeText(this, "Great, you are right!",Toast.LENGTH_SHORT);
+		wrongToast=Toast.makeText(this, "Sorry, it's wrong, please retry!",Toast.LENGTH_SHORT);
 	}
 
 	@Override
@@ -88,6 +97,7 @@ public class ExamSpelling extends Activity implements View.OnClickListener {
 		if (v.getId()==R.id.btn_exam_spell_check){
 			if (etSpelling.getText().toString().equals(word.getHeadword())){
 				etSpelling.setTextColor(getResources().getColor(R.color.green));
+				rightToast.show();
 				if (cur.isLast()){
 					setProgress(10000);
 	                showDialog(FINISH_DIALOG);
@@ -100,6 +110,7 @@ public class ExamSpelling extends Activity implements View.OnClickListener {
 			}else{
 				etSpelling.setTextColor(this.getResources().getColor(R.color.red));
 				etSpelling.selectAll();
+				wrongToast.show();
 			}
 		}else{
 			word.review(dbAdapter, Word.FORGOT);

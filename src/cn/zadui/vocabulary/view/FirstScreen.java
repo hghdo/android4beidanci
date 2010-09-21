@@ -120,7 +120,6 @@ public class FirstScreen extends ListActivity {
 			cur.move(position-1);
 			Intent i=new Intent();
 			i.setClass(this, Sections.class);
-			// TODO should use course unique id to replace the course name. the uuid should generated in server side.
 			i.putExtra(StudyDbAdapter.DB_COL_COURSE_KEY, cur.getString(cur.getColumnIndex(StudyDbAdapter.DB_COL_COURSE_KEY)));
 			startActivity(i);
 		}
