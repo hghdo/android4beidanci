@@ -36,7 +36,7 @@ public class DictFactory {
 		
 		if (SimpleDict.support(srcLang, toLang)){
 			try {
-				dict=SimpleDict.getInstance(null);
+				dict=SimpleDict.getInstance();
 				return dict;
 			} catch (IOException e) {
 			}

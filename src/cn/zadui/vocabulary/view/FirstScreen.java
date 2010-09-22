@@ -1,11 +1,18 @@
 package cn.zadui.vocabulary.view;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.AssetManager;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,6 +27,7 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import cn.zadui.vocabulary.R;
+import cn.zadui.vocabulary.storage.CourseStatus;
 import cn.zadui.vocabulary.storage.PrefStore;
 import cn.zadui.vocabulary.storage.StudyDbAdapter;
 
@@ -61,6 +69,7 @@ public class FirstScreen extends ListActivity {
 		setContentView(R.layout.first);
 		LayoutInflater mInflater=(LayoutInflater)getSystemService( Context.LAYOUT_INFLATER_SERVICE );
 		View header=mInflater.inflate(R.layout.first_header, null);
+		
 		getListView().addHeaderView(header);
 		
 		dbAdapter=new StudyDbAdapter(this);
@@ -69,6 +78,27 @@ public class FirstScreen extends ListActivity {
 		startManagingCursor(cur);
 		fillData();
 		registerForContextMenu(getListView());
+		
+		//Initial directories and files
+		File f=new File(CourseStatus.DATA_DIR + "beidanci_en_zh.dict.all");
+//		if (!f.exists()){
+		if (true){
+			try {
+				InputStream in=getResources().getAssets().open("beidanci_en_zh.dict.all",AssetManager.ACCESS_BUFFER);
+				OutputStream out=new FileOutputStream(f);
+				byte[] buf=new byte[1024];
+				int rl=0;
+				while((rl=in.read(buf))>0){
+					Log.d("XXXXXXXXXXXXXXXXXXXXXXXXXXX","XXXXXXXXXXXXXXXXXXX");
+					out.write(buf, 0, rl);
+				}
+				out.flush();
+				in.close();
+				out.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	@Override

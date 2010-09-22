@@ -1,18 +1,17 @@
 package cn.zadui.vocabulary.model.dictionary;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.util.Locale;
 import java.util.TreeMap;
-import java.util.regex.Pattern;
 
+import android.util.Log;
 import cn.zadui.vocabulary.model.Helper;
 import cn.zadui.vocabulary.model.Word;
 import cn.zadui.vocabulary.storage.CourseStatus;
-
-import android.util.Log;
 
 public class SimpleDict implements Dict {
 
@@ -73,26 +72,26 @@ public class SimpleDict implements Dict {
 	 * @return
 	 * @throws IOException 
 	 */
-	public static Dict getInstance(String filename) throws IOException{
+	public static Dict getInstance() throws IOException{
 		if (dict==null){
-			if (filename==null || filename.length()==0){
-				filename="lazyworm_ec.all";
-			}
+			String filename="beidanci_en_zh.dict.all";
 			dict=new SimpleDict(CourseStatus.DATA_DIR + filename);
-
 		}
 		return dict;
 	}
 	
 	private SimpleDict(String dictPath) throws IOException{
 		dictFilePath=dictPath;
-		InputStream in=new FileInputStream(dictFilePath);
-		readDictInfo(in);
-		topIndex=new TopIndex(in,topSize,topCount);
-		secOffset=SimpleDict.BEFORE_HEAD+headSize+topSize;
-		dictOffset=secOffset+secSize;
-		in.close();
-		cache=new Cache(50);
+		try{
+			InputStream in=new FileInputStream(dictFilePath);			
+			readDictInfo(in);
+			topIndex=new TopIndex(in,topSize,topCount);
+			secOffset=SimpleDict.BEFORE_HEAD+headSize+topSize;
+			dictOffset=secOffset+secSize;
+			in.close();
+			cache=new Cache(50);
+		}catch(FileNotFoundException e){
+		}
 	}
 	
 	@Override
@@ -161,6 +160,7 @@ public class SimpleDict implements Dict {
 				char c=(char)buffer[i];
 				if (c==':'){
 					word=new String(buf,0,point,"UTF-8");
+//					Log.d("word in lookup process =>",word);
 					point=0;
 					if (headword.equals(word)) found=true;
 					if (word.compareToIgnoreCase(headword) > 0) return "Word not found";
@@ -272,6 +272,7 @@ public class SimpleDict implements Dict {
 			//byte[] headwordBytes=headword.getBytes();
 			for(;starAt<endAt;starAt++){
 				current=new String(wordBytes[starAt]);
+//				Log.d("getSecondOffset current =>",current);
 				if (current.compareToIgnoreCase(headword)==0){
 					result = offBytes[starAt];
 					break;
@@ -292,12 +293,15 @@ public class SimpleDict implements Dict {
 			w.setMeaning(Dict.ERROR_WORD);
 			return w;
 		}
-		if (Pattern.matches("[a-zA-Z]+", headword) && result.startsWith("[")){
-			w.setPhonetic(result.substring(0,result.indexOf('\n')));
-			w.setMeaning(result.substring(result.indexOf('\n')+1));
-		}else{
-			w.setMeaning(result);
-		}
+		int index=result.indexOf("\n");
+		w.setPhonetic(result.substring(0,index));
+		w.setMeaning(result.substring(index+1));
+//		if (Pattern.matches("[a-zA-Z]+", headword) && result.startsWith("[")){
+//			w.setPhonetic(result.substring(0,result.indexOf('\n')));
+//			w.setMeaning(result.substring(result.indexOf('\n')+1));
+//		}else{
+//			w.setMeaning(result);
+//		}
 		return w;
 	}
 
