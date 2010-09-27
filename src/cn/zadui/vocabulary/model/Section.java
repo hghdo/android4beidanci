@@ -19,16 +19,30 @@ import cn.zadui.vocabulary.storage.StudyDbAdapter;
  */
 public class Section {
 	
+	public static final long[] EXAM_INTERVAL={
+		4*60*60*1000,
+		8*60*60*1000,
+		14*60*60*1000,
+		24*60*60*1000,
+		36*60*60*1000
+		};
+	
 	private static final int MAX_UNSAVED_WORDS=5;
 	
 	private long rowId=0;
-	private String courseName;
 	private String courseKey;
+	private String courseTitle;
 	private int wordsCount=0;
-	//private boolean virginFlag;
-	private int reviewTimes=0;
-	private long createdAt;
+	private int masteredCount=0;
+	private int examTimes=0;
+	private long lastExamAt;
 	private long nextExamAt;
+//	private long nextFailedExamAt;
+	private boolean lastExamFinished=false;
+	private int lastExamPosition=0;
+	private int lastExamMark=0;
+	private long createdAt;
+	
 	private StudyDbAdapter adapter;
 	private List<Word> unsavedWords=new LinkedList<Word>();
 
@@ -47,7 +61,6 @@ public class Section {
 			Date createdDate=se.getCreatedAtDate();
 			DateFormat df=DateFormat.getDateInstance(DateFormat.SHORT);
 			if(!(df.format(today).equals(df.format(createdDate)))){
-				se.freeze();
 				se=new Section(adapter,cs.getCourseTitle(),cs.getCourseKey());
 				adapter.createSectionInDb(se);				
 			}
@@ -87,13 +100,16 @@ public class Section {
 		return adapter.nextWordInSection(rowId, word);
 	}
 	
-	/**
-	 * TODO schedule this section in Alarm manager
-	 */
-	public void freeze(){
-		//saveUnsavedWords();
-		nextExamAt=System.currentTimeMillis() + SimpleCourse.firstInterval;
-		adapter.updateSectionToOld(rowId,nextExamAt);
+	public void examed(boolean finished){
+		if (finished){
+			this.examTimes+=1;
+			this.lastExamFinished=true;
+			if (examTimes>EXAM_INTERVAL.length)
+			this.nextExamAt=System.currentTimeMillis() + EXAM_INTERVAL[examTimes-1];
+		}
+		this.setLastExamAt(System.currentTimeMillis());
+		adapter.updateSection(this);
+		//adapter.updateSection(id, arg, columnName)
 	}
 	
 	public Date getCreatedAtDate(){
@@ -118,34 +134,6 @@ public class Section {
 		this.rowId = rowId;
 	}
 
-	public int getReviewTimes() {
-		return reviewTimes;
-	}
-
-	public void setReviewTimes(int reviewTimes) {
-		this.reviewTimes = reviewTimes;
-	}
-
-//	public boolean getVirginFlag() {
-//		return virginFlag;
-//	}
-//
-//	public void setVirginFlag(boolean virginFlag) {
-//		this.virginFlag = virginFlag;
-//	}
-
-//	public boolean isOld() {
-//		old=((Helper.currentSecTime()-this.createdAt)>SimpleCourse.firstInterval);
-//		return old;
-//	}
-
-//	public int getCreatedStyle() {
-//		return createStyle;
-//	}
-//
-//	public void setCreatedStyle(int createdStyle) {
-//		this.createStyle = createdStyle;
-//	}
 
 	public int getWordsCount() {
 		return wordsCount+unsavedWords.size();
@@ -159,14 +147,17 @@ public class Section {
 	private Section(StudyDbAdapter dbAdapter,Cursor c){
     	if (c!=null && c.moveToFirst()){
     		rowId=c.getLong(c.getColumnIndex(StudyDbAdapter.KEY_ROWID));
-    		courseName=c.getString(c.getColumnIndex(StudyDbAdapter.DB_COL_COURSE_TITLE));
     		courseKey=c.getString(c.getColumnIndex(StudyDbAdapter.DB_COL_COURSE_KEY));
-    		//createStyle=c.getInt(c.getColumnIndex(StudyDbAdapter.KEY_CREATE_STYLE));
+    		courseTitle=c.getString(c.getColumnIndex(StudyDbAdapter.DB_COL_COURSE_TITLE));
     		wordsCount=c.getInt(c.getColumnIndex(StudyDbAdapter.DB_COL_WORDS_COUNT));
-    		//virginFlag=(c.getInt(c.getColumnIndex(StudyDbAdapter.KEY_VIRGIN_FLAG))!=0);
-    		reviewTimes=c.getInt(c.getColumnIndex(StudyDbAdapter.DB_COL_COMMON_EXAM_TIMES));
-    		createdAt=c.getLong(c.getColumnIndex(StudyDbAdapter.DB_COL_CREATED_AT));
+    		masteredCount=c.getInt(c.getColumnIndex(StudyDbAdapter.DB_COL_MASTERED_COUNT));
+    		examTimes=c.getInt(c.getColumnIndex(StudyDbAdapter.DB_COL_COMMON_EXAM_TIMES));
+    		lastExamAt=c.getLong(c.getColumnIndex(StudyDbAdapter.DB_COL_LAST_EXAM_AT));
     		nextExamAt=c.getLong(c.getColumnIndex(StudyDbAdapter.DB_COL_NEXT_COMMON_EXAM_AT));
+    		lastExamFinished=c.getInt(c.getColumnIndex(StudyDbAdapter.DB_COL_LAST_EXAM_FINISHED))==1;
+    		lastExamPosition=c.getInt(c.getColumnIndex(StudyDbAdapter.DB_COL_LAST_EXAM_POSITION));
+    		lastExamMark=c.getInt(c.getColumnIndex(StudyDbAdapter.DB_COL_LAST_EXAM_MARK));
+    		createdAt=c.getLong(c.getColumnIndex(StudyDbAdapter.DB_COL_CREATED_AT));
     		c.close();
 		}
     	adapter=dbAdapter;
@@ -175,17 +166,13 @@ public class Section {
 	/**
 	 * Create a new StudyUnit.
 	 */
-	private Section(StudyDbAdapter dbAdapter,String courseName,String courseKey){
-		reviewTimes=0;
+	private Section(StudyDbAdapter dbAdapter,String courseTitle,String courseKey){
+		examTimes=0;
 		createdAt=System.currentTimeMillis();
 		wordsCount=0;
-		this.courseName=courseName;
+		this.courseTitle=courseTitle;
 		this.courseKey=courseKey;
 		adapter=dbAdapter;
-	}
-		
-	private boolean isNew(){
-		return rowId==0;
 	}
 	
 	/**
@@ -200,15 +187,71 @@ public class Section {
 //	}
 
 	public String getCourseName() {
-		return courseName;
+		return courseTitle;
 	}
 
 	public void setCourseName(String courseName) {
-		this.courseName = courseName;
+		this.courseTitle = courseName;
 	}
 
 	public String getCourseKey() {
 		return courseKey;
+	}
+
+	public int getLastExamPosition() {
+		return lastExamPosition;
+	}
+
+	public long getNextExamAt() {
+		return nextExamAt;
+	}
+
+	public void setNextExamAt(long nextExamAt) {
+		this.nextExamAt = nextExamAt;
+	}
+
+	public long getLastExamAt() {
+		return lastExamAt;
+	}
+
+	public void setLastExamAt(long lastExamAt) {
+		this.lastExamAt = lastExamAt;
+	}
+
+	public boolean isLastExamFinished() {
+		return lastExamFinished;
+	}
+
+	public void setLastExamFinished(boolean lastExamFinished) {
+		this.lastExamFinished = lastExamFinished;
+	}
+
+	public int getLastExamMark() {
+		return lastExamMark;
+	}
+
+	public void setLastExamMark(int lastExamMark) {
+		this.lastExamMark = lastExamMark;
+	}
+
+	public void setLastExamPosition(int lastExamPosition) {
+		this.lastExamPosition = lastExamPosition;
+	}
+
+	public int getMasteredCount() {
+		return masteredCount;
+	}
+
+	public void setMasteredCount(int masteredCount) {
+		this.masteredCount = masteredCount;
+	}
+
+	public int getExamTimes() {
+		return examTimes;
+	}
+
+	public void setExamTimes(int examTimes) {
+		this.examTimes = examTimes;
 	}
 	
 }

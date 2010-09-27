@@ -463,7 +463,7 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 				fillLearnSnipViewHeadword(headword);
 				runLookupService(headword);
 			}catch(EOFCourseException e){
-				section.freeze();
+				//section.freeze();
 				finish();			
 			}			
 		}

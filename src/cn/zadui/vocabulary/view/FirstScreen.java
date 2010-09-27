@@ -5,6 +5,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -78,27 +80,6 @@ public class FirstScreen extends ListActivity {
 		startManagingCursor(cur);
 		fillData();
 		registerForContextMenu(getListView());
-		
-		//Initial directories and files
-		File f=new File(CourseStatus.DATA_DIR + "beidanci_en_zh.dict.all");
-//		if (!f.exists()){
-		if (true){
-			try {
-				InputStream in=getResources().getAssets().open("beidanci_en_zh.dict.all",AssetManager.ACCESS_BUFFER);
-				OutputStream out=new FileOutputStream(f);
-				byte[] buf=new byte[1024];
-				int rl=0;
-				while((rl=in.read(buf))>0){
-					Log.d("XXXXXXXXXXXXXXXXXXXXXXXXXXX","XXXXXXXXXXXXXXXXXXX");
-					out.write(buf, 0, rl);
-				}
-				out.flush();
-				in.close();
-				out.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
 	}
 
 	@Override
@@ -107,7 +88,6 @@ public class FirstScreen extends ListActivity {
 		if (PrefStore.getMotherTongueCode(this).equals("initial")){
 			showDialog(DIALOG_SELECT_LANG);
 		}
-		Log.d("BBBBBBBBBBBBBBBB","show dialog");
 		fillData();
 		//getListView().invalidate();
 	}

@@ -1,13 +1,20 @@
 package cn.zadui.vocabulary.model.dictionary;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.util.Locale;
 import java.util.TreeMap;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
+import android.content.Context;
+import android.content.res.AssetManager;
 import android.util.Log;
 import cn.zadui.vocabulary.model.Helper;
 import cn.zadui.vocabulary.model.Word;
@@ -42,6 +49,8 @@ public class SimpleDict implements Dict {
 	
 	private byte[] buf=new byte[50];
 	private byte[] buffer=new byte[8192];
+	
+	private byte[] dictContent;
 	/**
 	 * There are 2 bytes(short integer) before the heads means the head length.
 	 */
@@ -72,18 +81,37 @@ public class SimpleDict implements Dict {
 	 * @return
 	 * @throws IOException 
 	 */
-	public static Dict getInstance() throws IOException{
+	public static Dict getInstance(Context context) throws IOException{
 		if (dict==null){
-			String filename="beidanci_en_zh.dict.all";
-			dict=new SimpleDict(CourseStatus.DATA_DIR + filename);
+			//String filename="beidanci_en_zh.dict.all";
+			dict=new SimpleDict(context);
 		}
 		return dict;
 	}
 	
-	private SimpleDict(String dictPath) throws IOException{
-		dictFilePath=dictPath;
+	private SimpleDict(Context context) throws IOException{
+		try {
+			InputStream in=context.getAssets().open("beidanci_en_zh.dict.all.zip",AssetManager.ACCESS_RANDOM);
+			ZipInputStream zin=new ZipInputStream(in);
+			ZipEntry entry=null;
+			entry=zin.getNextEntry();
+			
+			ByteArrayOutputStream out=new ByteArrayOutputStream((int)entry.getSize());
+			int rl=0;
+			while((rl=zin.read(buffer))>0){
+				out.write(buffer, 0, rl);
+			}
+			zin.closeEntry();
+			zin.close();
+			in.close();
+			dictContent=out.toByteArray();
+			out.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 		try{
-			InputStream in=new FileInputStream(dictFilePath);			
+			InputStream in=new ByteArrayInputStream(dictContent);			
 			readDictInfo(in);
 			topIndex=new TopIndex(in,topSize,topCount);
 			secOffset=SimpleDict.BEFORE_HEAD+headSize+topSize;
@@ -148,9 +176,12 @@ public class SimpleDict implements Dict {
 		int itemOff=secItemOff+secOffset;
 //		Log.d("itemOff",String.valueOf(itemOff));
 		try{
-			RandomAccessFile ranIn=new RandomAccessFile(dictFilePath,"r");
+			//RandomAccessFile ranIn=new RandomAccessFile(dictFilePath,"r");
+			ByteArrayInputStream ranIn=new ByteArrayInputStream(dictContent);
+			ranIn.mark(0);
 //			Log.d("XXXXXXXXXXXXXXXXXXXXX before the skip action","FFFFFFFFFFFFFFF");
-			ranIn.seek(itemOff);
+			//ranIn.seek(itemOff);
+			ranIn.skip(itemOff);
 			boolean found=false;
 			String word="";
 			String wordDictOffset="";
@@ -175,7 +206,9 @@ public class SimpleDict implements Dict {
 					point++;
 				}
 			}
-			ranIn.seek(dictOffset+Integer.valueOf(wordDictOffset));
+			//ranIn.seek(dictOffset+Integer.valueOf(wordDictOffset));
+			ranIn.reset();
+			ranIn.skip(dictOffset+Integer.valueOf(wordDictOffset));
 			ranIn.read(buf,0,2);
 			short sectionLenght=Helper.byteArray2Short(buf, 0);
 			Log.d("sectionLenght",String.valueOf(sectionLenght));

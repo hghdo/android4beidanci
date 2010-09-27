@@ -157,7 +157,8 @@ public class Exam extends Activity implements View.OnClickListener,StateChangeLi
 
 	@Override
 	protected void onDestroy() {
-		dbAdapter.updateSection(unitId, (int)System.currentTimeMillis()/1000, StudyDbAdapter.DB_COL_LAST_EXAM_AT);
+		//TODO
+//		dbAdapter.updateSection(unitId, (int)System.currentTimeMillis()/1000, StudyDbAdapter.DB_COL_LAST_EXAM_AT);
 		dbAdapter.close();
 		Log.d("DDDDDDDDDDDDDDDDDD","in onDestroy");
 		super.onDestroy();

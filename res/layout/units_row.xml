@@ -1,63 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-  xmlns:android="http://schemas.android.com/apk/res/android"
-  android:layout_width="fill_parent"
-  android:layout_height="wrap_content"
-  android:orientation="vertical"
-  style="@style/row_style"> 
-	<LinearLayout
+	  xmlns:android="http://schemas.android.com/apk/res/android"
 	  android:layout_width="fill_parent"
 	  android:layout_height="wrap_content"
 	  android:orientation="horizontal">
-	    <TextView
-	        android:id="@+id/tv_units_row_item_title"
-	        android:layout_width="wrap_content" 
-	        android:layout_height="wrap_content"
-	        style="@style/units_list_title"/>
-	    <!--  
-	    <TextView
-	        android:id="@+id/tv_unit_id"
-	        android:layout_width="wrap_content" 
-	        android:layout_height="wrap_content"
-	        style="@style/units_list_title"/>
-	    -->
-	</LinearLayout>
-	<!--  
-    <TextView
-        android:id="@+id/tv_unit_course_name"
-        android:layout_width="wrap_content" 
-        android:layout_height="wrap_content"
-        style="@style/units_list_title"/>
-	-->        
+	<View
+	  android:id="@+id/v_units_row_indicator"
+	  android:layout_width="5dip"
+	  android:layout_height="fill_parent"
+	  android:background="@color/green"/>
+
 	<LinearLayout
 	  android:layout_width="fill_parent"
 	  android:layout_height="wrap_content"
-	  android:orientation="horizontal"
-	  android:layout_marginTop="5dip">
+	  android:orientation="vertical"
+	  style="@style/row_style"> 
+		<LinearLayout
+		  android:layout_width="fill_parent"
+		  android:layout_height="wrap_content"
+		  android:orientation="horizontal">
+		    <TextView
+		        android:id="@+id/tv_units_row_item_title"
+		        android:layout_width="wrap_content" 
+		        android:layout_height="wrap_content"
+		        style="@style/units_list_title"/>
+		    <!--  
+		    <TextView
+		        android:id="@+id/tv_unit_id"
+		        android:layout_width="wrap_content" 
+		        android:layout_height="wrap_content"
+		        style="@style/units_list_title"/>
+		    -->
+		</LinearLayout>
+		<!--  
 	    <TextView
-	        android:id="@+id/tv_unit_last_exam_at"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"/>
-	    <TextView
-	        android:id="@+id/tv_unit_words_count"
-	        android:gravity="right"
-	        android:layout_weight="1"
+	        android:id="@+id/tv_unit_course_name"
 	        android:layout_width="wrap_content" 
-	        android:layout_height="wrap_content"/>
-	    <!-- 
-	    <TextView
-	        android:id="@+id/tv_unit_created_at"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"/>
-	    <TextView
-	        android:id="@+id/tv_unit_next_exam_at"
-	        android:layout_width="wrap_content" 
-	        android:layout_height="wrap_content"/>
-	    
-	    <TextView
-	        android:id="@+id/tv_unit_exam_times"
-	        android:layout_width="wrap_content" 
-	        android:layout_height="wrap_content"/>
-	    -->
+	        android:layout_height="wrap_content"
+	        style="@style/units_list_title"/>
+		-->        
+		<LinearLayout
+		  android:layout_width="fill_parent"
+		  android:layout_height="wrap_content"
+		  android:orientation="horizontal"
+		  android:layout_marginTop="5dip">
+		    <TextView
+		        android:id="@+id/tv_unit_last_exam_at"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"/>
+		    <TextView
+		        android:id="@+id/tv_unit_words_count"
+		        android:gravity="right"
+		        android:layout_weight="1"
+		        android:layout_width="wrap_content" 
+		        android:layout_height="wrap_content"/>
+		    <!-- 
+		    <TextView
+		        android:id="@+id/tv_unit_created_at"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"/>
+		    <TextView
+		        android:id="@+id/tv_unit_next_exam_at"
+		        android:layout_width="wrap_content" 
+		        android:layout_height="wrap_content"/>
+		    
+		    <TextView
+		        android:id="@+id/tv_unit_exam_times"
+		        android:layout_width="wrap_content" 
+		        android:layout_height="wrap_content"/>
+		    -->
+		</LinearLayout>
 	</LinearLayout>
 </LinearLayout>

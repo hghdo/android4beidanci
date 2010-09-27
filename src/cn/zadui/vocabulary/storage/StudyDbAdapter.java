@@ -34,14 +34,17 @@ public class StudyDbAdapter {
     public static final String DB_COL_COURSE_KEY="course_key";
     public static final String DB_COL_COURSE_TITLE="title";
     public static final String DB_COL_WORDS_COUNT="words_count";
-    public static final String DB_COL_FINISHED="finished";
+    public static final String DB_COL_MASTERED_COUNT="mastered_count";
+//    public static final String DB_COL_FINISHED="finished";
     public static final String DB_COL_COMMON_EXAM_TIMES="common_exam_times";
     public static final String DB_COL_LAST_EXAM_AT="last_exam_at";
     public static final String DB_COL_NEXT_COMMON_EXAM_AT="next_common_exam_at";
-    //public static final String KEY_LAST_FAILED_EXAM_AT="last_failed_exam_at";
     public static final String DB_COL_NEXT_FAILED_EXAM_AT="next_failed_exam_at";
+    public static final String DB_COL_LAST_EXAM_FINISHED="last_exam_finished";
+    public static final String DB_COL_LAST_EXAM_POSITION="last_exam_position";
+    public static final String DB_COL_LAST_EXAM_MARK="last_exam_mark";   
     public static final String DB_COL_CREATED_AT="created_at";
-    
+ 
     public static final String DB_TABLE_WORDS = "words";
     //public static final String DB_COL_COURSE_KEY="course_key";
     public static final String DB_COL_SECTION_ID="section_id";
@@ -82,13 +85,17 @@ public class StudyDbAdapter {
         				"course_key text," +
                 		"title text," +
                 		"words_count integer default 0," +
-                		"virgin_flag integer default 1," +
-                		"finished integer default 0," +
+                		"mastered_count integer default 0," +
+//                		"virgin_flag integer default 1," +
+//                		"finished integer default 0," +
                 		"common_exam_times integer default 0," +
                 		"last_exam_at integer default 0," +
                 		"next_common_exam_at integer default 0," +
                 		//"last_failed_exam_at integer default 0," +
                 		"next_failed_exam_at integer default 0," +
+                		"last_exam_finished integer default 0," +
+                		"last_exam_position integer default 0," +
+                		"last_exam_mark integer default 0," +
                 		"created_at integer);";
     
     private static final String DATABASE_CREATE_UNIT_WORDS_TABLE =
@@ -172,25 +179,22 @@ public class StudyDbAdapter {
 		ContentValues args=new ContentValues();
 		args.put(DB_COL_COURSE_KEY, section.getCourseKey());
 		args.put(DB_COL_COURSE_TITLE, section.getCourseName());
-		//args.put(KEY_CREATE_STYLE, section.getCreatedStyle());
 		args.put(DB_COL_WORDS_COUNT, 0);
-		//args.put(KEY_VIRGIN_FLAG, 1);
-		args.put(DB_COL_FINISHED, 0);
+		args.put(DB_COL_MASTERED_COUNT, 0);
+//		args.put(DB_COL_FINISHED, 0);
 		args.put(DB_COL_COMMON_EXAM_TIMES, 0);
-		//args(KEY_LAST_COMMON_exam_at, value);
-		//args.put(KEY_NEXT_COMMON_EXAM_AT, su.getCreatedAt()+SimpleCourse.firstInterval);
-		//args(KEY_LAST_FAILED_REVIEW_AT, value);
-		//args(KEY_NEXT_FAILED_REVIEW_AT, value);
+//		args.put(DB_COL_LAST_EXAM_AT, 0);
+		args.put(DB_COL_NEXT_COMMON_EXAM_AT, section.getCreatedAt()+Section.EXAM_INTERVAL[0]);
 		args.put(DB_COL_CREATED_AT, section.getCreatedAt());
 		section.setRowId(mDb.insert(DB_TABLE_SECTION, null, args));
 	}
-	
-	public boolean updateSectionToOld(long id,long nextExamAt){
-		ContentValues args=new ContentValues();
-		//args.put(KEY_VIRGIN_FLAG, 0);
-		args.put(DB_COL_NEXT_FAILED_EXAM_AT, nextExamAt);
-		return mDb.update(DB_TABLE_SECTION, args, KEY_ROWID + "=" + id, null) > 0;
-	}
+//	
+//	public boolean freezeSection(long id,long nextExamAt){
+//		ContentValues args=new ContentValues();
+//		//args.put(KEY_VIRGIN_FLAG, 0);
+//		args.put(DB_COL_NEXT_FAILED_EXAM_AT, nextExamAt);
+//		return mDb.update(DB_TABLE_SECTION, args, KEY_ROWID + "=" + id, null) > 0;
+//	}
 	
 	public boolean updateSectionWordsCount(long id,int newCount){
 		ContentValues args=new ContentValues();
@@ -198,10 +202,19 @@ public class StudyDbAdapter {
 		return mDb.update(DB_TABLE_SECTION, args, KEY_ROWID + "=" + id, null) > 0;
 	}
 	
-	public boolean updateSection(long id,int arg,String columnName){
+	public boolean updateSection(Section section){
 		ContentValues args=new ContentValues();
-		args.put(columnName, arg);
-		return mDb.update(DB_TABLE_SECTION, args, KEY_ROWID + "=" + id, null) > 0;
+//		args.put(DB_COL_COURSE_KEY, section.getCourseKey());
+//		args.put(DB_COL_COURSE_TITLE, section.getCourseName());
+		args.put(DB_COL_WORDS_COUNT, section.getWordsCount());
+		args.put(DB_COL_MASTERED_COUNT, section.getMasteredCount());
+		args.put(DB_COL_COMMON_EXAM_TIMES, section.getExamTimes());
+		args.put(DB_COL_LAST_EXAM_AT, section.getLastExamAt());
+		args.put(DB_COL_NEXT_COMMON_EXAM_AT, section.getNextExamAt());
+		args.put(DB_COL_LAST_EXAM_FINISHED, section.isLastExamFinished() ? 1 : 0);
+		args.put(DB_COL_LAST_EXAM_POSITION, section.getLastExamPosition());
+		args.put(DB_COL_LAST_EXAM_MARK, section.getLastExamMark());
+		return mDb.update(DB_TABLE_SECTION, args, KEY_ROWID + "=" + section.getRowId(), null) > 0;
 	}
     
     public Cursor fetchSectionWords(long unitId,int filter){   
@@ -386,7 +399,7 @@ public class StudyDbAdapter {
 		}
 	}
 	
-	private static final int DATABASE_VERSION = 21;
+	private static final int DATABASE_VERSION = 22;
     private static final String DATABASE_NAME = "data";
 		
 }

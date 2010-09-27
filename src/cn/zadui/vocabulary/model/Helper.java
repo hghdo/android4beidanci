@@ -53,8 +53,9 @@ public class Helper {
     }
     
     public static String[] friendlyTime(int sec){
-    	int cur=(int)System.currentTimeMillis()/1000;
+    	int cur=(int)System.currentTimeMillis();
     	int interval=cur-sec;
+    	interval=interval/1000;
     	if (interval<(3600*24)){
     		return new String[]{String.valueOf(interval/3600),"hour"};
     	}else if (interval<3600*24*30){

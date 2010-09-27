@@ -109,7 +109,7 @@ public class Review extends ListActivity implements RadioGroup.OnCheckedChangeLi
 						iv.setImageResource(ss.starOn ? R.drawable.star_on : R.drawable.star_off);
 						ReviewAdapter.this.mAdapter.starWord(ss.starOn, ss.wordId);
 						ReviewAdapter.this.mCursor.requery();
-						Log.d(TAG,"AAAAAAAA--"+String.valueOf(ss.wordId));
+						//Log.d(TAG,"AAAAAAAA--"+String.valueOf(ss.wordId));
 					}
 				});
 				convertView.setTag(holder);

@@ -17,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.TextView.OnEditorActionListener;
 import cn.zadui.vocabulary.R;
+import cn.zadui.vocabulary.model.Section;
 import cn.zadui.vocabulary.model.Word;
 import cn.zadui.vocabulary.storage.StudyDbAdapter;
 
@@ -25,7 +26,8 @@ public class ExamSpelling extends Activity implements View.OnClickListener {
 	static final int FINISH_DIALOG=0;
 	static final int TIP_DIALOG=1;
 	
-	long unitId;
+	//long sectionId;
+	private Section section;
 	private Cursor cur;
 	private Word word;
 	private StudyDbAdapter dbAdapter;
@@ -75,11 +77,13 @@ public class ExamSpelling extends Activity implements View.OnClickListener {
 		
 		dbAdapter=new StudyDbAdapter(this);
 		dbAdapter.open();
-		unitId=getIntent().getExtras().getLong(StudyDbAdapter.KEY_ROWID);
-		cur =dbAdapter.fetchSectionWords(unitId,StudyDbAdapter.UNIT_WORDS_FILTER_MASTERED_EXCLUDED);
+		long sectionId=getIntent().getExtras().getLong(StudyDbAdapter.KEY_ROWID);
+		cur =dbAdapter.fetchSectionWords(sectionId,StudyDbAdapter.UNIT_WORDS_FILTER_MASTERED_EXCLUDED);
+		section=Section.findById(dbAdapter, sectionId);
 		startManagingCursor(cur);
 		if (cur.getCount()>0){
-			cur.moveToFirst();
+			if (section.isLastExamFinished()) cur.moveToFirst();
+			else cur.moveToPosition(section.getLastExamPosition());
 			word=new Word(cur);
 			fillData();
 		}else{
@@ -95,6 +99,7 @@ public class ExamSpelling extends Activity implements View.OnClickListener {
 	@Override
 	public void onClick(View v) {
 		if (v.getId()==R.id.btn_exam_spell_check){
+			section.setLastExamPosition(cur.getPosition());
 			if (etSpelling.getText().toString().equals(word.getHeadword())){
 				etSpelling.setTextColor(getResources().getColor(R.color.green));
 				rightToast.show();
@@ -116,7 +121,6 @@ public class ExamSpelling extends Activity implements View.OnClickListener {
 			word.review(dbAdapter, Word.FORGOT);
 			showDialog(TIP_DIALOG);
 		}
-		
 	}
 	
 	private void calProgress(){
@@ -169,6 +173,18 @@ public class ExamSpelling extends Activity implements View.OnClickListener {
 			d.setTitle(word.getHeadword());
 			d.setMessage(word.getMeaning());
 		}
+	}
+
+	@Override
+	protected void onPause() {
+		section.examed(cur.isLast());
+		super.onPause();
+	}
+
+	@Override
+	protected void onDestroy() {
+		dbAdapter.close();
+		super.onDestroy();
 	}
 	
 

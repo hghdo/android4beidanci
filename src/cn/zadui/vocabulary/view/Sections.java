@@ -11,7 +11,10 @@ import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
@@ -42,6 +45,7 @@ public class Sections extends ListActivity {
 			//R.id.tv_unit_created_at,
 			//R.id.tv_unit_next_exam_at,
 			//R.id.tv_unit_exam_times
+			//R.id.tv_units_row_indicator,
 			};
 	String[] columns=new String[]{	
 			//StudyDbAdapter.KEY_ROWID,
@@ -49,6 +53,7 @@ public class Sections extends ListActivity {
 			//StudyDbAdapter.KEY_CREATED_AT,
 			StudyDbAdapter.DB_COL_WORDS_COUNT,
 			StudyDbAdapter.DB_COL_LAST_EXAM_AT,
+			//StudyDbAdapter.DB_COL_LAST_EXAM_FINISHED,
 			//StudyDbAdapter.KEY_NEXT_COMMON_EXAM_AT,
 			//StudyDbAdapter.KEY_COMMON_EXAM_TIMES
 			};
@@ -86,10 +91,11 @@ public class Sections extends ListActivity {
 		if (position==0){
 			continueStudy();
 		}else{
-			Intent newIntent=new Intent();
-			newIntent.putExtra(StudyDbAdapter.KEY_ROWID, id);
-			newIntent.setClass(this, Review.class);
-			startActivity(newIntent);
+			openContextMenu(v);
+//			Intent newIntent=new Intent();
+//			newIntent.putExtra(StudyDbAdapter.KEY_ROWID, id);
+//			newIntent.setClass(this, Review.class);
+//			startActivity(newIntent);
 		}
 	}
 
@@ -185,9 +191,75 @@ public class Sections extends ListActivity {
 					}
 					return true;
 				}
+//				else if (columnIndex==cursor.getColumnIndex(StudyDbAdapter.DB_COL_LAST_EXAM_FINISHED)){
+//					boolean finished=cursor.getInt(columnIndex)==1;
+//					if (finished) view.setVisibility(View.INVISIBLE);
+//					else view.setVisibility(View.VISIBLE);
+//				}
 				return false;
 			}
 		});
 		setListAdapter(adapter);
+	}
+	
+	private static class SectionAdapter extends BaseAdapter{
+		
+        private LayoutInflater mInflater;
+        private Cursor mCursor;
+        private Context mContext;
+//        private StudyDbAdapter mAdapter;
+        
+		public SectionAdapter(Context ctx, Cursor cur){
+        	mContext=ctx;
+        	mInflater = LayoutInflater.from(mContext);
+        	mCursor=cur;
+//        	mAdapter=dba;			
+		}
+
+		@Override
+		public int getCount() {
+			return mCursor.getCount();
+		}
+
+		@Override
+		public Object getItem(int position) {
+			mCursor.moveToPosition(position);
+			return mCursor;
+		}
+
+		@Override
+		public long getItemId(int position) {
+			mCursor.moveToPosition(position);
+			return mCursor.getLong(mCursor.getColumnIndex(StudyDbAdapter.KEY_ROWID));
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			ViewHolder holder;
+			if (convertView==null){
+				convertView=mInflater.inflate(R.layout.units_row, null);
+				holder=new ViewHolder();
+				holder.indicator=convertView.findViewById(R.id.v_units_row_indicator);
+				holder.tvTitle=(TextView)convertView.findViewById(R.id.tv_units_row_item_title);
+				holder.tvShouldExamAt=null;
+				holder.tvLastExamAt=(TextView)convertView.findViewById(R.id.tv_unit_last_exam_at);
+				holder.tvMasteredCount=null;
+				convertView.setTag(holder);
+			}else{
+				holder=(ViewHolder)convertView.getTag();
+			}
+				
+			return convertView;
+		}
+		
+        static class ViewHolder {
+        	View indicator;
+        	TextView tvTitle;
+            TextView tvShouldExamAt;
+            TextView tvLastExamAt;
+            TextView tvMasteredCount;
+        }
+		
+		
 	}
 }
