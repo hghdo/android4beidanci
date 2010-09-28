@@ -93,7 +93,7 @@ public class StudyDbAdapter {
                 		"next_common_exam_at integer default 0," +
                 		//"last_failed_exam_at integer default 0," +
                 		"next_failed_exam_at integer default 0," +
-                		"last_exam_finished integer default 0," +
+                		"last_exam_finished integer default 1," +
                 		"last_exam_position integer default 0," +
                 		"last_exam_mark integer default 0," +
                 		"created_at integer);";
@@ -202,6 +202,12 @@ public class StudyDbAdapter {
 		return mDb.update(DB_TABLE_SECTION, args, KEY_ROWID + "=" + id, null) > 0;
 	}
 	
+	public boolean updateSectionMasteredWordsCount(long id,int newCount){
+		ContentValues args=new ContentValues();
+		args.put(DB_COL_MASTERED_COUNT, newCount);
+		return mDb.update(DB_TABLE_SECTION, args, KEY_ROWID + "=" + id, null) > 0;
+	}
+	
 	public boolean updateSection(Section section){
 		ContentValues args=new ContentValues();
 //		args.put(DB_COL_COURSE_KEY, section.getCourseKey());
@@ -232,6 +238,13 @@ public class StudyDbAdapter {
     public void deleteSection(long sectionId){
     	mDb.delete(DB_TABLE_WORDS, DB_COL_SECTION_ID+"=? ", new String[]{String.valueOf(sectionId)});
     	mDb.delete(DB_TABLE_SECTION, "_id=? ", new String[]{String.valueOf(sectionId)});
+    }
+    
+    public int getSectionMasteredCount(long id){
+    	String sql="select count(*) from "+DB_TABLE_WORDS+" where section_id="+String.valueOf(id)+" and mastered=1";
+    	Cursor c=mDb.rawQuery(sql, null);
+    	//Cursor c=mDb.rquery(DB_TABLE_WORDS, new String[]{"count(id)"}, "section_id=? and mastered=?", new String[]{String.valueOf(id),"1"}, null, null, null);
+    	return c.getInt(0);
     }
     
     public Cursor fetchWordById(long id){
@@ -265,24 +278,29 @@ public class StudyDbAdapter {
 		
 	}
 	
-	public boolean updateWordStatusExam(int status,Word word){
+	public boolean updateWord(Word word){
 		ContentValues args=new ContentValues();
-		args.put(DB_COL_EXAM_TIMES, word.getReviewTimes()+1);
-		switch (status){
-		case Word.MASTERED:
-			args.put(DB_COL_MASTERED, 1);
-			args.put(DB_COL_LAST_EXAM_FAILED, 0);
-			break;
-		case Word.PASS:
-			args.put(DB_COL_SUCCESS_TIMES, word.getSuccessTimes()+1);
-			args.put(DB_COL_MASTERED, 0);
-			args.put(DB_COL_LAST_EXAM_FAILED, 0);
-			break;
-		case Word.FORGOT:
-			args.put(DB_COL_FAILED_TIMES, word.getFailedTimes()+1);
-			args.put(DB_COL_MASTERED, 0);
-			args.put(DB_COL_LAST_EXAM_FAILED, 1);
-		}
+		args.put(DB_COL_EXAM_TIMES, word.getReviewTimes());
+		args.put(DB_COL_MASTERED, word.getMastered());
+		args.put(DB_COL_LAST_EXAM_FAILED, word.getLastFailed());
+		args.put(DB_COL_SUCCESS_TIMES, word.getSuccessTimes());
+		args.put(DB_COL_FAILED_TIMES, word.getFailedTimes());
+		
+//		switch (status){
+//		case Word.MASTERED:
+//			args.put(DB_COL_MASTERED, 1);
+//			args.put(DB_COL_LAST_EXAM_FAILED, 0);
+//			break;
+//		case Word.PASS:
+//			args.put(DB_COL_SUCCESS_TIMES, word.getSuccessTimes()+1);
+//			args.put(DB_COL_MASTERED, 0);
+//			args.put(DB_COL_LAST_EXAM_FAILED, 0);
+//			break;
+//		case Word.FORGOT:
+//			args.put(DB_COL_FAILED_TIMES, word.getFailedTimes()+1);
+//			args.put(DB_COL_MASTERED, 0);
+//			args.put(DB_COL_LAST_EXAM_FAILED, 1);
+//		}
 		return mDb.update(DB_TABLE_WORDS, args, KEY_ROWID + "=" + word.getId(), null) > 0;
 	}
 	

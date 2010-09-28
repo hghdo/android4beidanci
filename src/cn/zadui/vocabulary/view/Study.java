@@ -325,7 +325,8 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 			nextContent();
 		}else if (v.getId()==R.id.btn_mastered_word){
 			bringViewToFront(vLearn);
-			cw.review(dbAdapter, Word.MASTERED);
+			section.mastered(cw);
+//			cw.review(dbAdapter, Word.MASTERED);
 			if (isReview)finish();
 			else nextContent();
 		}else if(v.getId()==R.id.btn_previous_word){

@@ -36,8 +36,29 @@ public class Word {
 		mastered=cur.getInt(cur.getColumnIndex(StudyDbAdapter.DB_COL_MASTERED));
 	}
 	
+	public boolean directMastered(StudyDbAdapter adapter){
+		mastered=1;
+		lastFailed=0;
+		return adapter.updateWord(this);
+	}
+	
 	public boolean review(StudyDbAdapter adapter,int status){
-		return adapter.updateWordStatusExam(status, this);
+		reviewTimes+=1;
+		switch (status){
+		case Word.MASTERED:
+			mastered=1;
+			break;
+		case Word.FORGOT:
+			failedTimes+=1;
+			lastFailed=1;
+			break;
+		case Word.PASS:
+			successTimes+=1;
+			lastFailed=0;
+			if (successTimes-failedTimes>5) mastered=1;
+			break;
+		}
+		return adapter.updateWord(this);
 	}
 	
 	public Word(String headword,String meaning){
@@ -110,6 +131,22 @@ public class Word {
 
 	public void setPhonetic(String phonetic) {
 		this.phonetic = phonetic;
+	}
+
+	public int getLastFailed() {
+		return lastFailed;
+	}
+
+	public void setLastFailed(int lastFailed) {
+		this.lastFailed = lastFailed;
+	}
+
+	public int getMastered() {
+		return mastered;
+	}
+
+	public void setMastered(int mastered) {
+		this.mastered = mastered;
 	}
 	
 	

@@ -45,6 +45,7 @@
     <!-- Sections -->
     <string name="units_title">Study Histories</string>
     <string name="sections_row_item_title">%1$s learned %2$s words</string>
+    <string name="sections_row_item_progress">[%1$s mastered, examed %2$s times]</string>
     <string name="unit_id">Section: {0,number,integer}</string>
     <string name="unit_created_at">{0,date,short} {1,time,short}</string>
     <string name="unit_words_count">License Detail: %1$s{0,number,integer} words</string>

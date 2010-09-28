@@ -9,7 +9,7 @@
 </style>
 
 <style name="units_list_title">
-	<item name="android:textSize">16dip</item>
+	<item name="android:textSize">15dip</item>
 </style>
 
 <style name="split">
@@ -24,13 +24,21 @@
 	<item name="android:textSize">15dip</item>
 </style>
 
+<style name="small_grey_font">
+	<item name="android:textSize">12dip</item>
+	<item name="android:textColor">@color/grey</item> 
+</style>
+
+<style name="medium_font">
+	<item name="android:textSize">13dip</item>
+</style>
 
 <!-- for common row item -->
 <style name="row_style">
-	<item name="android:paddingTop">8dip</item>
-	<item name="android:paddingLeft">10dip</item>
+	<item name="android:paddingTop">5dip</item>
+	<item name="android:paddingLeft">8dip</item>
 	<item name="android:paddingRight">2dip</item>
-	<item name="android:paddingBottom">8dip</item>
+	<item name="android:paddingBottom">5dip</item>
 </style>
 
 <style name="row_style_with_bg">

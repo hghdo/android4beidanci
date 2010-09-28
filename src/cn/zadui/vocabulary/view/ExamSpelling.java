@@ -36,6 +36,7 @@ public class ExamSpelling extends Activity implements View.OnClickListener {
 	private TextView tvSpellingMeaning;
 	private Button btnCheckSpelling;
 	private Button btnforgot;
+	private boolean forgetFlag=false;
 	
 	Toast rightToast;
 	Toast wrongToast;
@@ -101,6 +102,13 @@ public class ExamSpelling extends Activity implements View.OnClickListener {
 		if (v.getId()==R.id.btn_exam_spell_check){
 			section.setLastExamPosition(cur.getPosition());
 			if (etSpelling.getText().toString().equals(word.getHeadword())){
+				if (forgetFlag){
+					forgetFlag=false;
+				}else{
+					//boolean preStatus=word.isMastered();
+					word.review(dbAdapter, Word.PASS);
+					//if (word.isMastered() && !preStatus) section.setMasteredCount(section.getMasteredCount()+1);
+				}
 				etSpelling.setTextColor(getResources().getColor(R.color.green));
 				rightToast.show();
 				if (cur.isLast()){
@@ -118,6 +126,7 @@ public class ExamSpelling extends Activity implements View.OnClickListener {
 				wrongToast.show();
 			}
 		}else{
+			forgetFlag=true;
 			word.review(dbAdapter, Word.FORGOT);
 			showDialog(TIP_DIALOG);
 		}

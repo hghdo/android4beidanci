@@ -38,7 +38,7 @@ public class Section {
 	private long lastExamAt;
 	private long nextExamAt;
 //	private long nextFailedExamAt;
-	private boolean lastExamFinished=false;
+	private boolean lastExamFinished=true;
 	private int lastExamPosition=0;
 	private int lastExamMark=0;
 	private long createdAt;
@@ -85,6 +85,11 @@ public class Section {
 		}
 	}
 	
+	public void mastered(Word word){
+		word.directMastered(adapter);
+		adapter.updateSectionMasteredWordsCount(rowId,++masteredCount);
+	}
+	
 	public void addWord(Word word){
 		adapter.insertWord(rowId, word,courseKey);
 		adapter.updateSectionWordsCount(rowId,++wordsCount);
@@ -107,6 +112,8 @@ public class Section {
 			if (examTimes>EXAM_INTERVAL.length)
 			this.nextExamAt=System.currentTimeMillis() + EXAM_INTERVAL[examTimes-1];
 		}
+		masteredCount=adapter.getSectionMasteredCount(rowId);
+		this.setLastExamFinished(finished);
 		this.setLastExamAt(System.currentTimeMillis());
 		adapter.updateSection(this);
 		//adapter.updateSection(id, arg, columnName)

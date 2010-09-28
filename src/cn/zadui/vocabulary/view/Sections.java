@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -14,13 +15,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import cn.zadui.vocabulary.R;
-import cn.zadui.vocabulary.model.Helper;
 import cn.zadui.vocabulary.storage.StudyDbAdapter;
 
 public class Sections extends ListActivity {
@@ -33,10 +31,11 @@ public class Sections extends ListActivity {
 	public static final int DELETE_SECTION			=5;
 	public static final int STUDY					=6;
 	
-	//SimpleCursorAdapter.ViewBinder viewBinder;
 	StudyDbAdapter dbAdapter;	
 	Cursor cur;
+	SectionAdapter listAdapter;	
 	View header;
+	/*
 	int[] displayViews=new int[]{
 			//R.id.tv_unit_id,
 			//R.id.tv_unit_course_name,
@@ -57,6 +56,7 @@ public class Sections extends ListActivity {
 			//StudyDbAdapter.KEY_NEXT_COMMON_EXAM_AT,
 			//StudyDbAdapter.KEY_COMMON_EXAM_TIMES
 			};
+	*/
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -71,13 +71,15 @@ public class Sections extends ListActivity {
 		cur=dbAdapter.fetchSectionsByCourseKey(getIntent().getExtras().getString(StudyDbAdapter.DB_COL_COURSE_KEY));
 		startManagingCursor(cur);
 		registerForContextMenu(getListView());
-		fillData();
+		
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		getListView().invalidate();
+		fillData();
+//		cur.requery();
+//		getListView().invalidate();
 	}
 
 	@Override
@@ -159,6 +161,13 @@ public class Sections extends ListActivity {
 	}
 
 	private void fillData() {
+		if (listAdapter==null){
+			listAdapter=new SectionAdapter(this,cur);			
+		}
+		cur.requery();
+		setListAdapter(listAdapter);
+		
+		/*
 		SimpleCursorAdapter adapter=new SimpleCursorAdapter(this,R.layout.units_row,cur,columns,displayViews);
 		adapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {			
 			@Override
@@ -191,15 +200,10 @@ public class Sections extends ListActivity {
 					}
 					return true;
 				}
-//				else if (columnIndex==cursor.getColumnIndex(StudyDbAdapter.DB_COL_LAST_EXAM_FINISHED)){
-//					boolean finished=cursor.getInt(columnIndex)==1;
-//					if (finished) view.setVisibility(View.INVISIBLE);
-//					else view.setVisibility(View.VISIBLE);
-//				}
 				return false;
 			}
 		});
-		setListAdapter(adapter);
+		*/
 	}
 	
 	private static class SectionAdapter extends BaseAdapter{
@@ -207,12 +211,14 @@ public class Sections extends ListActivity {
         private LayoutInflater mInflater;
         private Cursor mCursor;
         private Context mContext;
+        private Calendar mCalendar;
 //        private StudyDbAdapter mAdapter;
         
 		public SectionAdapter(Context ctx, Cursor cur){
         	mContext=ctx;
         	mInflater = LayoutInflater.from(mContext);
         	mCursor=cur;
+        	mCalendar=Calendar.getInstance();
 //        	mAdapter=dba;			
 		}
 
@@ -241,23 +247,62 @@ public class Sections extends ListActivity {
 				holder=new ViewHolder();
 				holder.indicator=convertView.findViewById(R.id.v_units_row_indicator);
 				holder.tvTitle=(TextView)convertView.findViewById(R.id.tv_units_row_item_title);
-				holder.tvShouldExamAt=null;
-				holder.tvLastExamAt=(TextView)convertView.findViewById(R.id.tv_unit_last_exam_at);
-				holder.tvMasteredCount=null;
+				holder.tvProgress=(TextView)convertView.findViewById(R.id.tv_units_row_progress);
+				holder.tvExam=(TextView)convertView.findViewById(R.id.tv_units_row_exam);
 				convertView.setTag(holder);
 			}else{
 				holder=(ViewHolder)convertView.getTag();
 			}
-				
+			mCursor.moveToPosition(position);
+			boolean lastFinished=mCursor.getInt(mCursor.getColumnIndex(StudyDbAdapter.DB_COL_LAST_EXAM_FINISHED))==1;
+			if (lastFinished){
+				long current = System.currentTimeMillis();
+				long nextExam = mCursor.getLong(mCursor.getColumnIndex(StudyDbAdapter.DB_COL_NEXT_COMMON_EXAM_AT));
+				if ((nextExam-current)<1*60*60*1000){
+					holder.indicator.setVisibility(View.VISIBLE);
+					holder.tvExam.setText("Begin a exam");
+				}
+				else{
+					holder.indicator.setVisibility(View.INVISIBLE);
+					mCalendar.setTimeInMillis(nextExam);
+					//Log.d("BBBBDDDDDDDXXXXXXXXXXX=>",mCalendar.getTime().toLocaleString());
+					int hr=(int)(nextExam - current)/(1000*60*60);
+					if (hr>24){
+						holder.tvExam.setText("Next exam after "+String.valueOf(hr/24)+" days");
+					}else{
+						holder.tvExam.setText("Next exam after "+String.valueOf(hr)+" hours");						
+					}
+				}
+			}else{
+				holder.indicator.setVisibility(View.VISIBLE);
+				holder.tvExam.setText("Exam interrupted");
+			}
+			mCalendar.setTimeInMillis(mCursor.getLong(mCursor.getColumnIndex(StudyDbAdapter.DB_COL_CREATED_AT)));
+			holder.tvTitle.setText(
+					String.format(
+							mContext.getString(R.string.sections_row_item_title),
+							android.text.format.DateFormat.getMediumDateFormat(mContext).format(mCalendar.getTime()),
+							mCursor.getInt(mCursor.getColumnIndex(StudyDbAdapter.DB_COL_WORDS_COUNT))
+							)
+					);
+			
+			holder.tvProgress.setText(
+					String.format(
+							mContext.getString(R.string.sections_row_item_progress),
+							mCursor.getInt(mCursor.getColumnIndex(StudyDbAdapter.DB_COL_MASTERED_COUNT)),
+							mCursor.getInt(mCursor.getColumnIndex(StudyDbAdapter.DB_COL_COMMON_EXAM_TIMES))
+							)
+					);
+			
+			
 			return convertView;
 		}
 		
         static class ViewHolder {
         	View indicator;
         	TextView tvTitle;
-            TextView tvShouldExamAt;
-            TextView tvLastExamAt;
-            TextView tvMasteredCount;
+        	TextView tvProgress;
+            TextView tvExam;
         }
 		
 		
