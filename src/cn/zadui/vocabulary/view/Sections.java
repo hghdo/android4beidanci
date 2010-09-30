@@ -35,28 +35,6 @@ public class Sections extends ListActivity {
 	Cursor cur;
 	SectionAdapter listAdapter;	
 	View header;
-	/*
-	int[] displayViews=new int[]{
-			//R.id.tv_unit_id,
-			//R.id.tv_unit_course_name,
-			R.id.tv_units_row_item_title,
-			R.id.tv_unit_last_exam_at,
-			//R.id.tv_unit_created_at,
-			//R.id.tv_unit_next_exam_at,
-			//R.id.tv_unit_exam_times
-			//R.id.tv_units_row_indicator,
-			};
-	String[] columns=new String[]{	
-			//StudyDbAdapter.KEY_ROWID,
-			//StudyDbAdapter.KEY_COURSE_NAME,
-			//StudyDbAdapter.KEY_CREATED_AT,
-			StudyDbAdapter.DB_COL_WORDS_COUNT,
-			StudyDbAdapter.DB_COL_LAST_EXAM_AT,
-			//StudyDbAdapter.DB_COL_LAST_EXAM_FINISHED,
-			//StudyDbAdapter.KEY_NEXT_COMMON_EXAM_AT,
-			//StudyDbAdapter.KEY_COMMON_EXAM_TIMES
-			};
-	*/
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -260,12 +238,10 @@ public class Sections extends ListActivity {
 				long nextExam = mCursor.getLong(mCursor.getColumnIndex(StudyDbAdapter.DB_COL_NEXT_COMMON_EXAM_AT));
 				if ((nextExam-current)<1*60*60*1000){
 					holder.indicator.setVisibility(View.VISIBLE);
-					holder.tvExam.setText("Begin a exam");
-				}
-				else{
+					holder.tvExam.setText("Take a Exam");
+				}else{
 					holder.indicator.setVisibility(View.INVISIBLE);
 					mCalendar.setTimeInMillis(nextExam);
-					//Log.d("BBBBDDDDDDDXXXXXXXXXXX=>",mCalendar.getTime().toLocaleString());
 					int hr=(int)(nextExam - current)/(1000*60*60);
 					if (hr>24){
 						holder.tvExam.setText("Next exam after "+String.valueOf(hr/24)+" days");
@@ -307,4 +283,8 @@ public class Sections extends ListActivity {
 		
 		
 	}
+	
+	public static final long HOUR=1000*60*60;
+	public static final long DAY=HOUR*24;
+
 }

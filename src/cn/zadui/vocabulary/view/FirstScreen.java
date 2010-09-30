@@ -131,6 +131,7 @@ public class FirstScreen extends ListActivity {
 			Intent i=new Intent();
 			i.setClass(this, Sections.class);
 			i.putExtra(StudyDbAdapter.DB_COL_COURSE_KEY, cur.getString(cur.getColumnIndex(StudyDbAdapter.DB_COL_COURSE_KEY)));
+			i.putExtra(StudyDbAdapter.DB_COL_COURSE_TITLE, cur.getString(cur.getColumnIndex(StudyDbAdapter.DB_COL_COURSE_TITLE)));
 			startActivity(i);
 		}
 	}	

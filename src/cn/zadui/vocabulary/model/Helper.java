@@ -52,6 +52,8 @@ public class Helper {
     	return bb.getShort(0);
     }
     
+    //public static String
+    
     public static String[] friendlyTime(int sec){
     	int cur=(int)System.currentTimeMillis();
     	int interval=cur-sec;

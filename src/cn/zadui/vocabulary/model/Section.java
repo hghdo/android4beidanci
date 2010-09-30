@@ -107,10 +107,11 @@ public class Section {
 	
 	public void examed(boolean finished){
 		if (finished){
-			this.examTimes+=1;
-			this.lastExamFinished=true;
-			if (examTimes>EXAM_INTERVAL.length)
-			this.nextExamAt=System.currentTimeMillis() + EXAM_INTERVAL[examTimes-1];
+			lastExamPosition=0;
+			examTimes+=1;
+			lastExamFinished=true;
+			if (examTimes>EXAM_INTERVAL.length) 
+				nextExamAt=System.currentTimeMillis() + EXAM_INTERVAL[examTimes-1];
 		}
 		masteredCount=adapter.getSectionMasteredCount(rowId);
 		this.setLastExamFinished(finished);

@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
@@ -82,15 +83,6 @@ public class ExamSpelling extends Activity implements View.OnClickListener {
 		cur =dbAdapter.fetchSectionWords(sectionId,StudyDbAdapter.UNIT_WORDS_FILTER_MASTERED_EXCLUDED);
 		section=Section.findById(dbAdapter, sectionId);
 		startManagingCursor(cur);
-		if (cur.getCount()>0){
-			if (section.isLastExamFinished()) cur.moveToFirst();
-			else cur.moveToPosition(section.getLastExamPosition());
-			word=new Word(cur);
-			fillData();
-		}else{
-			setProgress(10000);
-			showDialog(FINISH_DIALOG);
-		}
 		
 		//TODO fix the hard code strings
 		rightToast=Toast.makeText(this, "Great, you are right!",Toast.LENGTH_SHORT);
@@ -100,7 +92,6 @@ public class ExamSpelling extends Activity implements View.OnClickListener {
 	@Override
 	public void onClick(View v) {
 		if (v.getId()==R.id.btn_exam_spell_check){
-			section.setLastExamPosition(cur.getPosition());
 			if (etSpelling.getText().toString().equals(word.getHeadword())){
 				if (forgetFlag){
 					forgetFlag=false;
@@ -117,6 +108,7 @@ public class ExamSpelling extends Activity implements View.OnClickListener {
 					return;					
 				}else{
 					cur.moveToNext();
+					section.setLastExamPosition(cur.getPosition());
 					word=new Word(cur);
 					fillData();
 				}
@@ -186,7 +178,7 @@ public class ExamSpelling extends Activity implements View.OnClickListener {
 
 	@Override
 	protected void onPause() {
-		section.examed(cur.isLast());
+		section.examed(cur.isLast() && cur.getPosition()>0);
 		super.onPause();
 	}
 
@@ -194,6 +186,20 @@ public class ExamSpelling extends Activity implements View.OnClickListener {
 	protected void onDestroy() {
 		dbAdapter.close();
 		super.onDestroy();
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		if (cur.getCount()>0){
+			if (section.isLastExamFinished()) cur.moveToFirst();
+			else cur.moveToPosition(section.getLastExamPosition());
+			word=new Word(cur);
+			fillData();
+		}else{
+			setProgress(10000);
+			showDialog(FINISH_DIALOG);
+		}
 	}
 	
 

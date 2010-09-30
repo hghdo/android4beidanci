@@ -11,12 +11,12 @@
 	  	android:text="@string/meaning"/>
 	<LinearLayout 
 		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:layout_weight="1">	
+		android:layout_height="wrap_content">	
 		<ScrollView android:layout_width="fill_parent" android:layout_height="wrap_content">
 		<TextView android:id="@+id/tv_exam_tip"
 		  	android:layout_width="fill_parent"
-		  	android:layout_height="wrap_content"/>
+		  	android:layout_height="wrap_content"
+		  	style="@style/headword"/>
 		</ScrollView>
 	</LinearLayout> 	
 		  	
@@ -30,10 +30,11 @@
         android:layout_width="fill_parent" 
         android:layout_height="wrap_content"
         android:padding="3dip"
-        android:gravity="center"
+        android:gravity="left"
         android:background="@color/white"
         android:textColor="@color/white"
-        style="@style/headword"/>
+        style="@style/headword"
+        android:layout_weight="1"/>
 
     <LinearLayout 
     	android:layout_width="fill_parent"  

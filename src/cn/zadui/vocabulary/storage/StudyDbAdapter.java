@@ -9,6 +9,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 import cn.zadui.vocabulary.model.Section;
 import cn.zadui.vocabulary.model.Word;
 
@@ -241,8 +242,10 @@ public class StudyDbAdapter {
     }
     
     public int getSectionMasteredCount(long id){
-    	String sql="select count(*) from "+DB_TABLE_WORDS+" where section_id="+String.valueOf(id)+" and mastered=1";
+    	String sql="select count(*) c from "+DB_TABLE_WORDS+" where section_id="+String.valueOf(id)+" and mastered=1";
+    	Log.d("DDDDDDDDDDDDD",sql);
     	Cursor c=mDb.rawQuery(sql, null);
+    	c.moveToFirst();
     	//Cursor c=mDb.rquery(DB_TABLE_WORDS, new String[]{"count(id)"}, "section_id=? and mastered=?", new String[]{String.valueOf(id),"1"}, null, null, null);
     	return c.getInt(0);
     }

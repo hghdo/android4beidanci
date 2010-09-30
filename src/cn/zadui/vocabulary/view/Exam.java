@@ -15,6 +15,7 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 import cn.zadui.vocabulary.R;
+import cn.zadui.vocabulary.model.Section;
 import cn.zadui.vocabulary.model.Word;
 import cn.zadui.vocabulary.service.DictionaryService;
 import cn.zadui.vocabulary.service.NetworkService;
@@ -47,7 +48,7 @@ public class Exam extends Activity implements View.OnClickListener,StateChangeLi
 	private View bottomBar;
 	private Button btnAnswer;
 	//private ProgressBar pb;
-	long unitId;
+	private Section section;
 	private Cursor cur;
 	private Word word;
 	private StudyDbAdapter dbAdapter;
@@ -82,8 +83,12 @@ public class Exam extends Activity implements View.OnClickListener,StateChangeLi
 		findViewById(R.id.btn_exam_pass).setTag(Word.PASS);
 		findViewById(R.id.btn_exam_forgot).setOnClickListener(this);
 		findViewById(R.id.btn_exam_forgot).setTag(Word.FORGOT);
+
 		
+		tvFirstTitle.setText(getResources().getString(R.string.spelling));
+		tvSecondTitle.setText(getResources().getString(R.string.meaning));
 		
+		/*
 		if (getIntent().getExtras().getInt(DIRECTION)==Sections.EXAM_MEANING_TO_SPELLING){
 			tvFirstTitle.setText(getResources().getString(R.string.meaning));
 			tvSecondTitle.setText(getResources().getString(R.string.spelling));
@@ -94,26 +99,26 @@ public class Exam extends Activity implements View.OnClickListener,StateChangeLi
 			tvFirstTitle.setText(getResources().getString(R.string.examples));
 			tvSecondTitle.setText(getResources().getString(R.string.meaning));
 		}
+		*/
 		
 		dbAdapter=new StudyDbAdapter(this);
 		dbAdapter.open();
-		unitId=getIntent().getExtras().getLong(StudyDbAdapter.KEY_ROWID);
-		cur =dbAdapter.fetchSectionWords(unitId,StudyDbAdapter.UNIT_WORDS_FILTER_MASTERED_EXCLUDED);
+		
+		long sectionId=getIntent().getExtras().getLong(StudyDbAdapter.KEY_ROWID);
+		cur =dbAdapter.fetchSectionWords(sectionId,StudyDbAdapter.UNIT_WORDS_FILTER_MASTERED_EXCLUDED);
+		section=Section.findById(dbAdapter, sectionId);
 		startManagingCursor(cur);
-		if (cur.getCount()>0){
-			cur.moveToFirst();
-			word=new Word(cur);
-			fillWord();
-		}else{
-			setProgress(10000);
-			showDialog(0);
-		}
+		
+	
 	}
 	
 	private void fillWord(){
 		bottomBar.setVisibility(View.GONE);
 		btnAnswer.setVisibility(View.VISIBLE);
 		tvExamAnswer.setTextColor(getResources().getColor(R.color.white));
+		tvExamTip.setText(word.getHeadword());
+		tvExamAnswer.setText(word.getMeaning());	
+		/*
 		if (getIntent().getExtras().getInt(DIRECTION)==Sections.EXAM_MEANING_TO_SPELLING){
 			tvExamTip.setText(word.getMeaning());
 			tvExamAnswer.setText(word.getHeadword());		
@@ -129,6 +134,7 @@ public class Exam extends Activity implements View.OnClickListener,StateChangeLi
 			i.putExtra(NetworkService.KEY_HEADWORD, word.getHeadword());
 			startService(i);
 		}
+		*/
 	}
 
 	@Override
@@ -147,6 +153,7 @@ public class Exam extends Activity implements View.OnClickListener,StateChangeLi
 				return;
 			}else{
 				cur.moveToNext();
+				section.setLastExamPosition(cur.getPosition());
 				word=new Word(cur);
 				//pb.setProgress((cur.getPosition())*100/cur.getCount());
 				setProgress((cur.getPosition())*10000/cur.getCount());
@@ -157,21 +164,28 @@ public class Exam extends Activity implements View.OnClickListener,StateChangeLi
 
 	@Override
 	protected void onDestroy() {
-		//TODO
-//		dbAdapter.updateSection(unitId, (int)System.currentTimeMillis()/1000, StudyDbAdapter.DB_COL_LAST_EXAM_AT);
 		dbAdapter.close();
-		Log.d("DDDDDDDDDDDDDDDDDD","in onDestroy");
 		super.onDestroy();
 	}
 
 	@Override
 	protected void onPause() {
+		section.examed(cur.isLast() && cur.getPosition()>0);
 		super.onPause();
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
+		if (cur.getCount()>0){
+			if (section.isLastExamFinished()) cur.moveToFirst();
+			else cur.moveToPosition(section.getLastExamPosition());
+			word=new Word(cur);
+			fillWord();
+		}else{
+			setProgress(10000);
+			showDialog(0);
+		}
 	}
 
 	@Override
