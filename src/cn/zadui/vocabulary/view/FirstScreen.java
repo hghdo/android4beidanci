@@ -80,6 +80,9 @@ public class FirstScreen extends ListActivity {
 		startManagingCursor(cur);
 		fillData();
 		registerForContextMenu(getListView());
+		// Initialize data directory in /sdcard
+		File file=new File(CourseStatus.DATA_DIR);
+		if (!file.exists()) file.mkdirs();
 	}
 
 	@Override

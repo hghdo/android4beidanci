@@ -28,6 +28,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -46,7 +47,6 @@ import cn.zadui.vocabulary.service.NetworkService;
 import cn.zadui.vocabulary.service.StateChangeListener;
 import cn.zadui.vocabulary.service.NetworkService.ServiceState;
 import cn.zadui.vocabulary.storage.CourseStatus;
-import cn.zadui.vocabulary.storage.PrefStore;
 import cn.zadui.vocabulary.storage.StudyDbAdapter;
 
 /**
@@ -79,7 +79,7 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 	private GestureDetector gestureDetector;
 	private View vLearn;
 	private View vExamples;
-	private View vSpelling;
+	//private View vSpelling;
 	
 	private ProgressDialog progressDialog;
 	
@@ -96,12 +96,17 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 	private TextView tvHeadword;
 	private TextView tvMeaning;
 	private TextView tvPhonetic;
-	private ImageButton btnLearn;
+//	private ImageButton btnLearn;
 	private ImageButton btnExample;
+	private Button btnWord2Spell;
+	private Button btnSpell2Word;
 	// Spelling controls
 	private EditText etSpelling;
-	private TextView tvSpellingMeaning;
-	private ImageButton btnCheckSpelling;
+//	private TextView tvSpellingMeaning;
+	private Button btnCheckSpelling;
+	
+	private View vWord;
+	private View vSpell;
 	
 	/**
 	 * If is the "last word" then should not add this word into the study section, other wise 
@@ -132,8 +137,11 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		gestureDetector = new GestureDetector(this,new MySimpleGestureListener());		
 		vLearn=findViewById(R.id.learn_snip);
 		vExamples=findViewById(R.id.examples_snip);
-		vSpelling=findViewById(R.id.spelling_snip);
+		//vSpelling=findViewById(R.id.spelling_snip);
 		bringViewToFront(vLearn);
+		
+		vWord=findViewById(R.id.v_word);
+		vSpell=findViewById(R.id.v_spell);
         
 		tvHeadword=(TextView) findViewById(R.id.headword);
 		tvMeaning=(TextView) findViewById(R.id.meaning);
@@ -163,22 +171,26 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 			
 		});
 		
-		tvSpellingMeaning=(TextView) findViewById(R.id.tv_study_spell_meaning);
+//		tvSpellingMeaning=(TextView) findViewById(R.id.tv_study_spell_meaning);
 
 		((ImageButton)findViewById(R.id.btn_next_word)).setOnClickListener(this);
 		((ImageButton)findViewById(R.id.btn_mastered_word)).setOnClickListener(this);
 		((ImageButton)findViewById(R.id.btn_previous_word)).setOnClickListener(this);
 		//((ImageButton)findViewById(R.id.btn_learn_close_section)).setOnClickListener(this);
 		((ImageButton)findViewById(R.id.btn_learn_examples)).setOnClickListener(this);
-		btnLearn=(ImageButton)findViewById(R.id.btn_learn_study);
-		btnLearn.setOnClickListener(this);
-		btnLearn.setTag(true);//display learn
+		//btnLearn=(ImageButton)findViewById(R.id.btn_learn_study);
+//		btnLearn.setOnClickListener(this);
+//		btnLearn.setTag(true);//display learn
 		btnExample=(ImageButton)findViewById(R.id.btn_learn_examples);
 		btnExample.setOnClickListener(this);
-		btnExample.setTag(false);//display example
+//		btnExample.setTag(false);//display example
+		btnWord2Spell=(Button)findViewById(R.id.btn_word2spell);
+		btnWord2Spell.setOnClickListener(this);
+		btnSpell2Word=(Button)findViewById(R.id.btn_spell2word);
+		btnSpell2Word.setOnClickListener(this);
 		
 		//((ImageButton)findViewById(R.id.btn_learn_spelling)).setOnClickListener(this);
-		btnCheckSpelling=(ImageButton)findViewById(R.id.btn_study_spell_check);
+		btnCheckSpelling=(Button)findViewById(R.id.btn_study_check_spell);
 		btnCheckSpelling.setOnClickListener(this);
 		
 		serviceHandler=new Handler(){
@@ -213,7 +225,7 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 			((ImageButton)findViewById(R.id.btn_previous_word)).setEnabled(false);
 			//((ImageButton)findViewById(R.id.btn_learn_close_section)).setEnabled(false);//.setOnClickListener(this);
 			//((ImageButton)findViewById(R.id.btn_learn_spelling)).performClick();
-			btnLearn.performClick();
+//			btnLearn.performClick();
 		}else{
 			String lastWord=status.getLastWord();
 			if (lastWord.equals(CourseStatus.AT_BEGINNING)){
@@ -332,33 +344,33 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 		}else if(v.getId()==R.id.btn_previous_word){
 			bringViewToFront(vLearn);
 			previousContent();
-		}else if (v.getId()==R.id.btn_learn_study){
-			boolean toLearn=!(Boolean)btnLearn.getTag();
-			btnLearn.setTag(toLearn);
-			bringViewToFront(toLearn ? vLearn : vSpelling);	
+//		}else if (v.getId()==R.id.btn_learn_study){
+//			boolean toLearn=!(Boolean)btnLearn.getTag();
+//			btnLearn.setTag(toLearn);
+//			bringViewToFront(toLearn ? vLearn : vSpelling);	
 //			if (!toLearn)tvSpellingMeaning.setText(Html.fromHtml(cw.getMeaning()));
-			if (!toLearn)tvSpellingMeaning.setText(cw.getMeaning());
-			btnLearn.setImageResource(toLearn ? R.drawable.tools_check_spelling : R.drawable.package_edutainment);
-			return;
+//			if (!toLearn)tvSpellingMeaning.setText(cw.getMeaning());
+//			btnLearn.setImageResource(toLearn ? R.drawable.tools_check_spelling : R.drawable.package_edutainment);
+//			return;
 		}else if (v.getId()==R.id.btn_learn_examples){
-			boolean displayExample=(Boolean)btnExample.getTag();
-			boolean displayLearn=(Boolean)btnLearn.getTag();
-			if (!displayExample){
-				bringViewToFront(vExamples);
-				displayExample=true;
-				if (exampleFor==null || !exampleFor.equals(cw.getHeadword())){
-					exampleFor=cw.getHeadword();
-					runExampleService(cw.getHeadword());
-				}
-				btnExample.setImageResource(displayLearn ? R.drawable.package_edutainment : R.drawable.tools_check_spelling);
-			}else{
-				bringViewToFront(displayLearn ? vLearn : vSpelling);
-				displayExample=false;
-				btnExample.setImageResource(R.drawable.quote_2);
+			bringViewToFront(vExamples);
+			if (exampleFor==null || !exampleFor.equals(cw.getHeadword())){
+				exampleFor=cw.getHeadword();
+				runExampleService(cw.getHeadword());
 			}
-			btnExample.setTag(displayExample);
+//			boolean displayExample=(Boolean)btnExample.getTag();
+//			boolean displayLearn=(Boolean)btnLearn.getTag();
+//			if (!displayExample){
+//				displayExample=true;
+//				btnExample.setImageResource(displayLearn ? R.drawable.package_edutainment : R.drawable.tools_check_spelling);
+//			}else{
+//				//bringViewToFront(displayLearn ? vLearn : vSpelling);
+//				displayExample=false;
+//				btnExample.setImageResource(R.drawable.quote_2);
+//			}
+//			btnExample.setTag(displayExample);
 			return;
-		}else if(v.getId()==R.id.btn_study_spell_check){
+		}else if(v.getId()==R.id.btn_study_check_spell){
 			if (etSpelling.getText().toString().equals(cw.getHeadword())){
 				etSpelling.setTextColor(getResources().getColor(R.color.green));
 				etSpelling.clearFocus();
@@ -366,6 +378,13 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 				etSpelling.setTextColor(this.getResources().getColor(R.color.red));
 				etSpelling.selectAll();
 			}
+		}else if(v.getId()==R.id.btn_word2spell){
+			vWord.setVisibility(View.GONE);
+			vSpell.setVisibility(View.VISIBLE);
+		}else if(v.getId()==R.id.btn_spell2word){
+			etSpelling.setText("");
+			vWord.setVisibility(View.VISIBLE);
+			vSpell.setVisibility(View.GONE);
 		}
 	}
 
@@ -440,11 +459,11 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 	private void bringViewToFront(View v){
 		vLearn.setVisibility(View.GONE);
 		vExamples.setVisibility(View.GONE);
-		vSpelling.setVisibility(View.GONE);
+//		vSpelling.setVisibility(View.GONE);
 		v.setVisibility(View.VISIBLE);
-		if (v.getId()==R.id.spelling_snip){
-			etSpelling.requestFocus();
-		}
+//		if (v.getId()==R.id.spelling_snip){
+//			etSpelling.requestFocus();
+//		}
 	}
 
 	/**
@@ -503,5 +522,11 @@ public class Study extends Activity implements View.OnClickListener,StateChangeL
 			}
 			return false;
 		}
-	}	
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		// TODO Auto-generated method stub
+		return super.onKeyDown(keyCode, event);
+	}
 }

@@ -4,12 +4,63 @@
   android:orientation="vertical"
   android:layout_width="fill_parent"
   android:layout_height="fill_parent">
-	<TextView  
-		android:id="@+id/headword"
-	    android:layout_width="fill_parent" 
-	    android:layout_height="wrap_content" 
-	    android:textSize="30dip"
-	    android:layout_marginBottom="5dip"/>
+  	<LinearLayout 
+  		android:id="@+id/v_word"
+  		android:layout_width="fill_parent"
+  		android:layout_height="wrap_content"
+  		android:orientation="horizontal">
+		<TextView  
+			android:id="@+id/headword"
+		    android:layout_width="wrap_content" 
+		    android:layout_height="wrap_content" 
+		    android:textSize="25dip"
+		    android:layout_weight="1"
+		    />
+	    <Button
+	    	android:id="@+id/btn_word2spell"
+		    android:layout_width="wrap_content" 
+		    android:layout_height="wrap_content" 
+		    android:background="@drawable/gnome_tools_check_spelling"		    
+	    	android:gravity="center_vertical|left" 
+			style="@style/word2spell"
+	    	/>	    	
+	    <Button
+	    	android:id="@+id/btn_word2example"
+		    android:layout_width="wrap_content" 
+		    android:layout_height="wrap_content" 
+		    android:background="@drawable/view_text"		    
+	    	android:gravity="center_vertical|left" 
+			style="@style/word2spell"
+	    	/>	    	
+  	</LinearLayout>
+	<LinearLayout 
+		android:id="@+id/v_spell"
+		android:visibility="gone"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal">
+	    <EditText 
+		    android:id="@+id/et_study_spell"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:inputType="textFilter"
+		    android:hint="Spell the word"
+		    android:textSize="20dip"
+		    android:imeOptions="actionDone"
+		    android:layout_weight="1"/>
+	    <Button
+	    	android:id="@+id/btn_study_check_spell"
+		    android:layout_width="wrap_content" 
+			android:layout_height="wrap_content"
+		    android:background="@drawable/browser_go"/>
+	    <Button
+	    	android:id="@+id/btn_spell2word"
+		    android:layout_width="wrap_content" 
+			android:layout_height="wrap_content"
+			style="@style/word2spell"
+		    android:background="@drawable/pin_sq_left"/>
+	</LinearLayout>
+  	
 	<TextView  
 		android:id="@+id/phonetic"
 		style="@style/phonetic_symbol"

@@ -21,6 +21,7 @@ public class NetworkHelper {
 	public static final String JSON_FORMAT="json";
 	public static final String HOST_ROOT="http://172.29.1.67:8000/";
 	//public static final String HOST_ROOT="http://17ttxs.com/";
+	//public static final String HOST_ROOT="http://web4beidanci.appspot.com/";
 	
 	public static String courseListUrl(String format){
 		if (format==null) format=XML_FORMAT;

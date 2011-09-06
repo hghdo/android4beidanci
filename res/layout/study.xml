@@ -7,7 +7,7 @@
 	<FrameLayout android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_weight="1">
 		<include android:id="@+id/learn_snip" layout="@layout/learn_snip"></include>
 		<include android:id="@+id/examples_snip" layout="@layout/examples_snip"></include>
-		<include android:id="@+id/spelling_snip" layout="@layout/spelling_snip"></include>
+		<!--include android:id="@+id/spelling_snip" layout="@layout/spelling_snip"></include-->
 	</FrameLayout>	
 
 	<LinearLayout
@@ -32,6 +32,7 @@
 			  android:layout_width="fill_parent"
 			  android:layout_height="wrap_content"
 			  android:orientation="horizontal">  
+			    <!--  
 			    <ImageButton
 			    	android:id="@+id/btn_learn_study"
 				    android:layout_width="wrap_content" 
@@ -40,7 +41,7 @@
 				    android:scaleType="centerInside"
 					android:layout_weight="1"
 				    android:src="@drawable/tools_check_spelling"/>
-				<!--  
+				
 			    <ImageButton
 			    	android:id="@+id/btn_learn_spelling"
 				    android:layout_width="wrap_content" 
@@ -69,7 +70,7 @@
 				    android:layout_height="38dip" 
 				    android:scaleType="centerInside"
 				    android:layout_weight="1"
-				    android:src="@drawable/delete"/>
+				    android:src="@drawable/good"/>
 		  	</LinearLayout>
 		  	<!--  
 			<LinearLayout

@@ -3,13 +3,14 @@
 	android:orientation="vertical"
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent">
-	<!--  
 	<Button
-		android:id="@+id/btn_study_refresh_examples"
+		android:id="@+id/btn_example2word"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:text="refresh examples for: "/>
-	-->
+		android:background="@drawable/pin_sq_left"
+		style="@style/word2spell"
+		/>
+
 	<ListView  
 		android:id="@+id/lv_study_example_list"
 		android:layout_width="fill_parent" 
