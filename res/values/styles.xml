@@ -76,11 +76,11 @@
 <style name="headword">
 	<item name="android:textSize">23dip</item>
 </style>
-
-<style name="test_title" parent="android:WindowTitle">
+<!--  
+<style name="test_title" parent="@android:style/WindowTitle">
     <item name="android:textColor">#FFFDB900</item>
 </style>
-
+-->
 <style name="button_bar">
 	<item name="android:background">@color/grey</item>
 	<item name="android:paddingTop">5dip</item>
